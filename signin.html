@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>EcoRoute — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --green:#1a7a3e;
+  --green-light:#e8f5ee;
+  --green-mid:rgba(26,122,62,.15);
+  --amber:#d97706;
+  --red:#dc2626;
+  --bg:#f6f8f5;
+  --surface:#ffffff;
+  --border:#e6ede9;
+  --text:#1a2a1e;
+  --muted:#6b7c71;
+  --muted2:#a0b0a6;
+  --radius:16px;
+  --radius-sm:10px;
+}
+html,body{
+  min-height:100%;
+  background:var(--bg);
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* BG PATTERN */
+.bg-pattern{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(26,122,62,.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(26,122,62,.05) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.shell{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+  position:relative;
+  z-index:1;
+}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:28px;}
+.hero-ico{font-size:48px;margin-bottom:10px;display:block;animation:floatIco 3s ease-in-out infinite;}
+@keyframes floatIco{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero-title{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;color:var(--green);letter-spacing:-.5px;margin-bottom:4px;}
+.hero-sub{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.3px;}
+
+/* CARD */
+.card{
+  width:100%;max-width:380px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px 20px;
+  box-shadow:0 4px 32px rgba(26,122,62,.06);
+}
+
+/* ROLE SELECTOR */
+.role-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.role-btn{
+  padding:14px 10px;
+  border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);
+  background:var(--bg);
+  cursor:pointer;
+  transition:all .2s;
+  text-align:center;
+  font-family:'DM Sans',sans-serif;
+}
+.role-btn:hover{border-color:rgba(26,122,62,.3);background:var(--green-light);}
+.role-btn.sel{border-color:var(--green);background:var(--green-light);}
+.role-ico{font-size:22px;margin-bottom:5px;}
+.role-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.role-desc{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.role-btn.sel .role-name{color:var(--green);}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--bg);border-radius:20px;padding:3px;margin-bottom:18px;border:1px solid var(--border);}
+.tab{flex:1;padding:8px;border-radius:16px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;}
+.tab.active{background:var(--surface);color:var(--green);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+/* FORM */
+.field{margin-bottom:14px;}
+.field-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.field-input{
+  width:100%;padding:11px 14px;
+  border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);
+  background:var(--bg);
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.field-input:focus{border-color:var(--green);}
+.field-input::placeholder{color:var(--muted2);}
+
+/* DRIVER CODE */
+.driver-field{display:none;}
+.driver-field.show{display:block;}
+.driver-hint{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}
+
+/* BUTTONS */
+.btn-primary{
+  width:100%;padding:13px;
+  border-radius:20px;
+  background:var(--green);
+  border:none;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  margin-bottom:10px;
+  letter-spacing:.2px;
+}
+.btn-primary:hover{background:#15693a;}
+.btn-primary:active{transform:scale(.98);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+.btn-google{
+  width:100%;padding:12px;
+  border-radius:20px;
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:14px;
+}
+.btn-google:hover{border-color:rgba(26,122,62,.3);background:var(--green-light);}
+.btn-google svg{width:18px;height:18px;flex-shrink:0;}
+
+.divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace;white-space:nowrap;}
+
+/* STATUS */
+.status-msg{
+  padding:10px 13px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;
+  display:none;margin-bottom:12px;
+  font-family:'DM Sans',sans-serif;
+}
+.status-msg.err{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;display:block;}
+.status-msg.ok{background:var(--green-light);border:1px solid rgba(26,122,62,.2);color:var(--green);display:block;}
+.status-msg.loading{background:var(--bg);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;gap:8px;}
+
+/* SPINNER */
+.spin-sm{width:14px;height:14px;border:2px solid rgba(26,122,62,.2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* FOOTER */
+.signin-footer{text-align:center;margin-top:16px;font-size:12px;color:var(--muted);}
+.signin-footer strong{color:var(--green);font-weight:700;}
+
+/* DEMO NOTE */
+.demo-note{
+  background:rgba(26,122,62,.06);
+  border:1px dashed rgba(26,122,62,.2);
+  border-radius:var(--radius-sm);
+  padding:10px 13px;margin-top:14px;
+}
+.demo-note-title{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px;}
+.demo-note-text{font-size:11px;color:var(--muted);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="bg-pattern"></div>
+
+<div class="shell">
+  <div class="hero">
+    <span class="hero-ico">🌿</span>
+    <div class="hero-title">EcoRoute</div>
+    <div class="hero-sub">SMART WASTE MANAGEMENT</div>
+  </div>
+
+  <div class="card">
+    <!-- ROLE -->
+    <div class="role-label">I am a</div>
+    <div class="role-grid">
+      <div class="role-btn sel" id="role-general" onclick="selectRole('general')">
+        <div class="role-ico">🧑🏽</div>
+        <div class="role-name">Citizen</div>
+        <div class="role-desc">General user</div>
+      </div>
+      <div class="role-btn" id="role-driver" onclick="selectRole('driver')">
+        <div class="role-ico">🚛</div>
+        <div class="role-name">Driver</div>
+        <div class="role-desc">Truck operator</div>
+      </div>
+    </div>
+
+    <!-- DRIVER CODE (only shown for driver) -->
+    <div class="driver-field" id="driverCodeField">
+      <div class="field">
+        <label class="field-label">Driver Access Code</label>
+        <input class="field-input" type="text" id="driverCode" placeholder="e.g. DRIVER2024" autocomplete="off"/>
+        <div class="driver-hint">Contact your supervisor for the access code.</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- STATUS -->
+    <div class="status-msg" id="statusMsg"></div>
+
+    <!-- GOOGLE -->
+    <button class="btn-google" onclick="googleSignIn()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">or use email</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- EMAIL FORM -->
+    <div class="field">
+      <label class="field-label">Email</label>
+      <input class="field-input" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label class="field-label">Password</label>
+      <input class="field-input" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+
+    <button class="btn-primary" id="mainBtn" onclick="handleAuth()">Sign In</button>
+
+    <div class="demo-note">
+      <div class="demo-note-title">🔑 Driver Access Code</div>
+      <div class="demo-note-text">Use code <strong>DRIVER2024</strong> to access the Truck Panel as a driver. General users cannot view it.</div>
+    </div>
+  </div>
+
+  <div class="signin-footer">
+    EcoRoute · <strong>Smart Waste Management</strong><br>
+    <span style="font-size:10px;color:var(--muted2)">Pathankot Municipal Corporation</span>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA0OyNm5hY95_qCIPamXjYYAjP16Ae0Tnk",
+  authDomain: "quantcraftapp2026.firebaseapp.com",
+  projectId: "quantcraftapp2026",
+  storageBucket: "quantcraftapp2026.firebasestorage.app",
+  messagingSenderId: "447093872150",
+  appId: "1:447093872150:web:30a20996c345dacdfb0737",
+  measurementId: "G-66FP1J5M6J"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const DRIVER_CODE = 'DRIVER2024';
+let currentRole = 'general';
+let currentTab = 'login';
+
+window.selectRole = function(role) {
+  currentRole = role;
+  document.getElementById('role-general').classList.toggle('sel', role === 'general');
+  document.getElementById('role-driver').classList.toggle('sel', role === 'driver');
+  document.getElementById('driverCodeField').classList.toggle('show', role === 'driver');
+  clearStatus();
+};
+
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('mainBtn').textContent = tab === 'login' ? 'Sign In' : 'Create Account';
+  document.getElementById('passInput').autocomplete = tab === 'login' ? 'current-password' : 'new-password';
+  clearStatus();
+};
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status-msg ' + type;
+  if (type === 'loading') {
+    el.innerHTML = `<div class="spin-sm"></div>${msg}`;
+  } else {
+    el.textContent = msg;
+  }
+}
+function clearStatus() {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status-msg';
+  el.textContent = '';
+}
+
+function validateDriverCode() {
+  if (currentRole !== 'driver') return true;
+  const code = document.getElementById('driverCode').value.trim().toUpperCase();
+  if (code !== DRIVER_CODE) {
+    showStatus('Invalid driver access code. Contact your supervisor.', 'err');
+    return false;
+  }
+  return true;
+}
+function afterSignIn(user) {
+  const isDriver = currentRole === 'driver';
+  sessionStorage.setItem('eco_role', isDriver ? 'driver' : 'general');
+  sessionStorage.setItem('eco_user', JSON.stringify({ uid: user.uid, email: user.email, displayName: user.displayName || '' }));
+  showStatus('Welcome! Redirecting…', 'ok');
+  // Driver goes to truck panel, citizen goes to home
+  setTimeout(() => {
+    window.location.href = isDriver ? 'truckpanel.html' : 'index.html';
+  }, 900);
+}
+
+window.googleSignIn = async function() {
+  if (!validateDriverCode()) return;
+  showStatus('Opening Google sign-in…', 'loading');
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    afterSignIn(result.user);
+  } catch(e) {
+    showStatus(friendlyError(e.code), 'err');
+  }
+};
+
+window.handleAuth = async function() {
+  if (!validateDriverCode()) return;
+  const email = document.getElementById('emailInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  if (!email) { showStatus('Please enter your email.', 'err'); return; }
+  if (!pass || pass.length < 6) { showStatus('Password must be at least 6 characters.', 'err'); return; }
+
+  document.getElementById('mainBtn').disabled = true;
+  showStatus(currentTab === 'login' ? 'Signing in…' : 'Creating account…', 'loading');
+
+  try {
+    let result;
+    if (currentTab === 'login') {
+      result = await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      result = await createUserWithEmailAndPassword(auth, email, pass);
+    }
+    afterSignIn(result.user);
+  } catch(e) {
+    showStatus(friendlyError(e.code), 'err');
+    document.getElementById('mainBtn').disabled = false;
+  }
+};
+
+function friendlyError(code) {
+  const map = {
+    'auth/user-not-found': 'No account found with this email.',
+    'auth/wrong-password': 'Incorrect password. Try again.',
+    'auth/email-already-in-use': 'This email is already registered. Try signing in.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/popup-closed-by-user': 'Sign-in popup was closed.',
+    'auth/network-request-failed': 'Network error. Check your connection.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+// If already signed in, redirect
+auth.onAuthStateChanged(user => {
+  if (user && sessionStorage.getItem('eco_role')) {
+    window.location.href = 'index.html';
+  }
+});
+</script>
+</body>
+</html>

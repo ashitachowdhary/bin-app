@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="truck-guard.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoRoute — Truck Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --green:#1a7a3e;
+    --green-light:#e8f5ee;
+    --green-mid:#9FE1CB;
+    --amber:#d97706;
+    --red:#dc2626;
+    --bg:#f6f8f5;
+    --surface:#ffffff;
+    --border:#e6ede9;
+    --text:#1a2a1e;
+    --muted:#6b7c71;
+    --muted2:#a0b0a6;
+    --navH:64px;
+    --radius:14px;
+    --radius-sm:10px;
+  }
+  html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);overflow:hidden;}
+
+  .shell{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;position:relative;background:var(--bg);}
+
+  /* TOPBAR */
+  .topbar{display:flex;align-items:center;padding:0 16px;height:54px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;gap:10px;z-index:100;}
+  .topbar-logo{display:flex;align-items:center;gap:8px;}
+  .logo-ico{font-size:20px;}
+  .logo-text{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;color:var(--green);}
+  .truck-badge{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid rgba(26,122,62,.2);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-left:2px;}
+  .tbadge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.6s ease infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+  .ti-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
+  .ti-btn:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
+  .ti-btn.danger{border-color:rgba(220,38,38,.2);color:var(--red);background:#fef2f2;}
+  .clock{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);}
+
+  /* BODY */
+  .body{display:flex;flex:1;overflow:hidden;flex-direction:column;}
+
+  /* MAP */
+  .map-area{flex:1;position:relative;overflow:hidden;min-height:240px;}
+  #map{position:absolute;inset:0;}
+  .leaflet-control-zoom,.leaflet-control-attribution{display:none!important;}
+
+  /* MAP HUD */
+  .map-hud{position:absolute;top:10px;left:10px;z-index:900;display:flex;gap:8px;}
+  .hud-card{background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;backdrop-filter:blur(6px);min-width:130px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .hud-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px;}
+  .hud-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--green);line-height:1.1;}
+  .hud-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+  .hud-eta{font-family:'DM Mono',monospace;font-size:13px;color:#0284c7;font-weight:500;}
+
+  .map-legend{position:absolute;bottom:10px;left:10px;z-index:900;background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .lrow{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-bottom:3px;}
+  .lrow:last-child{margin-bottom:0;}
+  .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .ldash{width:18px;height:3px;border-radius:2px;flex-shrink:0;}
+
+  .zbtns{position:absolute;bottom:10px;right:10px;z-index:900;display:flex;flex-direction:column;gap:5px;}
+  .zbtn{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.96);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .zbtn:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
+
+  /* TRUCK MARKER */
+  .truck-marker{width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--green);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(26,122,62,.35);font-size:14px;}
+
+  /* BOTTOM PANEL */
+  .bottom-panel{background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;border-top:1px solid var(--border);z-index:200;display:flex;flex-direction:column;max-height:62vh;box-shadow:0 -4px 20px rgba(0,0,0,.07);}
+  .panel-drag{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;}
+
+  /* ROUTE SELECTOR */
+  .route-sel{padding:12px 14px 10px;border-bottom:1px solid var(--border);}
+  .rs-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px;}
+  .rs-grid{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
+  .rs-grid::-webkit-scrollbar{display:none;}
+  .rb{flex-shrink:0;padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;color:var(--muted);font-weight:500;}
+  .rb:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
+  .rb.sel{border-color:var(--rc,var(--green));background:color-mix(in srgb,var(--rc,var(--green)) 10%,#fff);color:var(--text);}
+
+  /* PROGRESS BAR */
+  .prog-wrap{padding:10px 14px 8px;border-bottom:1px solid var(--border);}
+  .dp-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:2px;}
+  .dp-row span:last-child{color:var(--text);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;}
+  .progress-bar{height:5px;background:var(--border);border-radius:3px;margin:6px 0 3px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),#00c8ff);transition:width .5s ease;}
+  .dp-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;}
+
+  /* STOP LIST */
+  .snav{flex:1;overflow-y:auto;padding:10px 14px;}
+  .sl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .sl-title{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;}
+  .sl-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:500;}
+
+  .ni{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);margin-bottom:6px;cursor:pointer;transition:all .2s;width:100%;text-align:left;font-family:'DM Sans',sans-serif;}
+  .ni:hover{border-color:rgba(26,122,62,.25);background:var(--green-light);}
+  .ni.active{border-color:var(--green);background:var(--green-light);}
+  .ni.done{opacity:.45;}
+  .ni.urgent{border-color:rgba(220,38,38,.3);background:#fff8f8;}
+  .stop-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);min-width:18px;margin-top:2px;}
+  .ni.active .stop-num{color:var(--green);}
+  .stop-info{flex:1;}
+  .stop-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+  .ni.done .stop-name{color:var(--muted2);}
+  .ni.active .stop-name{color:var(--green);}
+  .stop-sub{font-size:10px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .fill-bar-wrap{width:50px;height:3px;background:var(--border);border-radius:2px;display:inline-block;vertical-align:middle;}
+  .fill-bar{height:3px;border-radius:2px;}
+  .stop-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:500;}
+  .badge-full{background:#fee2e2;color:#dc2626;}
+  .badge-half{background:#fff7ed;color:#d97706;}
+  .badge-ok{background:var(--green-light);color:var(--green);}
+  .stop-tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+  .ni.done .stop-tick{background:var(--green-light);border-color:rgba(26,122,62,.3);}
+  .ni.active .stop-tick{border-color:var(--green);}
+
+  /* STATS */
+  .stats-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;border-top:1px solid var(--border);}
+  .stat-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;}
+  .stat-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;}
+  .stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* NAV BTNS */
+  .nav-btns{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);}
+  .nbtn{flex:1;padding:10px 6px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;font-weight:500;}
+  .nbtn:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
+  .nbtn.primary{background:var(--green);border-color:var(--green);color:#fff;}
+  .nbtn.primary:hover{background:#15693a;}
+  .nbtn:disabled{opacity:.3;cursor:not-allowed;}
+
+  /* FOOTER LINKS */
+  .sfooter{display:flex;gap:6px;padding:8px 14px 10px;border-top:1px solid var(--border);}
+  .fi{display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:9px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .2s;border:1px solid var(--border);background:var(--bg);text-decoration:none;}
+  .fi:hover{color:var(--green);border-color:rgba(26,122,62,.3);background:var(--green-light);}
+  .fi.signout:hover{color:var(--red);border-color:rgba(220,38,38,.2);background:#fef2f2;}
+
+  /* LOADING */
+  #loading{position:absolute;inset:0;background:rgba(246,248,245,.9);display:flex;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);}
+  .spinner{width:28px;height:28px;border:2.5px solid rgba(26,122,62,.2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .load-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.4px;text-align:center;}
+
+  /* TOAST */
+  #toast-wrap{position:fixed;bottom:80px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+  .toast{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.08);animation:toastIn .22s ease forwards;}
+  @keyframes toastIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+  /* COMPLETE OVERLAY */
+  #complete-overlay{position:fixed;inset:0;background:rgba(246,248,245,.92);z-index:5000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+  .co-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;text-align:center;max-width:320px;margin:16px;box-shadow:0 12px 40px rgba(0,0,0,.08);}
+  .co-icon{font-size:40px;margin-bottom:10px;}
+  .co-title{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px;}
+  .co-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+  .co-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+  .cs-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;}
+  .cs-val{font-family:'DM Mono',monospace;font-size:18px;color:var(--green);font-weight:500;}
+  .cs-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+  .co-btn{padding:10px 24px;border-radius:20px;background:var(--green);border:none;color:#fff;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;font-weight:500;transition:all .2s;}
+  .co-btn:hover{background:#15693a;}
+
+  /* Leaflet popup */
+  .leaflet-popup-content-wrapper{background:#fff!important;border:1px solid var(--border)!important;border-radius:12px!important;color:var(--text)!important;box-shadow:0 8px 24px rgba(0,0,0,.08)!important;}
+  .leaflet-popup-tip{background:#fff!important;}
+  .leaflet-popup-content{margin:10px 14px!important;font-family:'DM Sans',sans-serif;}
+  .popup-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);margin-bottom:6px;font-weight:500;letter-spacing:.3px;}
+  .popup-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:2px;gap:12px;}
+  .popup-row span:last-child{color:var(--text);}
+  .leaflet-popup-close-button{color:var(--muted2)!important;}
+
+  ::-webkit-scrollbar{width:3px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  /* ── DRIVER NOTIFICATION POPUP ── */
+  #notif-overlay{
+    position:fixed;inset:0;z-index:8000;
+    display:none;align-items:flex-start;justify-content:center;
+    padding-top:64px;          /* below topbar */
+    pointer-events:none;
+  }
+  #notif-overlay.show{display:flex;}
+  .notif-popup{
+    pointer-events:all;
+    width:calc(100% - 28px);max-width:400px;
+    background:var(--surface);
+    border:1.5px solid var(--notif-color, var(--green));
+    border-radius:16px;
+    box-shadow:0 8px 32px rgba(0,0,0,.14);
+    overflow:hidden;
+    animation:popIn .25s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes popIn{from{opacity:0;transform:scale(.92) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .np-header{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 14px 10px;
+    background:color-mix(in srgb,var(--notif-color,var(--green)) 8%,#fff);
+    border-bottom:1px solid color-mix(in srgb,var(--notif-color,var(--green)) 15%,var(--border));
+  }
+  .np-icon{font-size:20px;flex-shrink:0;}
+  .np-from{flex:1;}
+  .np-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;font-weight:500;
+    color:var(--notif-color,var(--green));text-transform:uppercase;}
+  .np-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
+  .np-close{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:18px;
+    padding:0 2px;line-height:1;transition:color .2s;}
+  .np-close:hover{color:var(--red);}
+  .np-body{padding:12px 14px 14px;}
+  .np-msg{font-size:15px;font-weight:600;color:var(--text);line-height:1.45;margin-bottom:10px;}
+  .np-actions{display:flex;gap:8px;}
+  .np-btn{flex:1;padding:8px;border-radius:20px;font-family:'DM Mono',monospace;font-size:11px;
+    cursor:pointer;font-weight:500;transition:all .2s;border:1px solid var(--border);}
+  .np-btn-dismiss{background:var(--bg);color:var(--muted);}
+  .np-btn-dismiss:hover{color:var(--text);}
+  .np-btn-ack{background:var(--notif-color,var(--green));border-color:var(--notif-color,var(--green));color:#fff;}
+  .np-btn-ack:hover{filter:brightness(.9);}
+
+  /* notification bell badge on topbar */
+  .notif-bell{position:relative;padding:5px 10px;border-radius:20px;border:1px solid var(--border);
+    background:var(--bg);color:var(--muted);font-size:14px;cursor:pointer;transition:all .2s;}
+  .notif-bell:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
+  .notif-bell.has-new{border-color:rgba(220,38,38,.3);color:var(--red);background:#fef2f2;animation:bellShake .4s ease;}
+  @keyframes bellShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+  .notif-count{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;
+    background:var(--red);color:#fff;font-family:'DM Mono',monospace;font-size:9px;
+    display:flex;align-items:center;justify-content:center;font-weight:500;}
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR (unchanged except bell button added) -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="logo-ico">🌿</div>
+      <div class="logo-text">EcoRoute</div>
+    </div>
+    <div class="truck-badge">
+      <span class="tbadge-dot"></span>
+      <span id="truck-id">TRUCK-07 · LIVE</span>
+    </div>
+    <div class="topbar-right">
+      <!-- notification bell (new) -->
+      <button class="notif-bell" id="notif-bell" onclick="showPendingNotif()" title="Notifications">
+        🔔<span class="notif-count" id="notif-badge" style="display:none;">0</span>
+      </button>
+      <button class="ti-btn" onclick="resetRoute()">↺ Reset</button>
+      <button class="ti-btn danger" onclick="emergencyStop()">✕ Stop</button>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- MAP AREA (unchanged) -->
+    <div class="map-area">
+      <div id="map"></div>
+      <div id="loading">
+        <div>
+          <div class="spinner"></div>
+          <div class="load-text">PLOTTING SMART ROUTE…</div>
+        </div>
+      </div>
+
+      <!-- HUD -->
+      <div class="map-hud">
+        <div class="hud-card">
+          <div class="hud-lbl">Current Stop</div>
+          <div class="hud-val" id="hud-stop">—</div>
+          <div class="hud-sub" id="hud-area">Select a route</div>
+        </div>
+        <div class="hud-card">
+          <div class="hud-lbl">ETA Next</div>
+          <div class="hud-eta" id="hud-eta">—</div>
+          <div class="hud-sub" id="hud-fill-status">—</div>
+        </div>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="map-legend">
+        <div class="lrow"><span class="ldot" style="background:#dc2626"></span>Full ≥80%</div>
+        <div class="lrow"><span class="ldot" style="background:#d97706"></span>Half 40–79%</div>
+        <div class="lrow"><span class="ldot" style="background:#1a7a3e"></span>OK &lt;40%</div>
+        <div class="lrow" style="margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
+          <span class="ldash" style="background:#1a7a3e;opacity:.6"></span>Route
+        </div>
+        <div class="lrow"><span style="font-size:12px;">🚛</span>Your truck</div>
+      </div>
+
+      <div class="zbtns">
+        <button class="zbtn" onclick="map.zoomIn()">+</button>
+        <button class="zbtn" onclick="map.zoomOut()">−</button>
+        <button class="zbtn" onclick="fitRoute()" title="Fit">⊙</button>
+      </div>
+    </div>
+
+    <!-- BOTTOM PANEL (unchanged) -->
+    <div class="bottom-panel">
+      <div class="panel-drag"></div>
+
+      <!-- ROUTE SELECTOR -->
+      <div class="route-sel">
+        <div class="rs-label">Select Route</div>
+        <div class="rs-grid" id="routeGrid"></div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="prog-wrap">
+        <div class="dp-row"><span>Route</span><span id="dp-route">—</span></div>
+        <div class="dp-row"><span>Next Stop</span><span id="dp-next">—</span></div>
+        <div class="dp-row"><span>ETA Next</span><span id="dp-eta">—</span></div>
+        <div class="dp-row"><span>Stops Left</span><span id="dp-left">—</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="dp-pct" id="dp-pct">0% complete</div>
+      </div>
+
+      <!-- STOP LIST -->
+      <div class="snav" id="stopList">
+        <div class="sl-head">
+          <div class="sl-title">Stop Sequence</div>
+          <div class="sl-meta" id="sl-meta">0 / 0 done</div>
+        </div>
+        <div id="stopItems"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-bar">
+        <div class="stat-box"><div class="stat-val" id="s-full" style="color:#dc2626">0</div><div class="stat-lbl">Full Bins</div></div>
+        <div class="stat-box"><div class="stat-val" id="s-done" style="color:var(--green)">0</div><div class="stat-lbl">Serviced</div></div>
+      </div>
+
+      <!-- NAV BTNS -->
+      <div class="nav-btns">
+        <button class="nbtn" onclick="prevStop()" id="btn-prev">◀ PREV</button>
+        <button class="nbtn primary" onclick="markDone()" id="btn-done">DONE ✓</button>
+        <button class="nbtn" onclick="skipStop()" id="btn-skip">SKIP ▶</button>
+      </div>
+
+      <!-- FOOTER LINKS -->
+      <div class="sfooter">
+        <a class="fi" href="map.html">🗺️ Full Map</a>
+        <a class="fi signout" href="#" onclick="signOut()">🚪 Sign Out</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETE OVERLAY (unchanged) -->
+<div id="complete-overlay">
+  <div class="co-card">
+    <div class="co-icon">🎉</div>
+    <div class="co-title">Route Complete!</div>
+    <div class="co-sub" id="co-sub">All bins on this route have been serviced!</div>
+    <div class="co-stats" id="co-stats"></div>
+    <button class="co-btn" onclick="closeComplete()">Close & Reset</button>
+  </div>
+</div>
+
+<!-- NOTIFICATION POPUP (new) -->
+<div id="notif-overlay">
+  <div class="notif-popup" id="notif-popup">
+    <div class="np-header">
+      <div class="np-icon" id="np-icon">📢</div>
+      <div class="np-from">
+        <div class="np-label" id="np-label">Admin · Info</div>
+        <div class="np-time" id="np-time">Just now</div>
+      </div>
+      <button class="np-close" onclick="dismissNotif()">×</button>
+    </div>
+    <div class="np-body">
+      <div class="np-msg" id="np-msg">Notification message here</div>
+      <div class="np-actions">
+        <button class="np-btn np-btn-dismiss" onclick="dismissNotif()">Dismiss</button>
+        <button class="np-btn np-btn-ack" onclick="acknowledgeNotif()">✓ Acknowledge</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ── SIGN OUT (unchanged) ── */
+function signOut(){
+  if(confirm('Sign out of the truck panel?')){
+    sessionStorage.clear();
+    window.location.href='signin.html';
+  }
+}
+
+/* ── DATA (unchanged) ── */
+const BINS=[
+  {id:'BIN-001',name:'Pathankot Bus Stand',area:'Bus Stand',fill:88,type:'General',lat:32.2748,lng:75.6520},
+  {id:'BIN-002',name:'Railway Station',area:'Railway Station',fill:42,type:'Recyclable',lat:32.2684,lng:75.6443},
+  {id:'BIN-003',name:'Dalhousie Road Market',area:'Dalhousie Road',fill:19,type:'Organic',lat:32.2810,lng:75.6478},
+  {id:'BIN-004',name:'Chakki Bank',area:'Chakki Bank',fill:73,type:'General',lat:32.2612,lng:75.6571},
+  {id:'BIN-005',name:'Mamun Road',area:'Mamun',fill:55,type:'Recyclable',lat:32.2890,lng:75.6340},
+  {id:'BIN-006',name:'Civil Lines Market',area:'Civil Lines',fill:91,type:'General',lat:32.2762,lng:75.6598},
+  {id:'BIN-007',name:'Shahpur Kandi Road',area:'Shahpur Kandi',fill:33,type:'Organic',lat:32.2530,lng:75.6420},
+  {id:'BIN-008',name:'Mirthal Chowk',area:'Mirthal',fill:66,type:'General',lat:32.3050,lng:75.6250},
+  {id:'BIN-009',name:'Sujanpur Road',area:'Sujanpur',fill:12,type:'Recyclable',lat:32.2680,lng:75.6670},
+  {id:'BIN-010',name:'Dunera Chowk',area:'Dunera',fill:80,type:'Hazardous',lat:32.2920,lng:75.6600},
+  {id:'BIN-011',name:'Pathankot Fort Area',area:'Fort',fill:48,type:'Organic',lat:32.2720,lng:75.6380},
+  {id:'BIN-012',name:'Nurpur Road Junction',area:'Nurpur Road',fill:95,type:'General',lat:32.2600,lng:75.6490},
+];
+const ROUTES=[
+  {id:'RT-01',label:'North · Bus Stand',color:'#1a7a3e',bins:['BIN-001','BIN-006','BIN-010','BIN-003']},
+  {id:'RT-02',label:'East · Civil Lines',color:'#0284c7',bins:['BIN-002','BIN-011','BIN-009','BIN-004']},
+  {id:'RT-03',label:'West · Mamun Rd',color:'#d97706',bins:['BIN-008','BIN-005','BIN-003']},
+  {id:'RT-04',label:'South · Chakki',color:'#9333ea',bins:['BIN-012','BIN-004','BIN-007']},
+];
+
+const getBin=id=>BINS.find(b=>b.id===id);
+const binColor=f=>f>=80?'#dc2626':f>=40?'#d97706':'#1a7a3e';
+const binStatus=f=>f>=80?'FULL':f>=40?'HALF':'OK';
+const binBadge=f=>f>=80?'badge-full':f>=40?'badge-half':'badge-ok';
+const calcETA=(a,b)=>{
+  if(!a||!b) return '—';
+  const d=Math.sqrt(Math.pow((a.lat-b.lat)*111,2)+Math.pow((a.lng-b.lng)*89,2));
+  return Math.max(2,Math.round(d*3.5))+' min';
+};
+
+/* ── STATE (unchanged) ── */
+let activeRoute=null, currentStop=0, doneStops=new Set();
+let routePoly=null, binMarkers={}, truckMarker=null;
+
+/* ── MAP (unchanged) ── */
+const map=L.map('map',{zoomControl:false,attributionControl:false}).setView([32.2748,75.6520],13);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
+
+/* ── ROUTE BUTTONS (unchanged) ── */
+function buildRouteGrid(){
+  document.getElementById('routeGrid').innerHTML=ROUTES.map((r,i)=>`
+    <button class="rb" id="rb-${i}" style="--rc:${r.color}" onclick="selectRoute(${i})">${r.id} · ${r.label.split('·')[1]?.trim()||''}</button>`).join('');
+}
+
+function selectRoute(idx){
+  doneStops.clear(); currentStop=0; clearLayers();
+  activeRoute=ROUTES[idx];
+  document.querySelectorAll('.rb').forEach((b,i)=>b.classList.toggle('sel',i===idx));
+  buildStopList(); updatePanel(); drawRoute(); placeTruck(0);
+  toast(activeRoute.label+' loaded — follow the smart route!','success');
+}
+
+/* ── STOP LIST (unchanged) ── */
+function buildStopList(){
+  if(!activeRoute) return;
+  const head=`<div class="sl-head"><div class="sl-title">Stop Sequence</div><div class="sl-meta" id="sl-meta">${doneStops.size} / ${activeRoute.bins.length} done</div></div>`;
+  const items=activeRoute.bins.map((bid,i)=>{
+    const b=getBin(bid); if(!b) return '';
+    const isDone=doneStops.has(i), isCur=i===currentStop&&!isDone;
+    const cls=isDone?'done':isCur?'active':(b.fill>=80?'urgent':'');
+    return `<div class="ni ${cls}" id="si-${i}" onclick="jumpToStop(${i})">
+      <div class="stop-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="stop-info">
+        <div class="stop-name">${b.name}</div>
+        <div class="stop-sub">
+          <span style="color:${binColor(b.fill)};font-family:'DM Mono',monospace;font-size:10px">${b.fill}%</span>
+          <span class="fill-bar-wrap"><span class="fill-bar" style="width:${b.fill}%;background:${binColor(b.fill)}"></span></span>
+          <span class="stop-badge ${binBadge(b.fill)}">${binStatus(b.fill)}</span>
+        </div>
+      </div>
+      <div class="stop-tick">
+        ${isDone?`<svg width="10" height="10" fill="none" stroke="#1a7a3e" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`:''}
+        ${isCur?`<svg width="8" height="8" fill="#1a7a3e" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('stopList').innerHTML=head+'<div id="stopItems">'+items+'</div>';
+  document.getElementById('si-'+currentStop)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+/* ── PANEL (unchanged) ── */
+function updatePanel(){
+  if(!activeRoute){
+    ['dp-route','dp-next','dp-eta','dp-left'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('prog-fill').style.width='0%';
+    document.getElementById('dp-pct').textContent='0% complete';
+    document.getElementById('hud-stop').textContent='—';
+    document.getElementById('hud-area').textContent='Select a route to begin';
+    document.getElementById('hud-eta').textContent='—';
+    document.getElementById('hud-fill-status').textContent='—';
+    return;
+  }
+  const total=activeRoute.bins.length, done=doneStops.size, pct=Math.round(done/total*100);
+  let nextIdx=-1;
+  for(let i=currentStop;i<activeRoute.bins.length;i++){if(!doneStops.has(i)){nextIdx=i;break;}}
+  const curBin=nextIdx>=0?getBin(activeRoute.bins[nextIdx]):null;
+  const prevBin=nextIdx>0?getBin(activeRoute.bins[nextIdx-1]):null;
+  const nextBin=nextIdx>=0&&nextIdx+1<activeRoute.bins.length?getBin(activeRoute.bins[nextIdx+1]):null;
+
+  document.getElementById('dp-route').textContent=activeRoute.id;
+  document.getElementById('dp-next').textContent=curBin?curBin.name:'All done!';
+  document.getElementById('dp-eta').textContent=prevBin&&curBin?calcETA(prevBin,curBin):'—';
+  document.getElementById('dp-left').textContent=(total-done)+' / '+total;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('dp-pct').textContent=pct+'% complete';
+  document.getElementById('hud-stop').textContent=curBin?'#'+(nextIdx+1)+' '+curBin.area:'DONE';
+  document.getElementById('hud-area').textContent=curBin?curBin.name:'Route complete!';
+  document.getElementById('hud-eta').textContent=curBin&&nextBin?calcETA(curBin,nextBin):'—';
+  document.getElementById('hud-fill-status').textContent=curBin?`Fill: ${curBin.fill}% · ${binStatus(curBin.fill)}`:'';
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-full').textContent=activeRoute.bins.filter(id=>{const b=getBin(id);return b&&b.fill>=80&&!doneStops.has(activeRoute.bins.indexOf(id));}).length;
+  document.getElementById('btn-done').disabled=done===total;
+  document.getElementById('btn-skip').disabled=done>=total-1;
+  document.getElementById('btn-prev').disabled=done===0;
+}
+
+/* ── MAP DRAW (unchanged) ── */
+function clearLayers(){
+  if(routePoly){map.removeLayer(routePoly);routePoly=null;}
+  Object.values(binMarkers).forEach(m=>map.removeLayer(m));
+  binMarkers={};
+  if(truckMarker){map.removeLayer(truckMarker);truckMarker=null;}
+}
+
+async function drawRoute(){
+  if(!activeRoute) return;
+  const pts=activeRoute.bins.map(id=>{const b=getBin(id);return b?[b.lat,b.lng]:null;}).filter(Boolean);
+  const ws=pts.map(p=>p[1]+','+p[0]).join(';');
+  let poly;
+  try{
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${ws}?overview=full&geometries=geojson`,{signal:AbortSignal.timeout(6000)});
+    const d=await r.json();
+    if(d.routes?.[0]) poly=L.geoJSON(d.routes[0].geometry,{style:{color:activeRoute.color,weight:4,opacity:.7}}).addTo(map);
+  }catch(e){}
+  if(!poly) poly=L.polyline(pts,{color:activeRoute.color,weight:3,opacity:.6,dashArray:'10 6'}).addTo(map);
+  routePoly=poly;
+
+  activeRoute.bins.forEach((bid,i)=>{
+    const b=getBin(bid); if(!b) return;
+    const isDone=doneStops.has(i), isCur=i===currentStop&&!isDone;
+    const c=isDone?'#94a3b8':binColor(b.fill);
+    const sz=isCur?22:16;
+    const icon=L.divIcon({
+      className:'',
+      html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 2px ${isCur?16:8}px ${c};display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:8px;color:#fff;font-weight:500;${isDone?'opacity:.4':''};">${i+1}</div>`,
+      iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-14],
+    });
+    const popup=`<div class="popup-title">${b.id} · Stop #${i+1}</div>
+      <div class="popup-row"><span>Location</span><span>${b.name}</span></div>
+      <div class="popup-row"><span>Fill</span><span style="color:${binColor(b.fill)}">${b.fill}%</span></div>
+      <div class="popup-row"><span>Type</span><span>${b.type}</span></div>
+      <div class="popup-row"><span>Status</span><span>${isDone?'✅ Serviced':'⏳ Pending'}</span></div>`;
+    binMarkers[i]=L.marker([b.lat,b.lng],{icon}).addTo(map).bindPopup(popup,{maxWidth:220});
+  });
+
+  document.getElementById('loading').style.display='none';
+  fitRoute();
+}
+
+function fitRoute(){
+  if(!activeRoute) return;
+  const pts=activeRoute.bins.map(id=>{const b=getBin(id);return b?[b.lat,b.lng]:null;}).filter(Boolean);
+  if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.18));
+}
+
+function placeTruck(idx){
+  if(!activeRoute) return;
+  const b=getBin(activeRoute.bins[idx]); if(!b) return;
+  if(truckMarker) map.removeLayer(truckMarker);
+  truckMarker=L.marker([b.lat,b.lng],{
+    icon:L.divIcon({className:'',html:`<div class="truck-marker">🚛</div>`,iconSize:[28,28],iconAnchor:[14,14]}),
+    zIndexOffset:1000
+  }).addTo(map);
+}
+
+function refreshMarkers(){
+  if(!activeRoute) return;
+  activeRoute.bins.forEach((_,i)=>{
+    const b=getBin(activeRoute.bins[i]); if(!b||!binMarkers[i]) return;
+    const isDone=doneStops.has(i), isCur=i===currentStop&&!isDone;
+    const c=isDone?'#94a3b8':binColor(b.fill);
+    const sz=isCur?22:16;
+    const el=binMarkers[i].getElement()?.querySelector('div');
+    if(el){el.style.background=c;el.style.width=sz+'px';el.style.height=sz+'px';el.style.boxShadow=`0 2px ${isCur?16:8}px ${c}`;el.style.opacity=isDone?'.4':'1';}
+  });
+}
+
+/* ── NAV (unchanged) ── */
+function markDone(){
+  if(!activeRoute) return toast('Select a route first','warning');
+  const b=getBin(activeRoute.bins[currentStop]);
+  doneStops.add(currentStop);
+  toast('#'+(currentStop+1)+' '+b.name+' — serviced ✓','success');
+  let next=currentStop+1;
+  while(next<activeRoute.bins.length&&doneStops.has(next)) next++;
+  if(next<activeRoute.bins.length){currentStop=next;map.panTo([getBin(activeRoute.bins[currentStop]).lat,getBin(activeRoute.bins[currentStop]).lng],{animate:true});placeTruck(currentStop);}
+  buildStopList(); updatePanel(); refreshMarkers();
+  if(doneStops.size===activeRoute.bins.length) setTimeout(showComplete,600);
+}
+
+function skipStop(){
+  if(!activeRoute) return toast('Select a route first','warning');
+  toast('Skipped: '+getBin(activeRoute.bins[currentStop]).name,'warning');
+  let next=currentStop+1;
+  while(next<activeRoute.bins.length&&doneStops.has(next)) next++;
+  if(next<activeRoute.bins.length){currentStop=next;placeTruck(currentStop);}
+  buildStopList(); updatePanel(); refreshMarkers();
+}
+
+function prevStop(){
+  if(!activeRoute||!doneStops.size) return;
+  const last=Math.max(...doneStops);
+  doneStops.delete(last); currentStop=last;
+  placeTruck(currentStop);
+  buildStopList(); updatePanel(); refreshMarkers();
+  toast('Reverted to stop #'+(last+1),'info');
+}
+
+function jumpToStop(idx){
+  if(!activeRoute) return;
+  const b=getBin(activeRoute.bins[idx]);
+  map.setView([b.lat,b.lng],16,{animate:true});
+  setTimeout(()=>binMarkers[idx]?.openPopup(),300);
+}
+
+function resetRoute(){
+  if(!activeRoute) return toast('No route active','info');
+  doneStops.clear(); currentStop=0;
+  selectRoute(ROUTES.indexOf(activeRoute));
+  toast('Route reset','info');
+}
+
+function emergencyStop(){toast('⚠ Emergency stop — dispatch notified','warning');}
+
+/* ── COMPLETE (unchanged) ── */
+function showComplete(){
+  const bins=activeRoute.bins.map(getBin);
+  const avg=Math.round(bins.reduce((s,b)=>s+(b?b.fill:0),0)/bins.length);
+  document.getElementById('co-sub').textContent=`All ${activeRoute.bins.length} stops on ${activeRoute.label} serviced.`;
+  document.getElementById('co-stats').innerHTML=`
+    <div class="cs-box"><div class="cs-val">${activeRoute.bins.length}</div><div class="cs-lbl">Bins Serviced</div></div>
+    <div class="cs-box"><div class="cs-val">${bins.filter(b=>b&&b.fill>=80).length}</div><div class="cs-lbl">Urgent Cleared</div></div>
+    <div class="cs-box"><div class="cs-val">${avg}%</div><div class="cs-lbl">Avg Fill</div></div>
+    <div class="cs-box"><div class="cs-val">${calcETA(bins[0],bins[bins.length-1])}</div><div class="cs-lbl">Time Est.</div></div>`;
+  document.getElementById('complete-overlay').style.display='flex';
+}
+function closeComplete(){document.getElementById('complete-overlay').style.display='none';resetRoute();}
+
+/* ── TOAST (unchanged) ── */
+function toast(msg,type='info'){
+  const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+  const el=document.createElement('div');
+  el.className='toast';
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),350);},2800);
+}
+
+/* ── CLOCK (unchanged) ── */
+const tick=()=>{const n=new Date();document.getElementById('clock').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');};
+setInterval(tick,1000);tick();
+
+/* ══════════════════════════════════════════
+   NOTIFICATION RECEIVER
+   - Reads same localStorage key as admin panel
+   - This truck identifies itself by its truck ID
+   - Polls every 5 seconds for new notifications
+   - Shows popup for unread messages addressed to this truck
+   ══════════════════════════════════════════ */
+const NOTIF_KEY='qc_driver_notifications';
+
+/* Set this to match the truck. You can change it to any TRK-00X */
+const MY_TRUCK_ID='TRK-001';
+document.getElementById('truck-id').textContent=MY_TRUCK_ID+' · LIVE';
+
+let currentNotifId=null;   /* id of notif currently shown in popup */
+let pendingNotifs=[];       /* queue of notifs to show */
+
+const prioConfig={
+  info: {color:'#0284c7', icon:'ℹ️', label:'Admin · Info'},
+  warn: {color:'#d97706', icon:'⚠️', label:'Admin · Warning'},
+  alert:{color:'#dc2626', icon:'🚨', label:'Admin · ALERT'},
+};
+
+function getNotifs(){
+  try{return JSON.parse(localStorage.getItem(NOTIF_KEY)||'[]');}
+  catch(e){return[];}
+}
+function saveNotifs(arr){
+  localStorage.setItem(NOTIF_KEY,JSON.stringify(arr));
+}
+
+function isForMe(n){
+  return n.target==='ALL' || n.target===MY_TRUCK_ID;
+}
+
+function hasRead(n){
+  return Array.isArray(n.read)&&n.read.includes(MY_TRUCK_ID);
+}
+
+function markRead(id){
+  const notifs=getNotifs();
+  const n=notifs.find(x=>x.id===id);
+  if(n){
+    if(!Array.isArray(n.read)) n.read=[];
+    if(!n.read.includes(MY_TRUCK_ID)) n.read.push(MY_TRUCK_ID);
+    saveNotifs(notifs);
+  }
+}
+
+function pollNotifications(){
+  const notifs=getNotifs();
+  const unread=notifs.filter(n=>isForMe(n)&&!hasRead(n));
+  /* update bell badge */
+  const badge=document.getElementById('notif-badge');
+  const bell=document.getElementById('notif-bell');
+  if(unread.length>0){
+    badge.textContent=unread.length;
+    badge.style.display='flex';
+    bell.classList.add('has-new');
+  } else {
+    badge.style.display='none';
+    bell.classList.remove('has-new');
+  }
+  /* auto-show newest unread if no popup currently visible */
+  const overlay=document.getElementById('notif-overlay');
+  if(unread.length>0&&!overlay.classList.contains('show')){
+    pendingNotifs=unread;
+    showNotifPopup(unread[0]);
+  }
+}
+
+function showNotifPopup(n){
+  const cfg=prioConfig[n.prio]||prioConfig.info;
+  const popup=document.getElementById('notif-popup');
+  popup.style.setProperty('--notif-color',cfg.color);
+  document.getElementById('np-icon').textContent=cfg.icon;
+  document.getElementById('np-label').textContent=cfg.label+(n.target!=='ALL'?' · '+n.target:'');
+  const d=new Date(n.ts);
+  const diff=Math.round((Date.now()-d)/60000);
+  document.getElementById('np-time').textContent=
+    diff<1?'Just now':diff<60?diff+'m ago':Math.floor(diff/60)+'h ago';
+  document.getElementById('np-msg').textContent=n.msg;
+  currentNotifId=n.id;
+  document.getElementById('notif-overlay').classList.add('show');
+}
+
+function dismissNotif(){
+  /* dismissed = just close, still counts as unread — will reappear on next poll
+     unless admin deletes it. This is intentional for alerts. */
+  document.getElementById('notif-overlay').classList.remove('show');
+  currentNotifId=null;
+}
+
+function acknowledgeNotif(){
+  if(currentNotifId!==null) markRead(currentNotifId);
+  document.getElementById('notif-overlay').classList.remove('show');
+  currentNotifId=null;
+  /* update badge immediately */
+  pollNotifications();
+  toast('Notification acknowledged','success');
+}
+
+function showPendingNotif(){
+  /* called when driver taps the bell */
+  const notifs=getNotifs();
+  const unread=notifs.filter(n=>isForMe(n)&&!hasRead(n));
+  if(!unread.length){toast('No new notifications','info');return;}
+  showNotifPopup(unread[0]);
+}
+
+/* ── INIT (unchanged + notification polling) ── */
+buildRouteGrid(); updatePanel();
+setTimeout(()=>document.getElementById('loading').style.display='none',1000);
+
+/* existing fill simulation */
+setInterval(()=>{BINS.forEach(b=>{if(Math.random()>.8)b.fill=Math.min(100,b.fill+1);});if(activeRoute)updatePanel();},8000);
+
+/* notification polling every 5 seconds */
+pollNotifications();
+setInterval(pollNotifications,5000);
+</script>
+</body>
+</html>

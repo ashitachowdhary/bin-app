@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>EcoRoute — Notification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f4f7f4;--surface:#ffffff;--surface2:#f0f5f0;
+  --text:#111a11;--muted:#6b7f6b;--muted2:#9cad9c;
+  --green:#1a7a3e;--green2:#22a355;--greenLight:#e8f5ee;--greenMid:#c2e0cd;
+  --radius:18px;--shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --shadowMd:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.07);
+}
+html,body{height:100%;background:#e8ede8;overflow:hidden;font-family:'DM Sans',sans-serif;color:var(--text)}
+.shell{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+@media(min-width:500px){
+  body{display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .shell{border-radius:44px;box-shadow:0 32px 80px rgba(0,0,0,.18);border:8px solid #2d3e2d}
+}
+/* OVERLAY BACKGROUND */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:0;transition:opacity 0.4s ease}
+.overlay.show{opacity:1}
+/* NOTIFICATION POPUP CARD */
+.popup-card{background:var(--surface);width:85%;max-width:340px;border-radius:24px;padding:28px 24px;box-shadow:var(--shadowMd);border:1px solid rgba(255,255,255,0.7);text-align:center;transform:scale(0.85);opacity:0;transition:transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;z-index:20}
+.overlay.show .popup-card{transform:scale(1);opacity:1}
+.popup-icon{font-size:48px;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.popup-title{font-size:22px;font-weight:700;color:var(--green);margin-bottom:24px;letter-spacing:-0.4px}
+/* BUTTON */
+.popup-btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,122,62,.3);transition:transform .15s, background-color 0.2s}
+.popup-btn:active{transform:scale(.98)}
+.popup-btn:hover{background:var(--green2)}
+@keyframes sprinkleFall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot)); opacity: 0; }
+}
+.sprinkle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 200;
+  animation: sprinkleFall 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+</style>
+</head>
+<body>
+  
+<div class="shell">
+  <!-- BACKGROUND SIMULATED SCREEN -->
+  <div style="opacity:0.3; text-align:center; padding:20px;">
+    <div style="font-size:40px; margin-bottom:10px;">🌿</div>
+    <h2 style="font-size:18px; margin-bottom:6px;">EcoRoute Smart Waste</h2>
+    <p style="font-size:12px; color:var(--muted)">Background application view</p>
+  </div>
+  <!-- POPUP OVERLAY -->
+  <div class="overlay" id="popupOverlay">
+    <div class="popup-card">
+      <div class="popup-icon">🔔</div>
+      <h2 class="popup-title">HII USER</h2>
+      <button class="popup-btn" onclick="dismissNotification()">Continue</button>
+    </div>
+  </div>
+</div>
+<script>
+window.addEventListener('load', () => {
+  // Animate the popup entry on load
+  setTimeout(() => {
+    document.getElementById('popupOverlay').classList.add('show');
+    createSprinkles();
+  }, 300);
+});
+function dismissNotification() {
+  const overlay = document.getElementById('popupOverlay');
+  overlay.classList.remove('show');
+  
+  // After dismiss animation, redirect to index.html
+  setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 400);
+}
+function createSprinkles() {
+  const container = document.getElementById('popupOverlay');
+  if (!container) return;
+  const colors = ['#1a7a3e', '#22a355', '#e8f5ee', '#c2e0cd', '#d97706', '#dc2626', '#2563eb', '#ffeb3b', '#e91e63'];
+  const numSprinkles = 60;
+  for (let i = 0; i < numSprinkles; i++) {
+    const sprinkle = document.createElement('div');
+    sprinkle.className = 'sprinkle';
+    const size = Math.random() * 8 + 6;
+    sprinkle.style.width = `${size}px`;
+    sprinkle.style.height = `${Math.random() > 0.5 ? size : size / 2}px`;
+    sprinkle.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    sprinkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    sprinkle.style.left = '50%';
+    sprinkle.style.top = '50%';
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 200 + 80;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance + 100;
+    const rot = (Math.random() - 0.5) * 720;
+    sprinkle.style.setProperty('--tx', `${tx}px`);
+    sprinkle.style.setProperty('--ty', `${ty}px`);
+    sprinkle.style.setProperty('--rot', `${rot}deg`);
+    sprinkle.style.animationDelay = `${Math.random() * 0.2}s`;
+    container.appendChild(sprinkle);
+    setTimeout(() => { sprinkle.remove(); }, 1500);
+  }
+}
+</script>
+</body>
+</html>

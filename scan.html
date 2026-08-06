@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>EcoRoute — Scan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<style>
+  :root {
+    --green: #1a7a3e;
+    --green-light: #e8f5ee;
+    --green-mid: #2d9e55;
+    --amber: #d97706;
+    --red: #dc2626;
+    --blue: #2563eb;
+    --bg: #f4f7f5;
+    --card: #ffffff;
+    --text: #111;
+    --muted: #555;
+    --muted2: #888;
+    --border: #e4ede8;
+    --navH: 64px;
+    --topH: 56px;
+    --radius: 16px;
+    --shadow: 0 2px 16px rgba(26,122,62,.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+
+  .shell {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    background: var(--bg);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    height: var(--topH);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+  }
+  .topbar-back {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 600; color: var(--green);
+    cursor: pointer; background: none; border: none; font-family: inherit;
+    padding: 6px 0;
+  }
+  .topbar-back .back-ico { font-size: 20px; }
+  .topbar-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .topbar-right-space { width: 60px; }
+
+  /* MAIN CONTENT */
+  .scan-content {
+    padding: 16px 16px calc(var(--navH) + 24px);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: flex; background: var(--border); border-radius: 12px; padding: 4px; gap: 4px;
+  }
+  .mode-btn {
+    flex: 1; padding: 10px 8px; border-radius: 8px; border: none;
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all .2s; color: var(--muted); background: transparent;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .mode-btn.active {
+    background: #fff; color: var(--green);
+    box-shadow: 0 1px 6px rgba(0,0,0,.1);
+  }
+
+  /* CAMERA VIEW */
+  .camera-container {
+    background: #000; border-radius: var(--radius); overflow: hidden;
+    aspect-ratio: 4/3; position: relative;
+    box-shadow: var(--shadow);
+  }
+  #cameraVideo {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    border-radius: var(--radius);
+  }
+  .camera-overlay {
+    position: absolute; inset: 0; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scan-frame {
+    width: 200px; height: 200px; border-radius: 20px;
+    border: 3px solid rgba(255,255,255,.7);
+    box-shadow: 0 0 0 4000px rgba(0,0,0,.25);
+    position: relative;
+  }
+  .scan-frame::before, .scan-frame::after {
+    content: ''; position: absolute;
+    width: 30px; height: 30px; border-color: var(--green-mid); border-style: solid;
+  }
+  .scan-frame::before { top: -3px; left: -3px; border-width: 4px 0 0 4px; border-radius: 10px 0 0 0; }
+  .scan-frame::after { bottom: -3px; right: -3px; border-width: 0 4px 4px 0; border-radius: 0 0 10px 0; }
+  .scan-line {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--green-mid), transparent);
+    border-radius: 2px;
+    animation: scanLine 2s ease-in-out infinite;
+  }
+  @keyframes scanLine {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .camera-placeholder {
+    width: 100%; height: 100%; background: #1a1a2e;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    color: #fff;
+  }
+  .camera-placeholder .ph-ico { font-size: 48px; opacity: .6; }
+  .camera-placeholder .ph-text { font-size: 14px; color: rgba(255,255,255,.6); text-align: center; max-width: 180px; line-height: 1.5; }
+
+  /* Camera Controls */
+  .camera-controls {
+    display: flex; align-items: center; justify-content: center; gap: 20px;
+  }
+  .cam-btn {
+    border: none; cursor: pointer; font-family: inherit; transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .cam-btn:active { transform: scale(.95); }
+  .cam-btn-primary {
+    background: var(--green); color: #fff;
+    width: 68px; height: 68px; border-radius: 50%;
+    font-size: 26px;
+    box-shadow: 0 4px 20px rgba(26,122,62,.4);
+  }
+  .cam-btn-secondary {
+    background: #fff; color: var(--text);
+    width: 48px; height: 48px; border-radius: 50%;
+    font-size: 18px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .cam-btn-secondary.active-torch { background: #fef3c7; border-color: #d97706; }
+
+  /* UPLOAD VIEW */
+  .upload-zone {
+    border: 2.5px dashed var(--border); border-radius: var(--radius);
+    padding: 40px 24px; text-align: center; cursor: pointer;
+    transition: all .2s; background: var(--card);
+    aspect-ratio: 4/3; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--green); background: var(--green-light);
+  }
+  .upload-zone .uz-ico { font-size: 44px; }
+  .upload-zone .uz-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .upload-zone .uz-sub { font-size: 13px; color: var(--muted2); }
+  .upload-zone .uz-btn {
+    background: var(--green); color: #fff; border: none; border-radius: 10px;
+    padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin-top: 4px;
+  }
+  #fileInput { display: none; }
+
+  /* PREVIEW */
+  .preview-container {
+    border-radius: var(--radius); overflow: hidden;
+    aspect-ratio: 4/3; position: relative;
+    box-shadow: var(--shadow);
+  }
+  #previewImg {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .preview-change-btn {
+    position: absolute; bottom: 12px; right: 12px;
+    background: rgba(255,255,255,.9); border: none; border-radius: 10px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit; backdrop-filter: blur(8px);
+  }
+
+  /* ANALYSE BUTTON */
+  .analyse-btn {
+    width: 100%; padding: 16px; background: var(--green); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 16px; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 16px rgba(26,122,62,.3);
+  }
+  .analyse-btn:hover { background: var(--green-mid); }
+  .analyse-btn:active { transform: scale(.98); }
+  .analyse-btn:disabled { background: var(--muted2); box-shadow: none; cursor: not-allowed; }
+  .analyse-btn .btn-spinner {
+    width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESULT CARD */
+  .result-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    animation: resultIn .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes resultIn {
+    from { opacity: 0; transform: translateY(16px) scale(.97); }
+    to { opacity: 1; transform: none; }
+  }
+  .result-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+  }
+  .result-ico-wrap {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+  }
+  .result-ico-wrap.dry { background: #fef3c7; }
+  .result-ico-wrap.wet { background: #dcfce7; }
+  .result-ico-wrap.recyclable { background: #dbeafe; }
+  .result-ico-wrap.hazardous { background: #fee2e2; }
+  .result-ico-wrap.electronic { background: #f3e8ff; }
+  .result-ico-wrap.other { background: #f1f5f9; }
+  .result-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted2); }
+  .result-title { font-size: 20px; font-weight: 800; color: var(--text); margin: 2px 0; }
+  .result-sub { font-size: 13px; color: var(--muted); }
+
+  /* CONFIDENCE BARS */
+  .conf-section { margin-bottom: 14px; }
+  .conf-title { font-size: 12px; font-weight: 700; color: var(--muted2); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
+  .conf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .conf-name { font-size: 13px; font-weight: 600; min-width: 90px; color: var(--text); }
+  .conf-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .conf-bar-fill { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.34,1.56,.64,1); }
+  .conf-pct { font-size: 12px; font-weight: 700; min-width: 38px; text-align: right; font-family: 'DM Mono', monospace; }
+
+  /* TIPS */
+  .tip-box {
+    background: var(--green-light); border-radius: 12px; padding: 14px;
+    display: flex; gap: 10px; align-items: flex-start; margin-top: 4px;
+  }
+  .tip-ico { font-size: 18px; flex-shrink: 0; }
+  .tip-text { font-size: 13px; color: #1a5c30; line-height: 1.5; font-weight: 500; }
+
+  /* POINTS EARNED */
+  .pts-earned {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    color: #fff; margin-top: 4px;
+  }
+  .pts-earned-left { font-size: 14px; font-weight: 600; opacity: .9; }
+  .pts-earned-val { font-size: 22px; font-weight: 800; font-family: 'DM Mono', monospace; }
+
+  /* SCAN AGAIN */
+  .scan-again-btn {
+    width: 100%; padding: 14px; background: var(--card); color: var(--green);
+    border: 2px solid var(--green); border-radius: var(--radius);
+    font-size: 15px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all .15s;
+  }
+  .scan-again-btn:hover { background: var(--green-light); }
+  .scan-again-btn:active { transform: scale(.98); }
+
+  /* STATUS BAR */
+  .status-bar {
+    background: var(--card); border-radius: 12px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow); font-size: 14px; font-weight: 500;
+  }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.green { background: var(--green); animation: pulse 2s infinite; }
+  .status-dot.amber { background: var(--amber); }
+  .status-dot.grey { background: #ccc; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* LOADING STATE */
+  .loading-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,.6);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: var(--radius); gap: 12px; color: #fff;
+    backdrop-filter: blur(2px);
+  }
+  .loading-spinner {
+    width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  .loading-text { font-size: 14px; font-weight: 600; }
+
+  /* TOAST */
+  .toast-wrap { position: fixed; bottom: calc(var(--navH) + 12px); left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; width: max-content; max-width: 360px; }
+  .toast-item { background: #222; color: #fff; border-radius: 12px; padding: 10px 18px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.2); animation: toastIn .25s ease; }
+  @keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+  /* RESPONSIVE */
+  @media (max-width: 380px) {
+    .scan-content { padding: 12px 12px calc(var(--navH) + 16px); }
+  }
+
+  /* Hidden canvas for capturing */
+  #captureCanvas { display: none; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="topbar-back" onclick="window.location.href='index.html'">
+      <span class="back-ico">←</span> Back
+    </button>
+    <div class="topbar-title">Scan Waste</div>
+    <div class="topbar-right-space"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="scan-content" id="scanContent">
+
+    <!-- MODE TOGGLE -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeCamera" onclick="setMode('camera')">📷 Camera</button>
+      <button class="mode-btn" id="modeUpload" onclick="setMode('upload')">🖼️ Upload</button>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar" id="statusBar">
+      <div class="status-dot grey" id="statusDot"></div>
+      <span id="statusText">Loading AI model...</span>
+    </div>
+
+    <!-- CAMERA VIEW -->
+    <div id="cameraView">
+      <div class="camera-container" id="cameraContainer">
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <div class="ph-ico">📷</div>
+          <div class="ph-text">Tap the button below to start camera</div>
+        </div>
+        <video id="cameraVideo" autoplay playsinline muted style="display:none"></video>
+        <div class="camera-overlay" id="cameraOverlay" style="display:none">
+          <div class="scan-frame"><div class="scan-line"></div></div>
+        </div>
+        <div class="loading-overlay" id="cameraLoader" style="display:none">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Analysing...</div>
+        </div>
+      </div>
+      <div class="camera-controls" style="margin-top:16px">
+        <button class="cam-btn cam-btn-secondary" id="torchBtn" onclick="toggleTorch()" title="Torch">🔦</button>
+        <button class="cam-btn cam-btn-primary" id="captureBtn" onclick="startOrCapture()">📷</button>
+        <button class="cam-btn cam-btn-secondary" onclick="flipCamera()" title="Flip camera">🔄</button>
+      </div>
+    </div>
+
+    <!-- UPLOAD VIEW -->
+    <div id="uploadView" style="display:none">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div class="uz-ico">🖼️</div>
+        <div class="uz-title">Upload a photo</div>
+        <div class="uz-sub">JPEG, PNG, WEBP supported</div>
+        <button class="uz-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">Choose File</button>
+      </div>
+      <div class="preview-container" id="previewContainer" style="display:none">
+        <img id="previewImg" src="" alt="Preview"/>
+        <button class="preview-change-btn" onclick="clearPreview()">✕ Change</button>
+        <div class="loading-overlay" id="uploadLoader" style="display:none">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Analysing...</div>
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)"/>
+    </div>
+
+    <!-- ANALYSE BUTTON (shown for upload mode or when camera is capturing) -->
+    <button class="analyse-btn" id="analyseBtn" onclick="analyseImage()" style="display:none" disabled>
+      <span>🔍 Analyse Waste</span>
+    </button>
+
+    <!-- RESULT CARD -->
+    <div id="resultCard" style="display:none"></div>
+
+    <!-- SCAN AGAIN (shown after result) -->
+    <button class="scan-again-btn" id="scanAgainBtn" onclick="resetScan()" style="display:none">↩ Scan Another Item</button>
+
+  </div>
+
+  <canvas id="captureCanvas"></canvas>
+  <div class="toast-wrap" id="toastWrap"></div>
+</div>
+
+<script>
+/* ===================== STATE / STORAGE ===================== */
+const STATE_KEY = 'qc_state_v1';
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STATE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function savePoints(pts, scans, log) {
+  const s = loadState();
+  s.points = pts; s.scans = scans; s.scanLog = log;
+  localStorage.setItem(STATE_KEY, JSON.stringify(s));
+}
+
+let st = loadState();
+let points = st.points !== undefined ? st.points : 1240;
+let scans = st.scans !== undefined ? st.scans : 0;
+let scanLog = Array.isArray(st.scanLog) ? st.scanLog : [];
+
+/* ===================== TEACHABLE MACHINE ===================== */
+const MODEL_URL = 'https://teachablemachine.withgoogle.com/models/CGxjpW7RO/';
+let model = null;
+let modelLoaded = false;
+
+async function loadModel() {
+  try {
+    setStatus('grey', 'Loading AI model...');
+    model = await tmImage.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
+    modelLoaded = true;
+    setStatus('green', 'AI ready — point at waste to scan');
+  } catch(e) {
+    setStatus('amber', 'Model load failed. Check connection.');
+    console.error('Model error:', e);
+  }
+}
+loadModel();
+
+/* ===================== WASTE METADATA ===================== */
+const WASTE_META = {
+  // Map class names to icons, tips, colors — add/edit to match your model's classes
+  'plastic':     { ico: '🧴', cat: 'recyclable', tip: 'Rinse and place in the blue recyclable bin. Remove caps if possible.' },
+  'glass':       { ico: '🫙', cat: 'recyclable', tip: 'Glass is fully recyclable. Place in recyclable bin. Avoid broken glass in bins.' },
+  'paper':       { ico: '📄', cat: 'dry',        tip: 'Dry paper goes in the dry waste bin. Wet or soiled paper goes to organic.' },
+  'cardboard':   { ico: '📦', cat: 'recyclable', tip: 'Flatten cardboard before placing in the recyclable bin.' },
+  'metal':       { ico: '🥫', cat: 'recyclable', tip: 'Metal cans are recyclable. Rinse them before disposal.' },
+  'food':        { ico: '🍎', cat: 'wet',        tip: 'Food waste goes in the green organic/wet bin. Great for composting!' },
+  'organic':     { ico: '🌿', cat: 'wet',        tip: 'Organic waste belongs in the green wet bin. Supports composting.' },
+  'e-waste':     { ico: '🔌', cat: 'electronic', tip: 'E-waste needs special disposal. Find the nearest e-waste collection point.' },
+  'electronic':  { ico: '📱', cat: 'electronic', tip: 'Electronics require special e-waste handling. Do not bin with general waste.' },
+  'battery':     { ico: '🔋', cat: 'hazardous',  tip: 'Batteries are hazardous. Drop at dedicated battery collection points.' },
+  'hazardous':   { ico: '☣️', cat: 'hazardous',  tip: 'Handle with care. Take to designated hazardous waste facility.' },
+  'cloth':       { ico: '👕', cat: 'dry',        tip: 'Donate usable clothes. Torn cloth goes in the dry waste bin.' },
+  'textile':     { ico: '🧶', cat: 'dry',        tip: 'Textiles can often be donated or recycled at textile collection points.' },
+  'mixed':       { ico: '🗑️', cat: 'dry',        tip: 'When in doubt, place in the general dry waste bin.' },
+  'default':     { ico: '♻️', cat: 'other',      tip: 'Scan more clearly for better results, or check with your local waste guidelines.' },
+};
+
+const CAT_COLORS = {
+  recyclable: '#2563eb', wet: '#16a34a', dry: '#d97706',
+  hazardous: '#dc2626', electronic: '#7c3aed', other: '#64748b',
+};
+
+function getMeta(className) {
+  const key = className.toLowerCase().trim();
+  for (const k of Object.keys(WASTE_META)) {
+    if (key.includes(k)) return WASTE_META[k];
+  }
+  return WASTE_META['default'];
+}
+
+/* ===================== MODE SWITCHING ===================== */
+let currentMode = 'camera';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeCamera').classList.toggle('active', mode === 'camera');
+  document.getElementById('modeUpload').classList.toggle('active', mode === 'upload');
+  document.getElementById('cameraView').style.display = mode === 'camera' ? 'block' : 'none';
+  document.getElementById('uploadView').style.display = mode === 'upload' ? 'block' : 'none';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('scanAgainBtn').style.display = 'none';
+  document.getElementById('analyseBtn').style.display = mode === 'upload' ? 'flex' : 'none';
+
+  if (mode === 'camera' && cameraActive) {
+    // keep camera running
+  } else if (mode === 'upload') {
+    stopCamera();
+  }
+}
+
+/* ===================== CAMERA ===================== */
+let cameraStream = null, cameraActive = false;
+let facingMode = 'environment'; // back camera default
+let torchOn = false;
+let capturedImageData = null;
+
+async function startOrCapture() {
+  if (!cameraActive) {
+    await startCamera();
+  } else {
+    captureFrame();
+  }
+}
+
+async function startCamera() {
+  const btn = document.getElementById('captureBtn');
+  btn.textContent = '⏳';
+  try {
+    const constraints = {
+      video: {
+        facingMode: { ideal: facingMode },
+        width: { ideal: 1280 },
+        height: { ideal: 960 }
+      }
+    };
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video = document.getElementById('cameraVideo');
+    video.srcObject = cameraStream;
+    video.style.display = 'block';
+    document.getElementById('cameraPlaceholder').style.display = 'none';
+    document.getElementById('cameraOverlay').style.display = 'flex';
+    cameraActive = true;
+    btn.textContent = '📸';
+    setStatus('green', 'Camera live — point at waste and tap capture');
+  } catch(err) {
+    btn.textContent = '📷';
+    setStatus('amber', 'Camera access denied. Use Upload instead.');
+    showToast('Camera access denied', 'warn');
+    console.error(err);
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  cameraActive = false;
+  const video = document.getElementById('cameraVideo');
+  video.style.display = 'none';
+  video.srcObject = null;
+  document.getElementById('cameraPlaceholder').style.display = 'flex';
+  document.getElementById('cameraOverlay').style.display = 'none';
+  document.getElementById('captureBtn').textContent = '📷';
+}
+
+function captureFrame() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('captureCanvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  capturedImageData = canvas.toDataURL('image/jpeg', 0.92);
+  runModelOnCanvas(canvas);
+}
+
+async function flipCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  if (cameraActive) { stopCamera(); await startCamera(); }
+}
+
+async function toggleTorch() {
+  if (!cameraStream) return;
+  const track = cameraStream.getVideoTracks()[0];
+  if (!track || !track.getCapabilities) return;
+  const caps = track.getCapabilities();
+  if (!caps.torch) { showToast('Torch not available on this device', 'info'); return; }
+  torchOn = !torchOn;
+  await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+  document.getElementById('torchBtn').classList.toggle('active-torch', torchOn);
+}
+
+/* ===================== FILE UPLOAD ===================== */
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) loadImageFile(file);
+}
+function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+function onDragLeave(e) { document.getElementById('uploadZone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImageFile(file);
+}
+function loadImageFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = document.getElementById('previewImg');
+    img.src = e.target.result;
+    img.onload = () => {
+      document.getElementById('uploadZone').style.display = 'none';
+      document.getElementById('previewContainer').style.display = 'block';
+      const btn = document.getElementById('analyseBtn');
+      btn.style.display = 'flex';
+      btn.disabled = !modelLoaded;
+      document.getElementById('resultCard').style.display = 'none';
+      document.getElementById('scanAgainBtn').style.display = 'none';
+    };
+  };
+  reader.readAsDataURL(file);
+}
+function clearPreview() {
+  document.getElementById('previewContainer').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'flex';
+  document.getElementById('analyseBtn').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('scanAgainBtn').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+}
+
+/* ===================== ANALYSE ===================== */
+async function analyseImage() {
+  if (!modelLoaded) { showToast('Model not loaded yet, please wait', 'warn'); return; }
+  const img = document.getElementById('previewImg');
+  const loader = document.getElementById('uploadLoader');
+  const btn = document.getElementById('analyseBtn');
+
+  loader.style.display = 'flex';
+  btn.disabled = true;
+  btn.innerHTML = '<div class="btn-spinner"></div><span>Analysing...</span>';
+
+  // Slight delay so loader shows
+  await new Promise(r => setTimeout(r, 100));
+
+  try {
+    const predictions = await model.predict(img);
+    loader.style.display = 'none';
+    showResult(predictions);
+  } catch(e) {
+    loader.style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔍 Analyse Waste</span>';
+    showToast('Analysis failed. Try again.', 'err');
+    console.error(e);
+  }
+}
+
+async function runModelOnCanvas(canvas) {
+  if (!modelLoaded) { showToast('Model not ready', 'warn'); return; }
+  document.getElementById('cameraLoader').style.display = 'flex';
+  document.getElementById('captureBtn').disabled = true;
+
+  await new Promise(r => setTimeout(r, 80));
+
+  try {
+    const predictions = await model.predict(canvas);
+    document.getElementById('cameraLoader').style.display = 'none';
+    document.getElementById('captureBtn').disabled = false;
+    showResult(predictions);
+  } catch(e) {
+    document.getElementById('cameraLoader').style.display = 'none';
+    document.getElementById('captureBtn').disabled = false;
+    showToast('Analysis failed. Try again.', 'err');
+    console.error(e);
+  }
+}
+
+/* ===================== SHOW RESULT ===================== */
+function showResult(predictions) {
+  // Sort by probability
+  const sorted = [...predictions].sort((a, b) => b.probability - a.probability);
+  const top = sorted[0];
+  const meta = getMeta(top.className);
+  const conf = Math.round(top.probability * 100);
+  const catColor = CAT_COLORS[meta.cat] || '#64748b';
+
+  // Award points
+  const earned = conf >= 80 ? 10 : conf >= 50 ? 5 : 2;
+  points += earned;
+  scans += 1;
+  const logEntry = { label: top.className, cat: meta.cat, pts: earned, time: Date.now() };
+  scanLog.unshift(logEntry);
+  if (scanLog.length > 20) scanLog = scanLog.slice(0, 20);
+  savePoints(points, scans, scanLog);
+
+  // Build confidence bars HTML (top 3)
+  const barsHTML = sorted.slice(0, 4).map(p => {
+    const pct = Math.round(p.probability * 100);
+    const m = getMeta(p.className);
+    const clr = CAT_COLORS[m.cat] || '#888';
+    return `<div class="conf-row">
+      <div class="conf-name">${p.className}</div>
+      <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${pct}%;background:${clr}"></div></div>
+      <div class="conf-pct" style="color:${clr}">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  const html = `
+    <div class="result-header">
+      <div class="result-ico-wrap ${meta.cat}">${meta.ico}</div>
+      <div>
+        <div class="result-label">Detected</div>
+        <div class="result-title">${top.className}</div>
+        <div class="result-sub" style="color:${catColor};font-weight:600;text-transform:capitalize">${meta.cat} Waste &nbsp;·&nbsp; ${conf}% confidence</div>
+      </div>
+    </div>
+    <div class="conf-section">
+      <div class="conf-title">All Predictions</div>
+      ${barsHTML}
+    </div>
+    <div class="tip-box">
+      <div class="tip-ico">💡</div>
+      <div class="tip-text">${meta.tip}</div>
+    </div>
+    <div class="pts-earned" style="margin-top:12px">
+      <div class="pts-earned-left">🎉 Points Earned</div>
+      <div class="pts-earned-val">+${earned} pts</div>
+    </div>
+  `;
+
+  const card = document.getElementById('resultCard');
+  card.innerHTML = html;
+  card.style.display = 'block';
+  document.getElementById('scanAgainBtn').style.display = 'block';
+  document.getElementById('analyseBtn').style.display = 'none';
+
+  // Scroll to result
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  setStatus('green', `Scan complete — ${scans} total scans · ${points.toLocaleString()} pts`);
+  showToast(`+${earned} pts earned! Detected: ${top.className}`, 'ok');
+}
+
+/* ===================== RESET ===================== */
+function resetScan() {
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('scanAgainBtn').style.display = 'none';
+  capturedImageData = null;
+
+  if (currentMode === 'upload') {
+    clearPreview();
+  } else {
+    // Allow capturing again
+    document.getElementById('captureBtn').disabled = false;
+    setStatus('green', 'Camera live — point at waste and tap capture');
+  }
+}
+
+/* ===================== HELPERS ===================== */
+function setStatus(color, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot ' + color;
+  document.getElementById('statusText').textContent = text;
+}
+
+function showToast(msg, type = 'ok') {
+  const icons = { ok: '✅', warn: '⚠️', err: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = 'toast-item';
+  el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 350); }, 3000);
+}
+
+/* ===================== INIT ===================== */
+window.addEventListener('load', () => {
+  setStatus('amber', 'Loading AI model...');
+  // Mode buttons check
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('mode') === 'upload') setMode('upload');
+});
+
+// Cleanup on leave
+window.addEventListener('beforeunload', stopCamera);
+window.addEventListener('pagehide', stopCamera);
+</script>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="Authguard.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>EcoRoute — Smart Waste</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="stylesheet" href="styles.css"/>
+
+<style>
+.lang-switcher{display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.06);border-radius:20px;padding:2px;}
+.lang-btn{background:transparent;border:none;cursor:pointer;font-size:11px;font-weight:700;padding:4px 8px;border-radius:16px;color:var(--muted,#888);transition:all .18s;font-family:inherit;line-height:1;}
+.lang-btn.active{background:#fff;color:var(--green,#1a7a3e);box-shadow:0 1px 4px rgba(0,0,0,.12);}
+
+/* ── PROFILE MAP FIX ── */
+.location-card{border-radius:14px;border:1px solid var(--border,#e6ede9);overflow:hidden;margin:0 16px 16px;}
+.location-map-preview{width:100%;height:180px;position:relative;}
+#profileMap{position:absolute;inset:0;width:100%;height:100%;}
+.loc-info{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface,#fff);}
+.loc-text{font-size:13px;font-weight:600;color:var(--text,#1a2a1e);}
+.loc-sub{font-size:11px;color:var(--muted,#6b7c71);margin-top:2px;font-family:'DM Mono',monospace;}
+.loc-refresh{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;border-radius:8px;transition:transform .2s;}
+.loc-refresh:hover{transform:rotate(180deg);}
+</style>
+</head>
+<body>
+  
+<div class="shell">
+
+  <!-- SPLASH -->
+  <div id="splash">
+    <div class="splash-ico">🌿</div>
+    <div class="splash-title">EcoRoute</div>
+    <div class="splash-sub" data-i18n="splashSub">SMART WASTE MANAGEMENT</div>
+    <div class="splash-bar"><div class="splash-bar-inner"></div></div>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="logo-ico">🌿</div>
+      <div class="logo-text" id="topTitle">EcoRoute</div>
+    </div>
+    <div class="topbar-right">
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn active" onclick="setLang('en')" id="langEn">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')" id="langHi">हि</button>
+        <button class="lang-btn" onclick="setLang('pa')" id="langPa">ਪੰ</button>
+      </div>
+      <div class="notif-btn" onclick="window.location.href='notification.html'" style="cursor:pointer;">🔔</div>
+      <div class="avatar-sm">🧑🏽</div>
+    </div>
+  </div>
+
+  <!-- SCREENS -->
+  <div class="screens">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="home-header pad">
+        <div class="greet-small" data-i18n="welcomeBack">WELCOME BACK</div>
+        <div class="greet-big" data-i18n="helloUser">Hello, Niharika! 👋</div>
+        <div class="greet-sub" id="homeSub">You've saved <strong>2.4kg</strong> of CO2 this week.</div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stat-row">
+        <div class="stat-mini">
+          <div class="s-ico">🪙</div>
+          <div class="s-val" id="homeStatPts">1,240</div>
+          <div class="s-key" data-i18n="rewardPoints">Reward Points</div>
+          <div class="s-trend" data-i18n="todayPts">+45 today</div>
+        </div>
+        <div class="stat-mini">
+          <div class="s-ico blue">♻️</div>
+          <div class="s-val" id="homeStatScans">0</div>
+          <div class="s-key" data-i18n="totalScans">Total Scans</div>
+          <div class="s-trend blue" data-i18n="keepItUp">Keep it up!</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="quick-section">
+        <div class="section-title" data-i18n="quickActions">Quick Actions</div>
+        <div class="quick-row">
+          <button class="quick-btn" onclick="goScan()">
+            <div class="quick-btn-ico">📷</div>
+            <span data-i18n="scanWaste">Scan Waste</span>
+          </button>
+          <button class="quick-btn" onclick="showScreen('map')">
+            <div class="quick-btn-ico outline">📍</div>
+            <span data-i18n="findBin">Find Bin</span>
+          </button>
+          <button class="quick-btn" onclick="showScreen('rewards')">
+            <div class="quick-btn-ico outline">🏆</div>
+            <span data-i18n="rewards">Rewards</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITY -->
+      <div class="activity-section">
+        <div class="activity-header">
+          <div class="section-title" style="margin-bottom:0" data-i18n="recentActivity">Recent Activity</div>
+          <div class="view-all" onclick="goScan()" data-i18n="viewAll">View All</div>
+        </div>
+        <div id="homeActivityList">
+          <div class="activity-item">
+            <div class="act-ico">♻️</div>
+            <div class="act-meta">
+              <div class="act-title" data-i18n="actRecycled">Recycled 3 Plastic Bottles</div>
+              <div class="act-time" data-i18n="actRecycledTime">Today, 2:45 PM</div>
+            </div>
+            <div class="act-pts">+45 pts</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-ico">🚛</div>
+            <div class="act-meta">
+              <div class="act-title" data-i18n="actPickup">Bin Pick-up Confirmed</div>
+              <div class="act-time" data-i18n="actPickupTime">Yesterday, 9:00 AM</div>
+            </div>
+            <div class="act-pts">+10 pts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GREEN REWARDS LINK -->
+      <div class="reward-link-banner" onclick="showScreen('rewards')" style="cursor:pointer">
+        <div class="reward-link-left">
+          <div class="reward-link-ico">🏆</div>
+          <div>
+            <div class="reward-link-title" data-i18n="greenRewardsProg">Green Rewards Programme</div>
+            <div class="reward-link-sub" data-i18n="greenRewardsSub">2 pts per disposal · Redeem from 500 pts</div>
+          </div>
+        </div>
+        <div class="reward-link-arrow">›</div>
+      </div>
+
+      <div class="collect-card">
+        <div><div class="collect-v" data-i18n="upcomingCollection">Upcoming Collection</div><div class="collect-k" data-i18n="collectionTime">Tomorrow, 08:30 AM · Sector 4</div></div>
+        <div class="collect-ico">🚛</div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="screen" id="screen-map">
+      <div class="map-header" data-i18n="binMap">Bin Map</div>
+      <div class="map-view-inline">
+        <div id="inlineMap"></div>
+        <div class="map-overlay-pill"><div class="pulse-dot"></div>LIVE</div>
+        <a href="map.html" class="map-open-btn" data-i18n="fullMap">🗺️ Full Map</a>
+        <div class="map-legend-inline">
+          <div class="leg-item"><div class="leg-dot" style="background:#1a7a3e"></div><span data-i18n="legOk">OK</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#d97706"></div><span data-i18n="legHalf">Half</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#dc2626"></div><span data-i18n="legUrgent">Urgent</span></div>
+        </div>
+      </div>
+      <div class="filter-row" id="filterRow">
+        <div class="filter-pill active" data-filter="all" data-i18n="filterAll">All</div>
+        <div class="filter-pill" data-filter="dry" data-i18n="filterDry">Dry</div>
+        <div class="filter-pill" data-filter="wet" data-i18n="filterWet">Wet</div>
+        <div class="filter-pill" data-filter="recyclable" data-i18n="filterRecyclable">Recyclable</div>
+        <div class="filter-pill" data-filter="hazardous" data-i18n="filterHazardous">Hazardous</div>
+      </div>
+      <div class="bins-title-row">
+        <div class="t" data-i18n="nearestBins">Nearest Bins</div>
+        <div class="c" id="binCountLabel">12 active units</div>
+      </div>
+      <div id="binList"></div>
+    </div>
+
+    <!-- GREEN REWARDS PROGRAMME -->
+    <div class="screen" id="screen-rewards">
+      <div class="gr-hero">
+        <div class="gr-hero-title" data-i18n="greenRewards">Green Rewards 🏆</div>
+        <div class="gr-hero-sub" data-i18n="greenRewardsSub2">Earn points every disposal · Redeem for real benefits</div>
+        <div class="gr-pts-box">
+          <div>
+            <div class="gr-pts-num" id="grPtsNum">1,240</div>
+            <div class="gr-pts-label" data-i18n="yourPoints">YOUR POINTS</div>
+          </div>
+        </div>
+      </div>
+      <div class="gr-info-row">
+        <div class="gr-info-box">
+          <div class="gr-info-val">2 pts</div>
+          <div class="gr-info-key" data-i18n="perDisposal">Per disposal</div>
+        </div>
+        <div class="gr-info-box">
+          <div class="gr-info-val">500 pts</div>
+          <div class="gr-info-key" data-i18n="minRedeem">Min. redeem</div>
+        </div>
+        <div class="gr-info-box">
+          <div class="gr-info-val" data-i18n="noExpiry">No expiry</div>
+          <div class="gr-info-key" data-i18n="pointsValid">Points valid</div>
+        </div>
+      </div>
+      <div style="padding:4px 16px 0;font-size:17px;font-weight:700;margin-bottom:10px" data-i18n="availableRewards">Available Rewards</div>
+      <div class="gr-reward-item">
+        <div class="gr-reward-ico">🌳</div>
+        <div class="gr-reward-meta">
+          <div class="gr-reward-name" data-i18n="rewardTree">Plant a Tree</div>
+          <div class="gr-reward-desc" data-i18n="rewardTreeDesc">Offset 20kg of CO2 by planting a native oak in the EcoRoute forest.</div>
+        </div>
+        <div class="gr-reward-right">
+          <div class="gr-reward-pts">500 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(500,'Plant a Tree')" data-i18n="claim">Claim</button>
+        </div>
+      </div>
+      <div class="gr-reward-item">
+        <div class="gr-reward-ico">🚌</div>
+        <div class="gr-reward-meta">
+          <div class="gr-reward-name" data-i18n="rewardBus">Free Bus Pass</div>
+          <div class="gr-reward-desc" data-i18n="rewardBusDesc">7-day unlimited public transit pass for any major city.</div>
+        </div>
+        <div class="gr-reward-right">
+          <div class="gr-reward-pts">1,000 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(1000,'Free Bus Pass')" data-i18n="claim">Claim</button>
+        </div>
+      </div>
+      <div class="gr-reward-item">
+        <div class="gr-reward-ico">🛒</div>
+        <div class="gr-reward-meta">
+          <div class="gr-reward-name" data-i18n="rewardGrocery">Grocery Discount</div>
+          <div class="gr-reward-desc" data-i18n="rewardGroceryDesc">₹200 off on your next grocery order at partner stores.</div>
+        </div>
+        <div class="gr-reward-right">
+          <div class="gr-reward-pts">750 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(750,'Grocery Discount')" data-i18n="claim">Claim</button>
+        </div>
+      </div>
+      <div class="gr-reward-item">
+        <div class="gr-reward-ico">⚡</div>
+        <div class="gr-reward-meta">
+          <div class="gr-reward-name" data-i18n="rewardUtility">Utility Savings</div>
+          <div class="gr-reward-desc" data-i18n="rewardUtilityDesc">₹100 credit on your electricity or water bill.</div>
+        </div>
+        <div class="gr-reward-right">
+          <div class="gr-reward-pts">600 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(600,'Utility Savings')" data-i18n="claim">Claim</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="screen-profile">
+      <div class="profile-hero">
+        <div class="profile-avatar">🧑🏽‍💼</div>
+        <div style="flex:1;min-width:0">
+          <div class="profile-name" id="profileName">Niharika Gupta</div>
+          <div class="profile-id" data-i18n="citizenId">Citizen ID: QC-PTK-00124</div>
+          <div class="tier-pill" data-i18n="tier">🏅 Eco Warrior</div>
+        </div>
+      </div>
+      <div class="xp-section">
+        <div class="xp-row"><div class="xp-label" data-i18n="xpLabel">XP — Eco Warrior → Guardian</div><div class="xp-pct" id="xpPct">74%</div></div>
+        <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:74%"></div></div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:8px;font-weight:500" data-i18n="progressToNext">Progress to next tier</div>
+      </div>
+      <div class="profile-stat-grid">
+        <div class="p-stat-box"><div class="p-stat-v amber" id="profilePts">1,240</div><div class="p-stat-k" data-i18n="greenPoints">Green Points</div></div>
+        <div class="p-stat-box"><div class="p-stat-v blue" id="profileScans">0</div><div class="p-stat-k" data-i18n="totalScans">Total Scans</div></div>
+        <div class="p-stat-box"><div class="p-stat-v green" id="profileAcc">94%</div><div class="p-stat-k" data-i18n="accuracy">Accuracy</div></div>
+      </div>
+      <div style="padding:0 16px"><div class="section-title" data-i18n="badges">Badges</div></div>
+      <div class="badge-row">
+        <div class="badge-chip earned"><div class="badge-ico">✨</div><div class="badge-title" data-i18n="badgeFirst">First Scan</div><div class="badge-desc" data-i18n="badgeFirstDesc">Complete 1 scan</div></div>
+        <div class="badge-chip earned"><div class="badge-ico">♻️</div><div class="badge-title" data-i18n="badgeRecycler">Recycler</div><div class="badge-desc" data-i18n="badgeRecyclerDesc">Earn 50 points</div></div>
+        <div class="badge-chip earned"><div class="badge-ico">🔥</div><div class="badge-title" data-i18n="badgeStreak">7-Day Streak</div><div class="badge-desc" data-i18n="badgeStreakDesc">7 unique days</div></div>
+        <div class="badge-chip locked"><div class="badge-ico">💎</div><div class="badge-title" data-i18n="badgeDiamond">Diamond</div><div class="badge-desc" data-i18n="badgeDiamondDesc">Earn 2000 pts</div></div>
+      </div>
+
+      <!-- LIVE LOCATION -->
+      <div style="padding:0 16px"><div class="section-title" data-i18n="liveLocation">Live Location</div></div>
+      <div class="location-card">
+        <div class="location-map-preview">
+          <div id="profileMap"></div>
+        </div>
+        <div class="loc-info">
+          <div>
+            <div class="loc-text" id="locText">Fetching location...</div>
+            <div class="loc-sub" id="locSub">Tap refresh to update</div>
+          </div>
+          <button class="loc-refresh" onclick="refreshLocation()" title="Refresh location">🔄</button>
+        </div>
+      </div>
+
+      <!-- ACCOUNT -->
+      <div style="padding:0 16px"><div class="section-title" data-i18n="account">Account</div></div>
+      <div class="menu-card">
+        <div class="menu-row" onclick="showSignIn()">
+          <div class="menu-left">
+            <div class="menu-ico">🔑</div>
+            <div>
+              <div class="menu-title" data-i18n="signIn">Sign In</div>
+              <div class="menu-sub" data-i18n="signInSub">Switch account or log in</div>
+            </div>
+          </div>
+          <div class="menu-chev">›</div>
+        </div>
+        <div class="menu-row" onclick="resetData()">
+          <div class="menu-left">
+            <div class="menu-ico danger">🚪</div>
+            <div>
+              <div class="menu-title" style="color:#dc2626" data-i18n="signOut">Sign Out</div>
+              <div class="menu-sub" data-i18n="signOutSub">Resets local profile</div>
+            </div>
+          </div>
+          <div class="menu-chev">›</div>
+        </div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="nav">
+    <div class="nav-item active" data-screen="home" onclick="showScreen('home')">
+      <div class="nav-ico">🏠</div><span data-i18n="navHome">Home</span>
+    </div>
+    <div class="nav-item" data-screen="scan" onclick="goScan()">
+      <div class="nav-ico">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="14" width="3" height="3" fill="currentColor"/>
+          <rect x="18" y="14" width="3" height="3" fill="currentColor"/>
+          <rect x="14" y="18" width="3" height="3" fill="currentColor"/>
+          <rect x="18" y="18" width="3" height="3" fill="currentColor"/>
+        </svg>
+      </div><span data-i18n="navScan">Scan</span>
+    </div>
+    <div class="nav-item center-nav" data-screen="map" onclick="showScreen('map')">
+      <div class="nav-ico">📍</div><span data-i18n="navBins">Bins</span>
+    </div>
+    <div class="nav-item" data-screen="rewards" onclick="showScreen('rewards')">
+      <div class="nav-ico">🏆</div><span data-i18n="navRewards">Rewards</span>
+    </div>
+    <div class="nav-item" data-screen="profile" onclick="showScreen('profile')">
+      <div class="nav-ico">👤</div><span data-i18n="navProfile">Profile</span>
+    </div>
+  </nav>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- FAB -->
+  <div style="position:absolute;bottom:calc(var(--navH)+16px);right:16px;z-index:15">
+    <button onclick="goScan()" style="width:52px;height:52px;border-radius:50%;background:var(--green);border:none;cursor:pointer;font-size:22px;color:#fff;box-shadow:0 4px 16px rgba(26,122,62,.4);display:flex;align-items:center;justify-content:center;transition:transform .15s" onmousedown="this.style.transform='scale(.95)'" onmouseup="this.style.transform=''">+</button>
+  </div>
+
+  <!-- SIGN IN MODAL -->
+  <div class="modal-overlay" id="signInModal" onclick="closeSignIn(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" data-i18n="modalWelcome">Welcome Back 👋</div>
+      <div class="modal-sub" data-i18n="modalSub">Sign in to sync your eco progress across devices.</div>
+      <div class="input-group">
+        <label class="input-label" data-i18n="labelEmail">EMAIL</label>
+        <input class="input-field" type="email" placeholder="you@example.com" id="signInEmail"/>
+      </div>
+      <div class="input-group">
+        <label class="input-label" data-i18n="labelPassword">PASSWORD</label>
+        <input class="input-field" type="password" placeholder="••••••••" id="signInPass"/>
+      </div>
+      <button class="btn-modal-primary" onclick="doSignIn()" data-i18n="signIn">Sign In</button>
+      <button class="btn-modal-secondary" onclick="closeSignIn()" data-i18n="cancel">Cancel</button>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+
+/* ===================== SCAN NAVIGATION ===================== */
+function goScan() { window.location.href = 'scan.html'; }
+
+/* ===================== DEEP-LINK ===================== */
+window.addEventListener('load', () => {
+  const hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById('screen-' + hash)) showScreen(hash);
+});
+
+/* ===================== I18N ===================== */
+const LANG_STRINGS = {
+  en: {
+    splashSub:'SMART WASTE MANAGEMENT',welcomeBack:'WELCOME BACK',helloUser:'Hello, Niharika! 👋',
+    co2Saved:"You've saved <strong>2.4kg</strong> of CO2 this week.",rewardPoints:'Reward Points',
+    todayPts:'+45 today',totalScans:'Total Scans',keepItUp:'Keep it up!',quickActions:'Quick Actions',
+    scanWaste:'Scan Waste',findBin:'Find Bin',rewards:'Rewards',recentActivity:'Recent Activity',
+    viewAll:'View All',actRecycled:'Recycled 3 Plastic Bottles',actRecycledTime:'Today, 2:45 PM',
+    actPickup:'Bin Pick-up Confirmed',actPickupTime:'Yesterday, 9:00 AM',
+    greenRewardsProg:'Green Rewards Programme',greenRewardsSub:'2 pts per disposal · Redeem from 500 pts',
+    upcomingCollection:'Upcoming Collection',collectionTime:'Tomorrow, 08:30 AM · Sector 4',
+    binMap:'Bin Map',fullMap:'🗺️ Full Map',legOk:'OK',legHalf:'Half',legUrgent:'Urgent',
+    filterAll:'All',filterDry:'Dry',filterWet:'Wet',filterRecyclable:'Recyclable',filterHazardous:'Hazardous',
+    nearestBins:'Nearest Bins',activeUnits:'active units',greenRewards:'Green Rewards 🏆',
+    greenRewardsSub2:'Earn points every disposal · Redeem for real benefits',yourPoints:'YOUR POINTS',
+    perDisposal:'Per disposal',minRedeem:'Min. redeem',noExpiry:'No expiry',pointsValid:'Points valid',
+    availableRewards:'Available Rewards',rewardTree:'Plant a Tree',
+    rewardTreeDesc:'Offset 20kg of CO2 by planting a native oak in the EcoRoute forest.',
+    rewardBus:'Free Bus Pass',rewardBusDesc:'7-day unlimited public transit pass for any major city.',
+    rewardGrocery:'Grocery Discount',rewardGroceryDesc:'₹200 off on your next grocery order at partner stores.',
+    rewardUtility:'Utility Savings',rewardUtilityDesc:'₹100 credit on your electricity or water bill.',
+    claim:'Claim',citizenId:'Citizen ID: QC-PTK-00124',tier:'🏅 Eco Warrior',
+    xpLabel:'XP — Eco Warrior → Guardian',progressToNext:'Progress to next tier',
+    greenPoints:'Green Points',accuracy:'Accuracy',badges:'Badges',
+    badgeFirst:'First Scan',badgeFirstDesc:'Complete 1 scan',badgeRecycler:'Recycler',
+    badgeRecyclerDesc:'Earn 50 points',badgeStreak:'7-Day Streak',badgeStreakDesc:'7 unique days',
+    badgeDiamond:'Diamond',badgeDiamondDesc:'Earn 2000 pts',liveLocation:'Live Location',
+    fetchingLocation:'Fetching location...',tapRefresh:'Tap refresh to update',
+    locationFound:'📍 Location found',locationDenied:'❌ Location access denied',
+    locationError:'Please enable location in browser settings',locationUpdated:'Location updated',
+    locationFailed:'Could not get location',locationBlocked:'⚠️ Serve via localhost for location',
+    account:'Account',signIn:'Sign In',signInSub:'Switch account or log in',signOut:'Sign Out',
+    signOutSub:'Resets local profile',modalWelcome:'Welcome Back 👋',
+    modalSub:'Sign in to sync your eco progress across devices.',
+    labelEmail:'EMAIL',labelPassword:'PASSWORD',cancel:'Cancel',
+    navHome:'Home',navScan:'Scan',navBins:'Bins',navRewards:'Rewards',navProfile:'Profile',
+    toastNeedPts:'Need {cost} pts to claim',toastClaimed:'Claimed: {name} 🎉',
+    toastEmailReq:'Please enter your email',toastSignedIn:'Signed in as {email}',
+    toastBinSelected:'{name} selected',toastLocationUpdated:'Location updated',
+    toastLocationFailed:'Could not get location',confirmReset:'Sign out and reset all local data?',
+    fetching:'Fetching location...',pleaseWait:'Please wait...',
+  },
+  hi: {
+    splashSub:'स्मार्ट कचरा प्रबंधन',welcomeBack:'वापस स्वागत है',helloUser:'नमस्ते, निहारिका! 👋',
+    co2Saved:'आपने इस सप्ताह <strong>2.4kg</strong> CO2 बचाई है।',rewardPoints:'रिवार्ड पॉइंट',
+    todayPts:'+45 आज',totalScans:'कुल स्कैन',keepItUp:'ऐसे ही रहो!',quickActions:'त्वरित क्रियाएँ',
+    scanWaste:'कचरा स्कैन करें',findBin:'डब्बा खोजें',rewards:'पुरस्कार',recentActivity:'हाल की गतिविधि',
+    viewAll:'सभी देखें',actRecycled:'3 प्लास्टिक बोतलें रीसाइकिल कीं',actRecycledTime:'आज, 2:45 अपराह्न',
+    actPickup:'डब्बा पिकअप की पुष्टि हुई',actPickupTime:'कल, 9:00 पूर्वाह्न',
+    greenRewardsProg:'ग्रीन रिवार्ड्स प्रोग्राम',greenRewardsSub:'प्रति निपटान 2 pts · 500 pts से रिडीम करें',
+    upcomingCollection:'आगामी संग्रह',collectionTime:'कल, 08:30 पूर्वाह्न · सेक्टर 4',
+    binMap:'डब्बा नक्शा',fullMap:'🗺️ पूरा नक्शा',legOk:'ठीक है',legHalf:'आधा',legUrgent:'जरूरी',
+    filterAll:'सभी',filterDry:'सूखा',filterWet:'गीला',filterRecyclable:'रीसाइकिल',filterHazardous:'खतरनाक',
+    nearestBins:'निकटतम डब्बे',activeUnits:'सक्रिय इकाइयाँ',greenRewards:'ग्रीन रिवार्ड्स 🏆',
+    greenRewardsSub2:'प्रत्येक निपटान पर पॉइंट कमाएं · असली लाभ के लिए रिडीम करें',yourPoints:'आपके पॉइंट',
+    perDisposal:'प्रति निपटान',minRedeem:'न्यूनतम रिडीम',noExpiry:'कोई समाप्ति नहीं',pointsValid:'पॉइंट वैध',
+    availableRewards:'उपलब्ध पुरस्कार',rewardTree:'एक पेड़ लगाएं',
+    rewardTreeDesc:'EcoRoute जंगल में एक देशी ओक लगाकर 20kg CO2 की भरपाई करें।',
+    rewardBus:'मुफ्त बस पास',rewardBusDesc:'किसी भी बड़े शहर में 7 दिन का असीमित पब्लिक ट्रांजिट पास।',
+    rewardGrocery:'किराना छूट',rewardGroceryDesc:'पार्टनर स्टोर पर अगले किराना ऑर्डर पर ₹200 की छूट।',
+    rewardUtility:'उपयोगिता बचत',rewardUtilityDesc:'आपके बिजली या पानी के बिल पर ₹100 का क्रेडिट।',
+    claim:'क्लेम करें',citizenId:'नागरिक ID: QC-PTK-00124',tier:'🏅 इको वॉरियर',
+    xpLabel:'XP — इको वॉरियर → गार्जियन',progressToNext:'अगले स्तर की प्रगति',
+    greenPoints:'ग्रीन पॉइंट',accuracy:'सटीकता',badges:'बैज',
+    badgeFirst:'पहला स्कैन',badgeFirstDesc:'1 स्कैन पूरा करें',badgeRecycler:'रीसाइकलर',
+    badgeRecyclerDesc:'50 पॉइंट कमाएं',badgeStreak:'7 दिन की स्ट्रीक',badgeStreakDesc:'7 अनोखे दिन',
+    badgeDiamond:'डायमंड',badgeDiamondDesc:'2000 pts कमाएं',liveLocation:'लाइव स्थान',
+    fetchingLocation:'स्थान प्राप्त हो रहा है...',tapRefresh:'अपडेट करने के लिए रिफ्रेश करें',
+    locationFound:'📍 स्थान मिल गया',locationDenied:'❌ स्थान की अनुमति अस्वीकृत',
+    locationError:'कृपया स्थान अनुमति सक्षम करें',locationUpdated:'स्थान अपडेट किया गया',
+    locationFailed:'स्थान नहीं मिल सका',locationBlocked:'⚠️ लोकेशन के लिए localhost पर खोलें',
+    account:'खाता',signIn:'साइन इन करें',signInSub:'खाता बदलें या लॉग इन करें',
+    signOut:'साइन आउट',signOutSub:'स्थानीय प्रोफ़ाइल रीसेट करता है',
+    modalWelcome:'वापस स्वागत है 👋',modalSub:'डिवाइस में अपनी इको प्रगति सिंक करने के लिए साइन इन करें।',
+    labelEmail:'ईमेल',labelPassword:'पासवर्ड',cancel:'रद्द करें',
+    navHome:'होम',navScan:'स्कैन',navBins:'डब्बे',navRewards:'पुरस्कार',navProfile:'प्रोफ़ाइल',
+    toastNeedPts:'क्लेम के लिए {cost} pts चाहिए',toastClaimed:'क्लेम किया: {name} 🎉',
+    toastEmailReq:'कृपया अपना ईमेल दर्ज करें',toastSignedIn:'{email} के रूप में साइन इन किया',
+    toastBinSelected:'{name} चुना गया',toastLocationUpdated:'स्थान अपडेट किया',
+    toastLocationFailed:'स्थान नहीं मिल सका',confirmReset:'साइन आउट करें और सभी स्थानीय डेटा रीसेट करें?',
+    fetching:'स्थान प्राप्त हो रहा है...',pleaseWait:'कृपया प्रतीक्षा करें...',
+  },
+  pa: {
+    splashSub:'ਸਮਾਰਟ ਕੂੜਾ ਪ੍ਰਬੰਧਨ',welcomeBack:'ਵਾਪਸ ਜੀ ਆਇਆਂ',helloUser:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ, ਨਿਹਾਰਿਕਾ! 👋',
+    co2Saved:'ਤੁਸੀਂ ਇਸ ਹਫ਼ਤੇ <strong>2.4kg</strong> CO2 ਬਚਾਈ ਹੈ।',rewardPoints:'ਇਨਾਮ ਪੁਆਇੰਟ',
+    todayPts:'+45 ਅੱਜ',totalScans:'ਕੁੱਲ ਸਕੈਨ',keepItUp:'ਇਸੇ ਤਰ੍ਹਾਂ ਚੱਲਦੇ ਰਹੋ!',quickActions:'ਤੇਜ਼ ਕਾਰਵਾਈਆਂ',
+    scanWaste:'ਕੂੜਾ ਸਕੈਨ ਕਰੋ',findBin:'ਡੱਬਾ ਲੱਭੋ',rewards:'ਇਨਾਮ',recentActivity:'ਹਾਲੀਆ ਗਤੀਵਿਧੀ',
+    viewAll:'ਸਭ ਦੇਖੋ',actRecycled:'3 ਪਲਾਸਟਿਕ ਬੋਤਲਾਂ ਰੀਸਾਈਕਲ ਕੀਤੀਆਂ',actRecycledTime:'ਅੱਜ, 2:45 ਸ਼ਾਮ',
+    actPickup:'ਡੱਬਾ ਪਿਕਅੱਪ ਪੁਸ਼ਟੀ ਹੋਈ',actPickupTime:'ਕੱਲ੍ਹ, 9:00 ਸਵੇਰੇ',
+    greenRewardsProg:'ਗ੍ਰੀਨ ਰਿਵਾਰਡਜ਼ ਪ੍ਰੋਗਰਾਮ',greenRewardsSub:'ਪ੍ਰਤੀ ਨਿਪਟਾਰੇ 2 pts · 500 pts ਤੋਂ ਰਿਡੀਮ ਕਰੋ',
+    upcomingCollection:'ਆਉਣ ਵਾਲਾ ਸੰਗ੍ਰਹਿ',collectionTime:'ਕੱਲ੍ਹ, 08:30 ਸਵੇਰੇ · ਸੈਕਟਰ 4',
+    binMap:'ਡੱਬਾ ਨਕਸ਼ਾ',fullMap:'🗺️ ਪੂਰਾ ਨਕਸ਼ਾ',legOk:'ਠੀਕ ਹੈ',legHalf:'ਅੱਧਾ',legUrgent:'ਜ਼ਰੂਰੀ',
+    filterAll:'ਸਭ',filterDry:'ਸੁੱਕਾ',filterWet:'ਗਿੱਲਾ',filterRecyclable:'ਰੀਸਾਈਕਲ',filterHazardous:'ਖ਼ਤਰਨਾਕ',
+    nearestBins:'ਨੇੜੇ ਦੇ ਡੱਬੇ',activeUnits:'ਸਕਿਰਿਆ ਇਕਾਈਆਂ',greenRewards:'ਗ੍ਰੀਨ ਰਿਵਾਰਡਜ਼ 🏆',
+    greenRewardsSub2:'ਹਰ ਨਿਪਟਾਰੇ ਤੇ ਪੁਆਇੰਟ ਕਮਾਓ · ਅਸਲ ਫ਼ਾਇਦਿਆਂ ਲਈ ਰਿਡੀਮ ਕਰੋ',yourPoints:'ਤੁਹਾਡੇ ਪੁਆਇੰਟ',
+    perDisposal:'ਪ੍ਰਤੀ ਨਿਪਟਾਰਾ',minRedeem:'ਘੱਟੋ-ਘੱਟ ਰਿਡੀਮ',noExpiry:'ਕੋਈ ਮਿਆਦ ਨਹੀਂ',pointsValid:'ਪੁਆਇੰਟ ਵੈਧ',
+    availableRewards:'ਉਪਲਬਧ ਇਨਾਮ',rewardTree:'ਇੱਕ ਰੁੱਖ ਲਗਾਓ',
+    rewardTreeDesc:'EcoRoute ਜੰਗਲ ਵਿੱਚ ਦੇਸੀ ਓਕ ਲਗਾ ਕੇ 20kg CO2 ਦੀ ਭਰਪਾਈ ਕਰੋ।',
+    rewardBus:'ਮੁਫ਼ਤ ਬੱਸ ਪਾਸ',rewardBusDesc:'ਕਿਸੇ ਵੀ ਵੱਡੇ ਸ਼ਹਿਰ ਲਈ 7 ਦਿਨਾਂ ਦਾ ਅਸੀਮਤ ਬੱਸ ਪਾਸ।',
+    rewardGrocery:'ਕਰਿਆਨੇ ਦੀ ਛੋਟ',rewardGroceryDesc:'ਸਾਂਝੇ ਸਟੋਰਾਂ ਤੇ ਅਗਲੇ ਆਰਡਰ ਤੇ ₹200 ਦੀ ਛੋਟ।',
+    rewardUtility:'ਉਪਯੋਗਤਾ ਬੱਚਤ',rewardUtilityDesc:'ਤੁਹਾਡੇ ਬਿਜਲੀ ਜਾਂ ਪਾਣੀ ਦੇ ਬਿੱਲ ਤੇ ₹100 ਕ੍ਰੈਡਿਟ।',
+    claim:'ਕਲੇਮ ਕਰੋ',citizenId:'ਨਾਗਰਿਕ ID: QC-PTK-00124',tier:'🏅 ਈਕੋ ਵਾਰੀਅਰ',
+    xpLabel:'XP — ਈਕੋ ਵਾਰੀਅਰ → ਗਾਰਡੀਅਨ',progressToNext:'ਅਗਲੇ ਦਰਜੇ ਵੱਲ ਪ੍ਰਗਤੀ',
+    greenPoints:'ਗ੍ਰੀਨ ਪੁਆਇੰਟ',accuracy:'ਸ਼ੁੱਧਤਾ',badges:'ਬੈਜ',
+    badgeFirst:'ਪਹਿਲਾ ਸਕੈਨ',badgeFirstDesc:'1 ਸਕੈਨ ਪੂਰਾ ਕਰੋ',badgeRecycler:'ਰੀਸਾਈਕਲਰ',
+    badgeRecyclerDesc:'50 ਪੁਆਇੰਟ ਕਮਾਓ',badgeStreak:'7 ਦਿਨ ਦੀ ਸਟ੍ਰੀਕ',badgeStreakDesc:'7 ਵੱਖਰੇ ਦਿਨ',
+    badgeDiamond:'ਹੀਰਾ',badgeDiamondDesc:'2000 pts ਕਮਾਓ',liveLocation:'ਲਾਈਵ ਸਥਾਨ',
+    fetchingLocation:'ਸਥਾਨ ਪ੍ਰਾਪਤ ਹੋ ਰਿਹਾ ਹੈ...',tapRefresh:'ਅੱਪਡੇਟ ਕਰਨ ਲਈ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ',
+    locationFound:'📍 ਸਥਾਨ ਮਿਲ ਗਿਆ',locationDenied:'❌ ਸਥਾਨ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ',
+    locationError:'ਕਿਰਪਾ ਕਰਕੇ ਸਥਾਨ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ',locationUpdated:'ਸਥਾਨ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ',
+    locationFailed:'ਸਥਾਨ ਨਹੀਂ ਮਿਲ ਸਕਿਆ',locationBlocked:'⚠️ ਲੋਕੇਸ਼ਨ ਲਈ localhost ਤੇ ਖੋਲ੍ਹੋ',
+    account:'ਖਾਤਾ',signIn:'ਸਾਈਨ ਇਨ ਕਰੋ',signInSub:'ਖਾਤਾ ਬਦਲੋ ਜਾਂ ਲੌਗ ਇਨ ਕਰੋ',
+    signOut:'ਸਾਈਨ ਆਉਟ',signOutSub:'ਸਥਾਨਕ ਪ੍ਰੋਫ਼ਾਈਲ ਰੀਸੈੱਟ ਕਰਦਾ ਹੈ',
+    modalWelcome:'ਵਾਪਸ ਜੀ ਆਇਆਂ 👋',modalSub:'ਡਿਵਾਈਸਾਂ ਤੇ ਆਪਣੀ ਈਕੋ ਪ੍ਰਗਤੀ ਸਿੰਕ ਕਰਨ ਲਈ ਸਾਈਨ ਇਨ ਕਰੋ।',
+    labelEmail:'ਈਮੇਲ',labelPassword:'ਪਾਸਵਰਡ',cancel:'ਰੱਦ ਕਰੋ',
+    navHome:'ਘਰ',navScan:'ਸਕੈਨ',navBins:'ਡੱਬੇ',navRewards:'ਇਨਾਮ',navProfile:'ਪ੍ਰੋਫ਼ਾਈਲ',
+    toastNeedPts:'ਕਲੇਮ ਲਈ {cost} pts ਚਾਹੀਦੇ ਹਨ',toastClaimed:'ਕਲੇਮ ਕੀਤਾ: {name} 🎉',
+    toastEmailReq:'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਈਮੇਲ ਦਾਖਲ ਕਰੋ',toastSignedIn:'{email} ਵਜੋਂ ਸਾਈਨ ਇਨ ਕੀਤਾ',
+    toastBinSelected:'{name} ਚੁਣਿਆ ਗਿਆ',toastLocationUpdated:'ਸਥਾਨ ਅੱਪਡੇਟ ਕੀਤਾ',
+    toastLocationFailed:'ਸਥਾਨ ਨਹੀਂ ਮਿਲ ਸਕਿਆ',
+    confirmReset:'ਸਾਈਨ ਆਉਟ ਕਰੋ ਅਤੇ ਸਾਰਾ ਸਥਾਨਕ ਡੇਟਾ ਰੀਸੈੱਟ ਕਰੋ?',
+    fetching:'ਸਥਾਨ ਪ੍ਰਾਪਤ ਹੋ ਰਿਹਾ ਹੈ...',pleaseWait:'ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ...',
+  }
+};
+
+let currentLang = 'en';
+function t(key, vars) {
+  const str = (LANG_STRINGS[currentLang]&&LANG_STRINGS[currentLang][key])||LANG_STRINGS['en'][key]||key;
+  if (!vars) return str;
+  return str.replace(/\{(\w+)\}/g, (_,k) => vars[k]!==undefined ? vars[k] : '{'+k+'}');
+}
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n')); });
+  const filtered = activeFilter==='all' ? BINS : BINS.filter(b=>b.cat===activeFilter);
+  document.getElementById('binCountLabel').textContent = filtered.length+' '+t('activeUnits');
+  document.getElementById('homeSub').innerHTML = t('co2Saved');
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('lang'+currentLang.charAt(0).toUpperCase()+currentLang.slice(1)).classList.add('active');
+  renderBinList();
+}
+function setLang(lang) {
+  currentLang = lang;
+  try { const s=JSON.parse(localStorage.getItem(STATE_KEY)||'{}'); s.lang=lang; localStorage.setItem(STATE_KEY,JSON.stringify(s)); } catch(e){}
+  applyLang();
+}
+
+/* ===================== STATE ===================== */
+const STATE_KEY = 'qc_state_v1';
+let state = { points:1240, scans:0, scanLog:[], lastPrediction:null };
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STATE_KEY)||'{}');
+    if (s.points!==undefined) state.points=s.points;
+    if (s.scans!==undefined) state.scans=s.scans;
+    if (Array.isArray(s.scanLog)) state.scanLog=s.scanLog.slice(0,20);
+    if (s.lang) currentLang=s.lang;
+  } catch(e){}
+}
+function saveState() {
+  localStorage.setItem(STATE_KEY, JSON.stringify({points:state.points,scans:state.scans,scanLog:state.scanLog,lang:currentLang}));
+}
+loadState();
+
+/* ===================== NAV ===================== */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>{ s.classList.remove('active','left'); s.classList.add('left'); });
+  const tgt = document.getElementById('screen-'+name);
+  if (tgt) { tgt.classList.remove('left'); tgt.classList.add('active'); tgt.scrollTop=0; }
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.screen===name));
+  if (name==='map') initInlineMap();
+  if (name==='profile') {
+    // Small delay so screen is visible before Leaflet tries to size itself
+    setTimeout(initProfileMap, 80);
+  }
+  updateProfileUI();
+}
+
+/* ===================== TOAST ===================== */
+function showToast(msg, type='ok') {
+  const icons={ok:'✅',warn:'⚠️',err:'❌',info:'ℹ️'};
+  const el=document.createElement('div');
+  el.className='toast-item';
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),350); },2800);
+}
+
+/* ===================== BINS DATA ===================== */
+const BINS = [
+  {id:'BIN-001',name:'Pathankot Bus Stand',  area:'Bus Stand',      fill:88,type:'General',   cat:'dry',      lat:32.2748,lng:75.6520},
+  {id:'BIN-002',name:'Railway Station',       area:'Railway Station',fill:42,type:'Recyclable',cat:'recyclable',lat:32.2684,lng:75.6443},
+  {id:'BIN-003',name:'Dalhousie Road Market', area:'Dalhousie Road', fill:19,type:'Organic',   cat:'wet',      lat:32.2810,lng:75.6478},
+  {id:'BIN-004',name:'Chakki Bank',           area:'Chakki Bank',    fill:73,type:'General',   cat:'dry',      lat:32.2612,lng:75.6571},
+  {id:'BIN-005',name:'Mamun Road',            area:'Mamun',          fill:55,type:'Recyclable',cat:'recyclable',lat:32.2890,lng:75.6340},
+  {id:'BIN-006',name:'Civil Lines Market',    area:'Civil Lines',    fill:91,type:'General',   cat:'dry',      lat:32.2762,lng:75.6598},
+  {id:'BIN-007',name:'Shahpur Kandi Road',    area:'Shahpur Kandi',  fill:33,type:'Organic',   cat:'wet',      lat:32.2530,lng:75.6420},
+  {id:'BIN-008',name:'Mirthal Chowk',         area:'Mirthal',        fill:66,type:'General',   cat:'dry',      lat:32.3050,lng:75.6250},
+  {id:'BIN-009',name:'Sujanpur Road',         area:'Sujanpur',       fill:12,type:'Recyclable',cat:'recyclable',lat:32.2680,lng:75.6670},
+  {id:'BIN-010',name:'Dunera Chowk',          area:'Dunera',         fill:80,type:'Hazardous', cat:'hazardous',lat:32.2920,lng:75.6600},
+  {id:'BIN-011',name:'Pathankot Fort',        area:'Fort',           fill:48,type:'Organic',   cat:'wet',      lat:32.2720,lng:75.6380},
+  {id:'BIN-012',name:'Nurpur Road Junction',  area:'Nurpur Road',    fill:95,type:'General',   cat:'dry',      lat:32.2600,lng:75.6490},
+];
+function binColor(f){return f>=80?'#dc2626':f>=40?'#d97706':'#1a7a3e';}
+function binClass(f){return f>=80?'high':f>=40?'mid':'low';}
+
+let activeFilter='all';
+function renderBinList() {
+  const filtered=activeFilter==='all'?BINS:BINS.filter(b=>b.cat===activeFilter);
+  document.getElementById('binCountLabel').textContent=filtered.length+' '+t('activeUnits');
+  document.getElementById('binList').innerHTML=filtered.sort((a,b)=>b.fill-a.fill).map(b=>{
+    const c=binClass(b.fill);
+    return `<div class="bin-row" onclick="focusBin('${b.id}')">
+      <div class="bin-ico">🗑️</div>
+      <div class="bin-meta">
+        <div class="bin-name">${b.name}</div>
+        <div class="bin-sub">${b.area} · ${b.type}</div>
+        <div class="bin-bar-wrap"><div class="bin-bar ${c}" style="width:${b.fill}%"></div></div>
+      </div>
+      <div class="bin-right">
+        <div class="bin-pct ${c}">${b.fill}%</div>
+        <div class="bin-nav-btn">→</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+renderBinList();
+document.querySelectorAll('.filter-pill').forEach(p=>{
+  p.addEventListener('click',function(){
+    document.querySelectorAll('.filter-pill').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active'); activeFilter=this.dataset.filter; renderBinList();
+  });
+});
+
+/* ===================== INLINE MAP ===================== */
+let inlineMapInited=false, inlineMap;
+const inlineBinMarkers={};
+function initInlineMap() {
+  if (inlineMapInited) return;
+  inlineMapInited=true;
+  inlineMap=L.map('inlineMap',{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:true}).setView([32.2748,75.6520],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(inlineMap);
+  BINS.forEach(b=>{
+    const c=binColor(b.fill);
+    const icon=L.divIcon({className:'',html:`<div style="width:16px;height:16px;border-radius:50%;background:${c};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2)"></div>`,iconSize:[16,16],iconAnchor:[8,8],popupAnchor:[0,-10]});
+    inlineBinMarkers[b.id]=L.marker([b.lat,b.lng],{icon}).addTo(inlineMap).bindPopup(`<b style="font-size:12px">${b.name}</b><br><span style="font-size:11px;color:#888">${b.type} · ${b.fill}% full</span>`);
+  });
+  setTimeout(()=>inlineMap.invalidateSize(),200);
+}
+function focusBin(id) {
+  const b=BINS.find(x=>x.id===id); if(!b) return;
+  if (inlineMapInited&&inlineMap){inlineMap.setView([b.lat,b.lng],15);inlineBinMarkers[id]&&inlineBinMarkers[id].openPopup();document.getElementById('screen-map').scrollTop=0;}
+  showToast(t('toastBinSelected').replace('{name}',b.name),'info');
+}
+setInterval(()=>{ BINS.forEach(b=>{if(Math.random()>.75)b.fill=Math.min(100,b.fill+1);}); if(document.getElementById('screen-map').classList.contains('active'))renderBinList(); },6000);
+
+/* ===================== PROFILE MAP / LIVE LOCATION ===================== */
+let profileMap=null, profileMapInited=false, userLocMarker=null;
+
+function initProfileMap() {
+  if (profileMapInited) return;
+  profileMapInited = true;
+
+  profileMap = L.map('profileMap', {
+    zoomControl: false,
+    attributionControl: false,
+    scrollWheelZoom: false,
+    dragging: true
+  }).setView([32.2748, 75.6520], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(profileMap);
+
+  // Force Leaflet to recalc size after the screen is visible, then fetch location
+  setTimeout(() => {
+    profileMap.invalidateSize();
+    fetchLocation();
+  }, 300);
+}
+
+function fetchLocation() {
+  // Geolocation requires HTTPS or localhost — file:// won't work
+  if (location.protocol === 'file:') {
+    document.getElementById('locText').textContent = t('locationBlocked');
+    document.getElementById('locSub').textContent = 'Use VS Code Live Server or localhost';
+    return;
+  }
+  if (!navigator.geolocation) {
+    document.getElementById('locText').textContent = t('locationDenied');
+    document.getElementById('locSub').textContent = 'Geolocation not supported in this browser';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="width:14px;height:14px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 2px 8px rgba(37,99,235,.5)"></div>`,
+        iconSize: [14,14], iconAnchor: [7,7]
+      });
+      if (userLocMarker) profileMap.removeLayer(userLocMarker);
+      userLocMarker = L.marker([lat,lng], {icon}).addTo(profileMap);
+      profileMap.setView([lat,lng], 15);
+      profileMap.invalidateSize();
+      document.getElementById('locText').textContent = t('locationFound');
+      document.getElementById('locSub').textContent = lat.toFixed(5)+', '+lng.toFixed(5);
+      showToast(t('toastLocationUpdated'), 'ok');
+    },
+    err => {
+      const msgs = {
+        1: t('locationDenied')+' — allow in browser settings',
+        2: 'Position unavailable',
+        3: 'Location request timed out'
+      };
+      document.getElementById('locText').textContent = '❌ '+(msgs[err.code]||t('locationFailed'));
+      document.getElementById('locSub').textContent = 'Tap 🔄 to try again';
+      showToast(t('toastLocationFailed'), 'warn');
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+function refreshLocation() {
+  document.getElementById('locText').textContent = t('fetching');
+  document.getElementById('locSub').textContent = t('pleaseWait');
+  if (profileMap) profileMap.invalidateSize();
+  fetchLocation();
+}
+
+/* ===================== PROFILE UI ===================== */
+function updateProfileUI() {
+  const pts=state.points;
+  document.getElementById('profilePts').textContent=pts.toLocaleString();
+  document.getElementById('profileScans').textContent=state.scans;
+  document.getElementById('homeStatPts').textContent=pts.toLocaleString();
+  document.getElementById('homeStatScans').textContent=state.scans;
+  document.getElementById('grPtsNum').textContent=pts.toLocaleString();
+  const pct=Math.min(100,Math.max(0,Math.round(((pts-1000)/(2000-1000))*100)));
+  document.getElementById('xpPct').textContent=pct+'%';
+  document.getElementById('xpBar').style.width=pct+'%';
+
+  // Show logged-in user's name if available
+  try {
+    const user = JSON.parse(sessionStorage.getItem('eco_user')||'{}');
+    if (user.displayName) document.getElementById('profileName').textContent = user.displayName+' 👋';
+    else if (user.email) document.getElementById('profileName').textContent = user.email.split('@')[0]+' 👋';
+  } catch(e){}
+}
+updateProfileUI();
+
+/* ===================== REWARDS ===================== */
+function claimReward(cost, name) {
+  if (state.points<cost){showToast(t('toastNeedPts').replace('{cost}',cost),'warn');return;}
+  state.points-=cost; saveState(); updateProfileUI();
+  showToast(t('toastClaimed').replace('{name}',name),'ok');
+}
+
+/* ===================== SIGN IN MODAL ===================== */
+function showSignIn(){document.getElementById('signInModal').classList.add('show');}
+function closeSignIn(e){if(!e||e.target===document.getElementById('signInModal'))document.getElementById('signInModal').classList.remove('show');}
+function doSignIn(){
+  const email=document.getElementById('signInEmail').value.trim();
+  if(!email){showToast(t('toastEmailReq'),'warn');return;}
+  document.getElementById('signInModal').classList.remove('show');
+  showToast(t('toastSignedIn').replace('{email}',email),'ok');
+}
+
+/* ===================== SIGN OUT / RESET ===================== */
+function resetData() {
+  if (!confirm(t('confirmReset'))) return;
+  localStorage.removeItem(STATE_KEY);
+  sessionStorage.clear();
+  window.location.href = 'signin.html?tab=signup';
+}
+
+/* ===================== SPLASH + INIT ===================== */
+window.addEventListener('load', () => {
+  applyLang();
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('lang'+currentLang.charAt(0).toUpperCase()+currentLang.slice(1));
+  if(btn) btn.classList.add('active');
+  setTimeout(()=>document.getElementById('splash').classList.add('hide'),1800);
+  updateProfileUI();
+});
+</script>
+</body>
+</html>

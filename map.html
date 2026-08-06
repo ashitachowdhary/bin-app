@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QuantCraft — Pathankot Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#080e1c;font-family:'Rajdhani',sans-serif;color:#c8dde8;overflow:hidden;}
+
+.shell{display:flex;flex-direction:column;height:100vh;}
+
+/* TOP NAV */
+.topnav{display:flex;align-items:center;padding:0 20px;height:54px;background:#0a1020;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:0;z-index:1000;position:relative;}
+.logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#00e896;letter-spacing:1px;margin-right:20px;text-decoration:none;}
+.tnav{display:flex;align-items:flex-end;height:100%;gap:0;}
+.tnav-item{padding:0 18px;height:100%;display:flex;align-items:center;font-size:14px;font-weight:600;color:#4a6a7a;cursor:pointer;border:none;background:none;font-family:'Rajdhani',sans-serif;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.3px;text-decoration:none;}
+.tnav-item:hover{color:#c8dde8;}
+.tnav-item.active{color:#00e896;border-bottom-color:#00e896;}
+.search-wrap{margin-left:24px;position:relative;display:flex;align-items:center;}
+.search-wrap input{padding:7px 14px 7px 36px;width:250px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#c8dde8;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.search-wrap input::placeholder{color:#3a5a6a;}
+.search-wrap input:focus{border-color:rgba(0,232,150,.4);}
+.search-icon{position:absolute;left:11px;color:#3a5a6a;pointer-events:none;}
+.tnav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.ti-btn{color:#4a6a7a;cursor:pointer;transition:color .2s;background:none;border:none;padding:4px;}
+.ti-btn:hover{color:#00e896;}
+
+/* BODY */
+.body{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:#0a1020;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;z-index:500;}
+.user-card{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.05);}
+.uavatar{width:36px;height:36px;border-radius:9px;background:rgba(0,232,150,.1);border:1px solid rgba(0,232,150,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uname{font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf4ff;font-weight:700;}
+.ustatus{font-family:'Share Tech Mono',monospace;font-size:10px;color:#1a5040;margin-top:2px;}
+.snav{flex:1;padding:10px 10px 0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+.ni{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:9px;cursor:pointer;transition:all .2s;font-size:14px;font-weight:600;color:#3a5a6a;border:none;background:none;font-family:'Rajdhani',sans-serif;width:100%;text-align:left;text-decoration:none;}
+.ni:hover{color:#c8dde8;background:rgba(255,255,255,.04);}
+.ni.active{color:#080e1c;background:#00e896;font-weight:700;}
+.ni.active svg{stroke:#080e1c !important;}
+.ni svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;}
+.sfooter{padding:10px;border-top:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:2px;}
+.fi{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#3a5a6a;transition:all .2s;border:none;background:none;font-family:'Rajdhani',sans-serif;width:100%;text-align:left;}
+.fi:hover{color:#c8dde8;background:rgba(255,255,255,.04);}
+.fi.red{color:#e05050;}
+.fi.red:hover{background:rgba(200,50,50,.07);}
+.fi svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;}
+
+.stats-bar{padding:10px 14px;border-top:1px solid rgba(255,255,255,.05);display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px;text-align:center;}
+.stat-val{font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:700;}
+.stat-lbl{font-size:11px;color:#3a5a6a;margin-top:2px;}
+
+/* MAP */
+.map-area{flex:1;position:relative;overflow:hidden;}
+#map{position:absolute;inset:0;}
+
+/* Dark map tile overlay */
+.leaflet-tile-pane{filter:brightness(.48) saturate(.25) hue-rotate(180deg) contrast(1.05);}
+.leaflet-container{background:#0d1525;}
+.leaflet-control-zoom{display:none !important;}
+.leaflet-control-attribution{display:none !important;}
+
+/* POPUP */
+.leaflet-popup-content-wrapper{background:rgba(8,14,28,.97)!important;border:1px solid rgba(0,232,150,.3)!important;border-radius:11px!important;color:#c8dde8!important;box-shadow:0 8px 30px rgba(0,0,0,.7)!important;backdrop-filter:blur(12px);}
+.leaflet-popup-tip{background:rgba(8,14,28,.97)!important;}
+.leaflet-popup-content{margin:11px 15px!important;font-family:'Rajdhani',sans-serif;}
+.popup-title{font-family:'Share Tech Mono',monospace;font-size:11px;color:#00e896;margin-bottom:7px;font-weight:700;letter-spacing:.5px;}
+.popup-row{display:flex;justify-content:space-between;font-size:12px;color:#4a6a7a;margin-bottom:3px;gap:14px;}
+.popup-row span:last-child{color:#eaf4ff;}
+.leaflet-popup-close-button{color:#4a6a7a!important;font-size:17px!important;}
+
+/* LEGEND */
+.legend{position:absolute;bottom:20px;left:14px;z-index:900;background:rgba(8,14,28,.92);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;font-size:12px;color:#5a7a8a;backdrop-filter:blur(8px);}
+.legend-row{display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+.legend-row:last-child{margin-bottom:0;}
+.ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.lline{width:22px;height:3px;border-radius:2px;flex-shrink:0;}
+
+/* ROUTE INFO PANEL */
+.route-panel{position:absolute;top:14px;right:14px;z-index:900;background:rgba(8,14,28,.92);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:12px 14px;min-width:180px;backdrop-filter:blur(8px);}
+.rp-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:#00e896;margin-bottom:8px;letter-spacing:.5px;}
+.rp-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;color:#5a7a8a;cursor:pointer;transition:color .2s;}
+.rp-row:hover{color:#c8dde8;}
+.rp-row:last-child{margin-bottom:0;}
+.rdot{width:12px;height:3px;border-radius:2px;flex-shrink:0;}
+
+/* ZOOM BTNS */
+.zbtns{position:absolute;bottom:20px;right:14px;z-index:900;display:flex;flex-direction:column;gap:6px;}
+.zbtn{width:38px;height:38px;border-radius:9px;background:rgba(8,14,28,.94);border:1px solid rgba(255,255,255,.12);color:#c8dde8;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px);}
+.zbtn:hover{border-color:rgba(0,232,150,.5);color:#00e896;}
+
+/* SEARCH DROPDOWN */
+#sresults{position:absolute;top:100%;left:0;width:280px;background:rgba(8,14,28,.98);border:1px solid rgba(0,232,150,.2);border-radius:8px;margin-top:4px;display:none;z-index:2000;overflow:hidden;max-height:260px;overflow-y:auto;}
+.sitem{padding:9px 14px;cursor:pointer;font-size:13px;color:#c8dde8;border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s;}
+.sitem:hover{background:rgba(0,232,150,.08);}
+.sitem:last-child{border-bottom:none;}
+.sitem-sub{font-size:11px;color:#3a5a6a;margin-top:2px;}
+
+/* LOADING */
+#loading{position:absolute;inset:0;background:rgba(8,14,28,.85);display:flex;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px);}
+.loading-inner{text-align:center;}
+.spinner{width:36px;height:36px;border:3px solid rgba(0,232,150,.2);border-top-color:#00e896;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'Share Tech Mono',monospace;font-size:12px;color:#00e896;letter-spacing:.5px;}
+
+/* TOAST */
+#toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;background:rgba(8,14,28,.97);border:1px solid rgba(0,232,150,.2);border-radius:9px;padding:10px 14px;min-width:220px;font-size:13px;font-family:'Rajdhani',sans-serif;color:#c8dde8;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:toastIn .3s ease forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Back btn for mobile */
+.back-btn{display:none;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:rgba(0,232,150,.1);border:1px solid rgba(0,232,150,.2);color:#00e896;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:pointer;text-decoration:none;margin-right:12px;}
+@media(max-width:600px){
+  .back-btn{display:flex;}
+  .search-wrap{display:none;}
+  .sidebar{display:none;}
+  .tnav{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOP NAV -->
+  <div class="topnav">
+    <a href="index.html" class="logo">QuantCraft</a>
+    <a href="index.html" class="back-btn">← Back</a>
+    <div class="tnav">
+      <a class="tnav-item active" href="map.html">Map View</a>
+      <a class="tnav-item" href="index.html">Home</a>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <input type="text" id="sinput" placeholder="Search bins, areas…" autocomplete="off"
+        oninput="doSearch(this.value)"
+        onblur="setTimeout(()=>{document.getElementById('sresults').style.display='none'},200)"/>
+      <div id="sresults"></div>
+    </div>
+    <div class="tnav-right">
+      <button class="ti-btn" onclick="toast('Notifications coming soon','info')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="ti-btn" onclick="toast('Profile — use Home app','info')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- SIDEBAR (hidden on mobile) -->
+    <div class="sidebar">
+      <div class="user-card">
+        <div class="uavatar">
+          <svg width="18" height="18" fill="none" stroke="#00e896" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div><div class="uname">OPS LEAD</div><div class="ustatus">● ACTIVE</div></div>
+      </div>
+      <div class="snav">
+        <a class="ni active" href="map.html">
+          <svg viewBox="0 0 24 24"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View
+        </a>
+        <a class="ni" href="index.html">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Home
+        </a>
+        <button class="ni" onclick="toast('Settings coming soon','info')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+        </button>
+      </div>
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-box"><div class="stat-val" id="s-full" style="color:#ff6b6b">0</div><div class="stat-lbl">Full Bins</div></div>
+        <div class="stat-box"><div class="stat-val" id="s-ok" style="color:#00e896">0</div><div class="stat-lbl">OK Bins</div></div>
+        <div class="stat-box"><div class="stat-val" id="s-routes" style="color:#00c8ff">4</div><div class="stat-lbl">Routes</div></div>
+        <div class="stat-box"><div class="stat-val" id="s-total" style="color:#c8dde8">12</div><div class="stat-lbl">Total Bins</div></div>
+      </div>
+      <div class="sfooter">
+        <button class="fi" onclick="toast('Help docs opening…','info')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>Help
+        </button>
+        <a class="fi red" href="index.html">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Back to App
+        </a>
+      </div>
+    </div>
+
+    <!-- MAP AREA -->
+    <div class="map-area">
+      <div id="map"></div>
+
+      <!-- LOADING -->
+      <div id="loading">
+        <div class="loading-inner">
+          <div class="spinner"></div>
+          <div class="loading-text">LOADING PATHANKOT MAP…</div>
+        </div>
+      </div>
+
+      <!-- ROUTE PANEL -->
+      <div class="route-panel">
+        <div class="rp-title">ACTIVE ROUTES</div>
+        <div class="rp-row" onclick="focusRoute(0)"><div class="rdot" style="background:#00e896"></div>RT-01 · North (Bus Stand)</div>
+        <div class="rp-row" onclick="focusRoute(1)"><div class="rdot" style="background:#00c8ff"></div>RT-02 · East (Civil Lines)</div>
+        <div class="rp-row" onclick="focusRoute(2)"><div class="rdot" style="background:#ffaa40"></div>RT-03 · West (Mamun Rd)</div>
+        <div class="rp-row" onclick="focusRoute(3)"><div class="rdot" style="background:#e86bff"></div>RT-04 · South (Chakki)</div>
+      </div>
+
+      <!-- ZOOM -->
+      <div class="zbtns">
+        <button class="zbtn" onclick="map.zoomIn()">+</button>
+        <button class="zbtn" onclick="map.zoomOut()">−</button>
+        <button class="zbtn" onclick="resetView()" title="Reset view">⊙</button>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="legend">
+        <div class="legend-row"><span class="ldot" style="background:#ff6b6b"></span>Full ≥ 80%</div>
+        <div class="legend-row"><span class="ldot" style="background:#ffaa40"></span>Half 40–79%</div>
+        <div class="legend-row"><span class="ldot" style="background:#00e896"></span>OK &lt; 40%</div>
+        <div class="legend-row" style="margin-top:6px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px;">
+          <span class="lline" style="background:#00e896;opacity:.7"></span>Road route
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ===== DATA ===== */
+const BINS=[
+  {id:'BIN-001',name:'Pathankot Bus Stand',area:'Bus Stand',fill:88,type:'General',lat:32.2748,lng:75.6520},
+  {id:'BIN-002',name:'Railway Station',area:'Railway Station',fill:42,type:'Recyclable',lat:32.2684,lng:75.6443},
+  {id:'BIN-003',name:'Dalhousie Road Market',area:'Dalhousie Road',fill:19,type:'Organic',lat:32.2810,lng:75.6478},
+  {id:'BIN-004',name:'Chakki Bank',area:'Chakki Bank',fill:73,type:'General',lat:32.2612,lng:75.6571},
+  {id:'BIN-005',name:'Mamun Road',area:'Mamun',fill:55,type:'Recyclable',lat:32.2890,lng:75.6340},
+  {id:'BIN-006',name:'Civil Lines Market',area:'Civil Lines',fill:91,type:'General',lat:32.2762,lng:75.6598},
+  {id:'BIN-007',name:'Shahpur Kandi Road',area:'Shahpur Kandi',fill:33,type:'Organic',lat:32.2530,lng:75.6420},
+  {id:'BIN-008',name:'Mirthal Chowk',area:'Mirthal',fill:66,type:'General',lat:32.3050,lng:75.6250},
+  {id:'BIN-009',name:'Sujanpur Road',area:'Sujanpur',fill:12,type:'Recyclable',lat:32.2680,lng:75.6670},
+  {id:'BIN-010',name:'Dunera Chowk',area:'Dunera',fill:80,type:'Hazardous',lat:32.2920,lng:75.6600},
+  {id:'BIN-011',name:'Pathankot Fort Area',area:'Fort',fill:48,type:'Organic',lat:32.2720,lng:75.6380},
+  {id:'BIN-012',name:'Nurpur Road Junction',area:'Nurpur Road',fill:95,type:'General',lat:32.2600,lng:75.6490},
+];
+const ROUTES=[
+  {id:'RT-01',label:'North – Bus Stand',bins:['BIN-003','BIN-001','BIN-006','BIN-010'],color:'#00e896'},
+  {id:'RT-02',label:'East – Civil Lines',bins:['BIN-002','BIN-011','BIN-009','BIN-004'],color:'#00c8ff'},
+  {id:'RT-03',label:'West – Mamun Rd',bins:['BIN-005','BIN-008','BIN-003'],color:'#ffaa40'},
+  {id:'RT-04',label:'South – Chakki',bins:['BIN-012','BIN-007','BIN-004'],color:'#e86bff'},
+];
+
+function binColor(f){return f>=80?'#ff6b6b':f>=40?'#ffaa40':'#00e896';}
+
+/* ===== MAP ===== */
+const map=L.map('map',{zoomControl:false,attributionControl:false}).setView([32.2748,75.6520],14);
+
+/* Use CartoDB dark tiles (no API key needed, widely available) */
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  subdomains:'abcd',maxZoom:19
+}).addTo(map);
+
+const markerMap={};
+const routePolylines=[];
+
+/* ===== MARKERS ===== */
+function makeMarker(b){
+  const c=binColor(b.fill);
+  const urgent=b.fill>=80;
+  const icon=L.divIcon({
+    className:'',
+    html:`<div style="width:${urgent?20:16}px;height:${urgent?20:16}px;border-radius:50%;background:${c};border:2px solid rgba(255,255,255,.35);box-shadow:0 0 ${urgent?18:10}px ${c},0 0 ${urgent?6:3}px rgba(0,0,0,.5);cursor:pointer;transition:transform .2s;"></div>`,
+    iconSize:[urgent?20:16,urgent?20:16],iconAnchor:[urgent?10:8,urgent?10:8],popupAnchor:[0,-14],
+  });
+  const lvl=b.fill>=80?`<span style="color:#ff6b6b;font-weight:700">FULL</span>`:b.fill>=40?`<span style="color:#ffaa40;font-weight:700">HALF</span>`:`<span style="color:#00e896;font-weight:700">OK</span>`;
+  const popup=`
+    <div class="popup-title">${b.id}</div>
+    <div class="popup-row"><span>Location</span><span>${b.name}</span></div>
+    <div class="popup-row"><span>Area</span><span>${b.area}</span></div>
+    <div class="popup-row"><span>Fill level</span><span style="color:${c}">${b.fill}%</span></div>
+    <div class="popup-row"><span>Type</span><span>${b.type}</span></div>
+    <div class="popup-row"><span>Status</span><span>${lvl}</span></div>`;
+  const m=L.marker([b.lat,b.lng],{icon}).addTo(map).bindPopup(popup,{maxWidth:240,closeButton:true});
+  markerMap[b.id]={marker:m,bin:b};
+}
+BINS.forEach(makeMarker);
+
+/* ===== DRAW ROUTES (straight lines as fallback — OSRM optional) ===== */
+async function fetchRouteOSRM(waypoints,color){
+  const coords=waypoints.map(w=>w[1]+','+w[0]).join(';');
+  const url=`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+  try{
+    const res=await fetch(url,{signal:AbortSignal.timeout(5000)});
+    const data=await res.json();
+    if(data.routes&&data.routes[0]){
+      return L.geoJSON(data.routes[0].geometry,{style:{color,weight:3,opacity:.75}}).addTo(map);
+    }
+  }catch(e){}
+  /* Fallback: dashed straight line */
+  return L.polyline(waypoints,{color,weight:2.5,opacity:.6,dashArray:'10 6'}).addTo(map);
+}
+
+async function loadRoutes(){
+  for(const r of ROUTES){
+    const pts=r.bins.map(id=>{const b=BINS.find(x=>x.id===id);return b?[b.lat,b.lng]:null;}).filter(Boolean);
+    if(pts.length>=2){
+      const poly=await fetchRouteOSRM(pts,r.color);
+      routePolylines.push({poly,route:r});
+    }
+  }
+  document.getElementById('loading').style.display='none';
+  updateStats();
+}
+loadRoutes();
+
+/* ===== FOCUS ROUTE ===== */
+function focusRoute(idx){
+  const r=ROUTES[idx];
+  const pts=r.bins.map(id=>{const b=BINS.find(x=>x.id===id);return b?[b.lat,b.lng]:null;}).filter(Boolean);
+  if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.18));
+  toast(r.label+' — '+r.bins.length+' stops','info');
+}
+
+/* ===== SEARCH ===== */
+const searchIndex=[
+  ...BINS.map(b=>({label:b.name,sub:b.id+' · Fill: '+b.fill+'%',lat:b.lat,lng:b.lng,id:b.id})),
+  {label:'Bus Stand Chowk',sub:'Central Pathankot',lat:32.2748,lng:75.6520},
+  {label:'Railway Station Road',sub:'Station area',lat:32.2684,lng:75.6443},
+  {label:'Civil Lines',sub:'Market area',lat:32.2762,lng:75.6598},
+  {label:'Chakki Bank',sub:'Near river',lat:32.2612,lng:75.6571},
+  {label:'Mamun Road',sub:'Mamun area',lat:32.2890,lng:75.6340},
+  {label:'Pathankot Fort',sub:'Heritage site',lat:32.2720,lng:75.6380},
+  {label:'Nurpur Road',sub:'South Pathankot',lat:32.2600,lng:75.6490},
+];
+
+function doSearch(val){
+  const box=document.getElementById('sresults');
+  if(!val.trim()){box.style.display='none';resetOpacity();return;}
+  const q=val.toLowerCase();
+  const hits=searchIndex.filter(x=>x.label.toLowerCase().includes(q)||x.sub.toLowerCase().includes(q));
+  if(!hits.length){box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML=hits.slice(0,8).map(h=>`
+    <div class="sitem" onmousedown="selectItem(${h.lat},${h.lng},'${h.id||''}')">
+      ${h.label}
+      <div class="sitem-sub">${h.sub}</div>
+    </div>`).join('');
+  filterOpacity(q);
+}
+
+function selectItem(lat,lng,id){
+  map.setView([lat,lng],16,{animate:true});
+  if(id&&markerMap[id]) setTimeout(()=>markerMap[id].marker.openPopup(),300);
+  document.getElementById('sresults').style.display='none';
+  document.getElementById('sinput').value='';
+  resetOpacity();
+}
+
+function filterOpacity(q){
+  Object.values(markerMap).forEach(({marker,bin})=>{
+    const match=bin.name.toLowerCase().includes(q)||bin.area.toLowerCase().includes(q)||bin.id.toLowerCase().includes(q);
+    const el=marker.getElement();
+    if(el) el.style.opacity=match?'1':'0.15';
+  });
+}
+function resetOpacity(){
+  Object.values(markerMap).forEach(({marker})=>{const el=marker.getElement();if(el) el.style.opacity='1';});
+}
+
+/* ===== STATS ===== */
+function updateStats(){
+  document.getElementById('s-full').textContent=BINS.filter(b=>b.fill>=80).length;
+  document.getElementById('s-ok').textContent=BINS.filter(b=>b.fill<40).length;
+}
+
+/* ===== REALTIME FILL ===== */
+setInterval(()=>{
+  BINS.forEach(b=>{if(Math.random()>.75) b.fill=Math.min(100,b.fill+1);});
+  updateStats();
+  // Update marker colors
+  BINS.forEach(b=>{
+    const entry=markerMap[b.id];
+    if(!entry) return;
+    const c=binColor(b.fill);
+    const el=entry.marker.getElement();
+    if(el){
+      const dot=el.querySelector('div');
+      if(dot){dot.style.background=c;dot.style.boxShadow=`0 0 ${b.fill>=80?18:10}px ${c}`;}
+    }
+  });
+},6000);
+
+/* ===== RESET VIEW ===== */
+function resetView(){map.setView([32.2748,75.6520],14,{animate:true});resetOpacity();}
+
+/* ===== TOAST ===== */
+function toast(msg,type='info'){
+  const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️',warn:'⚠️'};
+  const el=document.createElement('div');
+  el.className='toast';
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),350);},2500);
+}
+</script>
+</body>
+</html>
