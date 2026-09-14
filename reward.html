@@ -3,130 +3,796 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>EcoRoute — Reward</title>
+<title>EcoRoute — Rewards</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f4f7f4;--surface:#ffffff;--surface2:#f0f5f0;
-  --text:#111a11;--muted:#6b7f6b;--muted2:#9cad9c;
-  --green:#1a7a3e;--green2:#22a355;--greenLight:#e8f5ee;--greenMid:#c2e0cd;
-  --radius:18px;--shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --bg:#f4f7f5;
+  --surface:#ffffff;
+  --surface2:#f0f5f0;
+  --text:#111a11;
+  --muted:#6b7f6b;
+  --muted2:#9cad9c;
+  --green:#1a7a3e;
+  --green2:#22a355;
+  --green-light:#e8f5ee;
+  --green-mid:#c2e0cd;
+  --radius:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
   --shadowMd:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.07);
+  --navH:64px;
+  --topH:56px;
 }
-html,body{min-height:100%;background:#e8ede8;font-family:'DM Sans',sans-serif;color:var(--text)}
-.shell{width:100%;max-width:430px;min-height:100vh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;padding:20px 18px 40px;}
-@media(min-width:500px){
-  body{display:flex;justify-content:center}
-  .shell{border-radius:44px;box-shadow:0 32px 80px rgba(0,0,0,.18);border:8px solid #2d3e2d;margin:16px auto;}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text)}
+
+.shell{
+  width:100%;
+  max-width:430px;
+  min-height:100vh;
+  margin:0 auto;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  position:relative;
 }
-.header{text-align:center;margin-bottom:18px;}
-.header h1{font-size:20px;font-weight:700;color:var(--green);}
-.header p{font-size:12px;color:var(--muted);margin-top:2px;}
 
-.card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid rgba(0,0,0,.04);}
+/* TOP HEADER */
+.topbar {
+  position:sticky;top:0;z-index:50;
+  height:var(--topH);
+  background:#fff;
+  border-bottom:1px solid #e4ede8;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+}
 
-.scan-banner{background:var(--greenLight);border:1px solid var(--greenMid);border-radius:14px;padding:14px 16px;margin-bottom:16px;text-align:center;}
-.scan-banner .bin-id{font-weight:700;color:var(--green);font-size:16px;}
-.scan-banner .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.topbar-left {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1;
+}
 
-.no-bin{background:#fff4e5;border:1px solid #ffd9a0;border-radius:14px;padding:14px 16px;margin-bottom:16px;text-align:center;font-size:13px;color:#8a5a00;}
+.topbar-logo {
+  font-size:18px;
+  font-weight:700;
+  color:var(--green);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
 
-h2.section-title{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text);}
+.topbar-logo-ico {
+  width:20px;
+  height:20px;
+  background:var(--green);
+  border-radius:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+}
 
-.waste-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.waste-option{border:2px solid var(--surface2);background:var(--surface2);border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:.15s;}
-.waste-option:active{transform:scale(.97);}
-.waste-option.selected{border-color:var(--green);background:var(--greenLight);}
-.waste-option .icon{font-size:26px;margin-bottom:4px;}
-.waste-option .label{font-size:12px;font-weight:600;}
-.waste-option .pts{font-size:10px;color:var(--muted);margin-top:2px;}
+.topbar-tagline {
+  font-size:11px;
+  color:var(--muted);
+  font-weight:500;
+}
 
-.btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,122,62,.3);transition:transform .15s, background-color .2s;margin-top:14px;}
-.btn:active{transform:scale(.98);}
-.btn:hover{background:var(--green2);}
-.btn:disabled{background:var(--muted2);box-shadow:none;cursor:not-allowed;}
-.btn-secondary{background:var(--surface2);color:var(--green);box-shadow:none;}
-.btn-secondary:hover{background:var(--greenMid);}
+.topbar-right {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
 
-.confirm-card{text-align:center;padding:24px 18px;}
-.confirm-icon{font-size:44px;margin-bottom:10px;}
-.confirm-title{font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px;}
-.confirm-sub{font-size:13px;color:var(--muted);margin-bottom:4px;}
-.confirm-pts{font-size:22px;font-weight:700;color:var(--green);margin:10px 0;}
+.topbar-btn {
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  background:#f0f5f0;
+  border:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--text);
+  font-size:16px;
+  transition:all .2s;
+  font-size:14px;
+  font-weight:600;
+  color:var(--muted2);
+}
 
-.history-entry{border:1px solid var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--surface2);}
-.history-entry .bin{font-weight:700;color:var(--green);font-size:13px;}
-.history-entry .type{font-size:12px;color:var(--text);}
-.history-entry .pts{font-size:12px;font-weight:600;color:var(--green);}
-.history-entry .date{font-size:11px;color:var(--muted);margin-top:2px;}
-.history-summary{font-size:14px;font-weight:700;margin-bottom:10px;text-align:center;color:var(--green);}
-.hidden{display:none;}
+.topbar-btn:hover {
+  background:#e0ebe0;
+}
+
+.topbar-profile {
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--green);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:14px;
+  transition:all .2s;
+}
+
+.topbar-profile:hover {
+  transform:scale(1.05);
+}
+
+.topbar-badge {
+  width:8px;
+  height:8px;
+  background:#dc2626;
+  border-radius:50%;
+  position:absolute;
+  top:8px;
+  right:8px;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  flex:1;
+  padding:0 0 calc(var(--navH) + 20px) 0;
+  overflow-y:auto;
+}
+
+/* HERO SECTION */
+.hero-section {
+  background:linear-gradient(135deg, var(--green) 0%, #2d9e55 100%);
+  color:#fff;
+  padding:32px 20px;
+  text-align:left;
+}
+
+.hero-title {
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.hero-title-ico {
+  font-size:28px;
+}
+
+.hero-sub {
+  font-size:14px;
+  opacity:0.95;
+  margin-bottom:20px;
+}
+
+.hero-points-box {
+  background:rgba(255,255,255,.15);
+  border:2px solid rgba(255,255,255,.3);
+  border-radius:16px;
+  padding:20px 24px;
+  display:inline-block;
+  backdrop-filter:blur(8px);
+}
+
+.hero-points-value {
+  font-size:48px;
+  font-weight:700;
+  line-height:1;
+  margin-bottom:4px;
+}
+
+.hero-points-label {
+  font-size:12px;
+  font-weight:600;
+  opacity:0.9;
+  letter-spacing:0.5px;
+}
+
+/* STATS SECTION */
+.stats-section {
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+  padding:16px 16px;
+  background:var(--bg);
+}
+
+.stat-card {
+  background:var(--surface);
+  border-radius:14px;
+  padding:16px 12px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,.03);
+}
+
+.stat-value {
+  font-size:20px;
+  font-weight:700;
+  color:var(--green);
+  margin-bottom:4px;
+}
+
+.stat-label {
+  font-size:12px;
+  color:var(--muted);
+  font-weight:500;
+  line-height:1.3;
+}
+
+/* SECTION TITLE */
+.section-title {
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
+  margin:20px 16px 14px;
+  padding-top:4px;
+}
+
+/* REWARDS GRID */
+.rewards-container {
+  padding:0 16px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.reward-card {
+  background:var(--surface);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,.03);
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  transition:all .2s;
+}
+
+.reward-card:active {
+  transform:scale(.98);
+}
+
+.reward-ico-wrap {
+  width:56px;
+  height:56px;
+  border-radius:12px;
+  background:var(--green-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  font-size:28px;
+}
+
+.reward-card.bus .reward-ico-wrap {
+  background:#dbeafe;
+}
+
+.reward-card.grocery .reward-ico-wrap {
+  background:#fef3c7;
+}
+
+.reward-card.utility .reward-ico-wrap {
+  background:#fee2e2;
+}
+
+.reward-content {
+  flex:1;
+}
+
+.reward-title {
+  font-size:15px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:4px;
+}
+
+.reward-desc {
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+.reward-right {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
+
+.reward-pts {
+  font-size:16px;
+  font-weight:700;
+  color:var(--green);
+}
+
+.claim-btn {
+  background:var(--green);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:8px 16px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+}
+
+.claim-btn:hover {
+  background:var(--green2);
+}
+
+.claim-btn:active {
+  transform:scale(.96);
+}
+
+.claim-btn:disabled {
+  background:var(--muted2);
+  cursor:not-allowed;
+}
+
+/* DISPOSAL FORM */
+.card {
+  background:var(--surface);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+  margin:16px;
+  border:1px solid rgba(0,0,0,.03);
+}
+
+.scan-banner {
+  background:var(--green-light);
+  border:1px solid var(--green-mid);
+  border-radius:14px;
+  padding:14px 16px;
+  margin:16px;
+  text-align:center;
+}
+
+.scan-banner .bin-id {
+  font-weight:700;
+  color:var(--green);
+  font-size:16px;
+}
+
+.scan-banner .sub {
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.no-bin {
+  background:#fff4e5;
+  border:1px solid #ffd9a0;
+  border-radius:14px;
+  padding:14px 16px;
+  margin:16px;
+  text-align:center;
+  font-size:13px;
+  color:#8a5a00;
+}
+
+.waste-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.waste-option {
+  border:2px solid var(--surface2);
+  background:var(--surface2);
+  border-radius:14px;
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.waste-option:active {
+  transform:scale(.97);
+}
+
+.waste-option.selected {
+  border-color:var(--green);
+  background:var(--green-light);
+}
+
+.waste-option .label {
+  font-size:12px;
+  font-weight:600;
+}
+
+.waste-option .pts {
+  font-size:10px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.btn {
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  background:var(--green);
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(26,122,62,.3);
+  transition:transform .15s, background-color .2s;
+  margin-top:14px;
+  font-family:'DM Sans',sans-serif;
+}
+
+.btn:active {
+  transform:scale(.98);
+}
+
+.btn:hover {
+  background:var(--green2);
+}
+
+.btn:disabled {
+  background:var(--muted2);
+  box-shadow:none;
+  cursor:not-allowed;
+}
+
+.btn-secondary {
+  background:var(--surface2);
+  color:var(--green);
+  box-shadow:none;
+  margin-top:0;
+}
+
+.btn-secondary:hover {
+  background:var(--green-mid);
+}
+
+h2.section-title-small {
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:10px;
+  color:var(--text);
+}
+
+.confirm-card {
+  text-align:center;
+  padding:24px 18px;
+}
+
+.confirm-icon {
+  font-size:44px;
+  margin-bottom:10px;
+}
+
+.confirm-title {
+  font-size:18px;
+  font-weight:700;
+  color:var(--green);
+  margin-bottom:6px;
+}
+
+.confirm-sub {
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.confirm-pts {
+  font-size:22px;
+  font-weight:700;
+  color:var(--green);
+  margin:10px 0;
+}
+
+.history-entry {
+  border:1px solid var(--surface2);
+  border-radius:12px;
+  padding:10px 12px;
+  margin-bottom:8px;
+  background:var(--surface2);
+}
+
+.history-entry .bin {
+  font-weight:700;
+  color:var(--green);
+  font-size:13px;
+}
+
+.history-entry .type {
+  font-size:12px;
+  color:var(--text);
+}
+
+.history-entry .pts {
+  font-size:12px;
+  font-weight:600;
+  color:var(--green);
+}
+
+.history-entry .date {
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.history-summary {
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:10px;
+  text-align:center;
+  color:var(--green);
+}
+
+.hidden {
+  display:none;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:var(--navH);
+  background:#fff;
+  border-top:1px solid #e4ede8;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  max-width:430px;
+  margin:0 auto;
+  z-index:100;
+}
+
+.nav-item {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--muted2);
+  font-size:12px;
+  font-weight:500;
+  transition:all .2s;
+  padding:8px 0;
+  font-family:'DM Sans',sans-serif;
+  position:relative;
+}
+
+.nav-item.active {
+  color:var(--green);
+}
+
+.nav-item-ico {
+  font-size:20px;
+}
+
+.nav-item.request-pickup {
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:var(--green);
+  color:#fff;
+  position:absolute;
+  bottom:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:700;
+}
+
+.nav-item.request-pickup .nav-item-ico {
+  font-size:24px;
+}
+
+.nav-label {
+  font-size:11px;
+}
+
+@media(max-width:380px) {
+  .section-title {
+    font-size:16px;
+  }
+  .hero-title {
+    font-size:24px;
+  }
+}
 </style>
 </head>
 <body>
 
 <div class="shell">
-  <div class="header">
-    <h1>🌿 EcoRoute</h1>
-    <p>Smart Waste Disposal</p>
+  <!-- TOP HEADER -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">
+        <div class="topbar-logo-ico">●</div>
+        EcoRoute
+      </div>
+      <div class="topbar-tagline">Cleaner Today, Better Tomorrow</div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn">EN</button>
+      <button class="topbar-btn">हि</button>
+      <button class="topbar-btn">मी</button>
+      <button class="topbar-btn" style="position:relative;">
+        🔔
+        <div class="topbar-badge"></div>
+      </button>
+      <button class="topbar-profile">G</button>
+    </div>
   </div>
 
-  <!-- SCAN BANNER (shows if ?bin= is present) -->
-  <div id="scanBanner" class="scan-banner hidden">
-    <div class="bin-id" id="scannedBinLabel"></div>
-    <div class="sub">Bin scanned — select what you disposed</div>
-  </div>
-  <div id="noBinBanner" class="no-bin hidden">
-    No bin scanned. Open this page via a bin's QR code to log a disposal.
-  </div>
-
-  <!-- DISPOSAL FORM -->
-  <div class="card" id="disposalCard">
-    <h2 class="section-title">What did you dispose?</h2>
-    <div class="waste-grid" id="wasteGrid">
-      <div class="waste-option" data-type="General" data-pts="5">
-        <div class="icon">🗑️</div>
-        <div class="label">General</div>
-        <div class="pts">+5 pts</div>
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- HERO SECTION -->
+    <div class="hero-section">
+      <div class="hero-title">
+        <span>Green Rewards</span>
+        <span class="hero-title-ico">🏆</span>
       </div>
-      <div class="waste-option" data-type="Recyclable" data-pts="10">
-        <div class="icon">♻️</div>
-        <div class="label">Recyclable</div>
-        <div class="pts">+10 pts</div>
-      </div>
-      <div class="waste-option" data-type="Organic" data-pts="8">
-        <div class="icon">🍃</div>
-        <div class="label">Organic</div>
-        <div class="pts">+8 pts</div>
-      </div>
-      <div class="waste-option" data-type="Hazardous" data-pts="15">
-        <div class="icon">⚠️</div>
-        <div class="label">Hazardous</div>
-        <div class="pts">+15 pts</div>
+      <div class="hero-sub">Earn points every scan · Redeem for real benefits</div>
+      <div class="hero-points-box">
+        <div class="hero-points-value" id="totalPoints">0</div>
+        <div class="hero-points-label">YOUR POINTS</div>
       </div>
     </div>
-    <button class="btn" id="logBtn" disabled>Log Disposal</button>
-  </div>
 
-  <!-- CONFIRMATION (hidden until logged) -->
-  <div class="card confirm-card hidden" id="confirmCard">
-    <div class="confirm-icon">✅</div>
-    <div class="confirm-title">Disposal Logged!</div>
-    <div class="confirm-sub" id="confirmBinType"></div>
-    <div class="confirm-pts" id="confirmPts"></div>
-    <div class="confirm-sub" id="confirmTime"></div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="card">
-    <button class="btn btn-secondary" id="viewHistoryBtn">📜 View My History</button>
-    <div id="historyList" class="hidden" style="margin-top:14px;">
-      <div class="history-summary" id="totalPointsSummary"></div>
-      <div id="historyEntries"></div>
+    <!-- STATS SECTION -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-value">2 pts</div>
+        <div class="stat-label">Per scan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">100 pts</div>
+        <div class="stat-label">Min. redeem</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">No expiry</div>
+        <div class="stat-label">Points valid</div>
+      </div>
     </div>
+
+    <!-- AVAILABLE REWARDS TITLE -->
+    <div class="section-title">Available Rewards</div>
+
+    <!-- REWARDS CONTAINER -->
+    <div class="rewards-container">
+      <!-- Bus Ticket Reward -->
+      <div class="reward-card bus">
+        <div class="reward-ico-wrap">🚌</div>
+        <div class="reward-content">
+          <div class="reward-title">Bus Ticket</div>
+          <div class="reward-desc">One free local bus ride, redeemable at any city bus stand.</div>
+        </div>
+        <div class="reward-right">
+          <div class="reward-pts">100 pts</div>
+          <button class="claim-btn">Claim</button>
+        </div>
+      </div>
+
+      <!-- Grocery Discount Reward -->
+      <div class="reward-card grocery">
+        <div class="reward-ico-wrap">🛒</div>
+        <div class="reward-content">
+          <div class="reward-title">Grocery Discount</div>
+          <div class="reward-desc">₹50 off on your next grocery order at partner stores.</div>
+        </div>
+        <div class="reward-right">
+          <div class="reward-pts">300 pts</div>
+          <button class="claim-btn">Claim</button>
+        </div>
+      </div>
+
+      <!-- Utility Savings Reward -->
+      <div class="reward-card utility">
+        <div class="reward-ico-wrap">⚡</div>
+        <div class="reward-content">
+          <div class="reward-title">Utility Savings</div>
+          <div class="reward-desc">₹75 credit on your electricity or water bill.</div>
+        </div>
+        <div class="reward-right">
+          <div class="reward-pts">500 pts</div>
+          <button class="claim-btn">Claim</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISPOSAL FORM (hidden by default) -->
+    <div class="card hidden" id="disposalCard">
+      <div id="scanBanner" class="scan-banner hidden">
+        <div class="bin-id" id="scannedBinLabel"></div>
+        <div class="sub">Bin scanned — select what you disposed</div>
+      </div>
+      <div id="noBinBanner" class="no-bin hidden">
+        No bin scanned. Open this page via a bin's QR code to log a disposal.
+      </div>
+      <h2 class="section-title-small">What did you dispose?</h2>
+      <div class="waste-grid" id="wasteGrid">
+        <div class="waste-option" data-type="General" data-pts="5">
+          <div class="label">General</div>
+          <div class="pts">+5 pts</div>
+        </div>
+        <div class="waste-option" data-type="Recyclable" data-pts="10">
+          <div class="label">Recyclable</div>
+          <div class="pts">+10 pts</div>
+        </div>
+        <div class="waste-option" data-type="Organic" data-pts="8">
+          <div class="label">Organic</div>
+          <div class="pts">+8 pts</div>
+        </div>
+        <div class="waste-option" data-type="Hazardous" data-pts="15">
+          <div class="label">Hazardous</div>
+          <div class="pts">+15 pts</div>
+        </div>
+      </div>
+      <button class="btn" id="logBtn" disabled>Log Disposal</button>
+    </div>
+
+    <!-- CONFIRMATION (hidden until logged) -->
+    <div class="card confirm-card hidden" id="confirmCard">
+      <div class="confirm-icon">✓</div>
+      <div class="confirm-title">Disposal Logged!</div>
+      <div class="confirm-sub" id="confirmBinType"></div>
+      <div class="confirm-pts" id="confirmPts"></div>
+      <div class="confirm-sub" id="confirmTime"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card hidden" id="historyCard">
+      <button class="btn btn-secondary" id="viewHistoryBtn">View My History</button>
+      <div id="historyList" class="hidden" style="margin-top:14px;">
+        <div class="history-summary" id="totalPointsSummary"></div>
+        <div id="historyEntries"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="navigateTo('home')">
+      <div class="nav-item-ico">🏠</div>
+      <div class="nav-label">Home</div>
+    </button>
+    <button class="nav-item" onclick="navigateTo('scan')">
+      <div class="nav-item-ico">📋</div>
+      <div class="nav-label">Scan</div>
+    </button>
+    <button class="nav-item request-pickup" onclick="navigateTo('pickup')">
+      <div class="nav-item-ico">📦</div>
+      <div class="nav-label" style="position:absolute;bottom:-24px;font-size:10px;">Request<br/>Pickup</div>
+    </button>
+    <button class="nav-item active" onclick="navigateTo('rewards')">
+      <div class="nav-item-ico">🎁</div>
+      <div class="nav-label">Rewards</div>
+    </button>
+    <button class="nav-item" onclick="navigateTo('profile')">
+      <div class="nav-item-ico">👤</div>
+      <div class="nav-label">Profile</div>
+    </button>
   </div>
 </div>
 
@@ -134,7 +800,7 @@ h2.section-title{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--t
 // ===== Firebase =====
 const firebaseHost = "https://ecoroute-a871a-default-rtdb.firebaseio.com";
 
-// ===== Device ID (for cross-device history via Option B) =====
+// ===== Device ID =====
 function getDeviceId() {
   let id = localStorage.getItem('ecoroute_device_id');
   if (!id) {
@@ -145,15 +811,29 @@ function getDeviceId() {
 }
 const currentDeviceId = getDeviceId();
 
+// ===== Load points from storage =====
+function loadPoints() {
+  const st = loadState();
+  const points = st.points !== undefined ? st.points : 0;
+  document.getElementById('totalPoints').textContent = points.toLocaleString();
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('qc_state_v1') || '{}'); } catch(e) { return {}; }
+}
+
+loadPoints();
+
 // ===== Detect ?bin= from URL =====
 const params = new URLSearchParams(window.location.search);
 const scannedBinId = params.get('bin');
 
 if (scannedBinId) {
+  document.getElementById('disposalCard').classList.remove('hidden');
   document.getElementById('scanBanner').classList.remove('hidden');
   document.getElementById('scannedBinLabel').textContent = 'Scanned at ' + scannedBinId;
 } else {
-  document.getElementById('noBinBanner').classList.remove('hidden');
+  document.getElementById('historyCard').classList.remove('hidden');
 }
 
 // ===== Waste type selection =====
@@ -168,7 +848,7 @@ wasteOptions.forEach(opt => {
     opt.classList.add('selected');
     selectedType = opt.dataset.type;
     selectedPts = parseInt(opt.dataset.pts, 10);
-    logBtn.disabled = !scannedBinId; // only enable if a bin was actually scanned
+    logBtn.disabled = !scannedBinId;
   });
 });
 
@@ -193,7 +873,6 @@ logBtn.addEventListener('click', async () => {
       body: JSON.stringify(disposalData)
     });
 
-    // Show confirmation
     document.getElementById('disposalCard').classList.add('hidden');
     const confirmCard = document.getElementById('confirmCard');
     confirmCard.classList.remove('hidden');
@@ -212,7 +891,7 @@ logBtn.addEventListener('click', async () => {
   }
 });
 
-// ===== History (Option B — Firebase, filtered by deviceId) =====
+// ===== History =====
 document.getElementById('viewHistoryBtn').addEventListener('click', loadHistory);
 
 async function loadHistory() {
@@ -262,6 +941,20 @@ async function loadHistory() {
     console.error(err);
   }
 }
+
+// ===== Navigation =====
+function navigateTo(page) {
+  console.log('Navigate to:', page);
+  // Update active state
+  document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+  event.target.closest('.nav-item').classList.add('active');
+  // You can add page routing logic here
+}
+
+// Listen for storage changes to update points
+window.addEventListener('storage', () => {
+  loadPoints();
+});
 </script>
 </body>
 </html>

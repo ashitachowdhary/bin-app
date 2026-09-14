@@ -337,6 +337,34 @@
         }
 
         /* =====================================================
+           LANGUAGE SWITCHER
+        ===================================================== */
+
+        .lang-select {
+
+            border: 1px solid var(--border);
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 7px 10px;
+
+            font-family: inherit;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            color: var(--text);
+
+            outline: none;
+
+            cursor: pointer;
+
+        }
+
+        /* =====================================================
            SCROLL BODY
         ===================================================== */
 
@@ -1713,17 +1741,23 @@
 
             <span class="app-logo-text">Eco<span class="accent">Route</span></span>
 
-            <span class="app-logo-sub">Cleaner Today, Better Tomorrow</span>
+            <span class="app-logo-sub" data-i18n="tagline">Cleaner Today, Better Tomorrow</span>
 
         </div>
 
         <div class="app-header-right">
 
+            <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)" title="Language / भाषा / ਭਾਸ਼ਾ">
+                <option value="en">EN</option>
+                <option value="hi">HI</option>
+                <option value="pa">PA</option>
+            </select>
+
             <div class="driver-pill">
 
                 <span class="driver-dot"></span>
 
-                DRIVER
+                <span data-i18n="driverBadge">DRIVER</span>
 
             </div>
 
@@ -1764,12 +1798,12 @@
 
             <div class="greeting-left">
 
-                <div class="eyebrow">
+                <div class="eyebrow" data-i18n="driverConsole">
                     DRIVER CONSOLE
                 </div>
 
                 <h1 class="greeting-title">
-                    Hey, <span id="driverName">Driver</span> <span class="wave">👋</span>
+                    <span data-i18n="hey">Hey,</span> <span id="driverName">Driver</span> <span class="wave">👋</span>
                 </h1>
 
                 <div class="greeting-email"
@@ -1793,7 +1827,7 @@
 
                 <span class="truck-emoji">🚛</span>
 
-                <span class="tagline">Keep the<br>City Clean</span>
+                <span class="tagline" data-i18n="keepCityClean">Keep the<br>City Clean</span>
 
                 <span class="underline"></span>
 
@@ -1820,11 +1854,11 @@
                     0
                 </div>
 
-                <div class="stat-label">
+                <div class="stat-label" data-i18n="pending">
                     Pending
                 </div>
 
-                <div class="stat-hint">
+                <div class="stat-hint" data-i18n="newRequests">
                     ↗ New requests
                 </div>
 
@@ -1843,11 +1877,11 @@
                     0
                 </div>
 
-                <div class="stat-label">
+                <div class="stat-label" data-i18n="active">
                     Active
                 </div>
 
-                <div class="stat-hint">
+                <div class="stat-hint" data-i18n="onRoute">
                     ↗ On route
                 </div>
 
@@ -1866,11 +1900,11 @@
                     0
                 </div>
 
-                <div class="stat-label">
+                <div class="stat-label" data-i18n="completed">
                     Completed
                 </div>
 
-                <div class="stat-hint">
+                <div class="stat-hint" data-i18n="goodJob">
                     ↗ Good job!
                 </div>
 
@@ -1890,11 +1924,11 @@
                     TRK-001
                 </div>
 
-                <div class="stat-label">
+                <div class="stat-label" data-i18n="yourTruck">
                     Your Truck
                 </div>
 
-                <div class="stat-hint">
+                <div class="stat-hint" data-i18n="activeVehicle">
                     ↗ Active vehicle
                 </div>
 
@@ -1916,11 +1950,11 @@
 
             <div class="feature-body">
 
-                <div class="feature-title">
+                <div class="feature-title" data-i18n="activeTruck">
                     Active Truck
                 </div>
 
-                <div class="feature-sub">
+                <div class="feature-sub" data-i18n="switchTruckSub">
                     Switch if you're driving a different vehicle today.
                 </div>
 
@@ -2012,7 +2046,7 @@
 
                     <div>
 
-                        <div class="card-section-title">
+                        <div class="card-section-title" data-i18n="pickupRequests">
                             Pickup Requests
                         </div>
 
@@ -2044,7 +2078,7 @@
 
                         <div class="spinner"></div>
 
-                        Loading pickup requests...
+                        <span data-i18n="loadingRequests">Loading pickup requests...</span>
 
                     </div>
 
@@ -2072,11 +2106,11 @@
 
                     <div>
 
-                        <div class="card-section-title">
+                        <div class="card-section-title" data-i18n="myActiveRoute">
                             My Active Route
                         </div>
 
-                        <div class="card-section-sub">
+                        <div class="card-section-sub" data-i18n="currentActivity">
                             Your current collection activity
                         </div>
 
@@ -2087,7 +2121,7 @@
                 <button class="view-route-btn"
                         onclick="document.getElementById('activeRouteStops').scrollIntoView({behavior:'smooth'})">
 
-                    View Route ›
+                    <span data-i18n="viewRoute">View Route ›</span>
 
                 </button>
 
@@ -2104,11 +2138,11 @@
                             🗺️
                         </div>
 
-                        <div class="empty-title">
+                        <div class="empty-title" data-i18n="noActiveStops">
                             No active stops
                         </div>
 
-                        <div class="empty-sub">
+                        <div class="empty-sub" data-i18n="acceptToStart">
                             Accept a pickup request to start.
                         </div>
 
@@ -2121,7 +2155,7 @@
 
                     <div class="progress-block-head">
 
-                        <div class="progress-block-title">
+                        <div class="progress-block-title" data-i18n="collectionProgress">
                             Collection Progress
                         </div>
 
@@ -2139,7 +2173,7 @@
 
                             <div class="timeline-dot"></div>
 
-                            <div class="timeline-label">
+                            <div class="timeline-label" data-i18n="tlRequest">
                                 REQUEST
                             </div>
 
@@ -2151,7 +2185,7 @@
 
                             <div class="timeline-dot"></div>
 
-                            <div class="timeline-label">
+                            <div class="timeline-label" data-i18n="tlAssigned">
                                 ASSIGNED
                             </div>
 
@@ -2163,7 +2197,7 @@
 
                             <div class="timeline-dot"></div>
 
-                            <div class="timeline-label">
+                            <div class="timeline-label" data-i18n="tlPicked">
                                 PICKED
                             </div>
 
@@ -2175,7 +2209,7 @@
 
                             <div class="timeline-dot"></div>
 
-                            <div class="timeline-label">
+                            <div class="timeline-label" data-i18n="tlDone">
                                 DONE
                             </div>
 
@@ -2186,7 +2220,7 @@
                     <div id="routeMessage"
                          class="route-message">
 
-                        <span>ℹ️</span> No active pickup.
+                        <span>ℹ️</span> <span data-i18n="noActivePickup">No active pickup.</span>
 
                     </div>
 
@@ -2211,7 +2245,7 @@
 
             <svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
 
-            Requests
+            <span data-i18n="navRequests">Requests</span>
 
         </button>
 
@@ -2220,7 +2254,7 @@
 
             <svg viewBox="0 0 24 24"><path d="M9 20l-6-2V4l6 2 6-2 6 2v14l-6-2-6 2z"/><path d="M9 6v14"/><path d="M15 4v14"/></svg>
 
-            Route
+            <span data-i18n="navRoute">Route</span>
 
         </button>
 
@@ -2229,7 +2263,7 @@
 
             <svg viewBox="0 0 24 24"><rect x="1" y="7" width="13" height="10" rx="1"/><path d="M14 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="1.8"/><circle cx="17.5" cy="19" r="1.8"/></svg>
 
-            Truck
+            <span data-i18n="navTruck">Truck</span>
 
         </button>
 
@@ -2238,7 +2272,7 @@
 
             <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
 
-            Logout
+            <span data-i18n="navLogout">Logout</span>
 
         </button>
 
@@ -2255,6 +2289,335 @@
 
 
 <script>
+
+/* ============================================================
+   I18N — English / Hindi / Punjabi
+============================================================ */
+
+const I18N = {
+
+    en: {
+        tagline: "Cleaner Today, Better Tomorrow",
+        driverBadge: "DRIVER",
+        driverConsole: "DRIVER CONSOLE",
+        hey: "Hey,",
+        keepCityClean: "Keep the<br>City Clean",
+        pending: "Pending",
+        newRequests: "↗ New requests",
+        active: "Active",
+        onRoute: "↗ On route",
+        completed: "Completed",
+        goodJob: "↗ Good job!",
+        yourTruck: "Your Truck",
+        activeVehicle: "↗ Active vehicle",
+        activeTruck: "Active Truck",
+        switchTruckSub: "Switch if you're driving a different vehicle today.",
+        pickupRequests: "Pickup Requests",
+        loadingRequests: "Loading pickup requests...",
+        myActiveRoute: "My Active Route",
+        currentActivity: "Your current collection activity",
+        viewRoute: "View Route ›",
+        noActiveStops: "No active stops",
+        acceptToStart: "Accept a pickup request to start.",
+        collectionProgress: "Collection Progress",
+        tlRequest: "REQUEST",
+        tlAssigned: "ASSIGNED",
+        tlPicked: "PICKED",
+        tlDone: "DONE",
+        noActivePickup: "No active pickup.",
+        navRequests: "Requests",
+        navRoute: "Route",
+        navTruck: "Truck",
+        navLogout: "Logout",
+
+        driverAccountFallback: "Driver account",
+        driverFallback: "Driver",
+
+        statusPending: "⏳ Pending",
+        statusAssigned: "🚚 Assigned",
+        statusPicked: "📦 Picked Up",
+        statusCompleted: "✓ Completed",
+
+        connectionError: "Connection error",
+        couldNotLoad: "Could not load requests",
+        checkFirebase: "Check Firebase connection.",
+        noPickupRequests: "No pickup requests",
+        newRequestsAppear: "New citizen requests will appear here automatically.",
+
+        area: "AREA",
+        phone: "PHONE",
+        requested: "REQUESTED",
+        driverLabel: "DRIVER",
+        unassigned: "Unassigned",
+        noDescription: "No description provided",
+        areaNotProvided: "Area not provided",
+        notProvided: "Not provided",
+
+        btnAccept: "✓ Accept Pickup",
+        btnStart: "🚚 Start Pickup",
+        btnComplete: "✓ Complete Pickup",
+        btnCompleted: "✓ Completed",
+
+        pickupArea: "Pickup Area",
+        waste: "Waste",
+
+        truckHasActive: (truck, n, plural) => `Truck ${truck} currently has ${n} active pickup${plural}.`,
+        completedOf: (done, total) => `${done} of ${total} completed`,
+        requestSubText: (p, a, c) => `${p} pending · ${a} active · ${c} completed`,
+
+        toastTruckChanged: (truck) => `Truck changed to ${truck}`,
+        toastAcceptSuccess: "Pickup accepted successfully",
+        toastNotFound: "Request not found",
+        toastNoLongerPending: "This request is no longer pending",
+        toastCouldNotAccept: "Could not accept pickup",
+        toastAssignedOther: "This pickup is assigned to another truck",
+        toastStarted: "Pickup started",
+        toastCouldNotStart: "Could not start pickup",
+        toastCompletedSuccess: "Pickup completed successfully ✓",
+        toastCouldNotComplete: "Could not complete pickup",
+
+        confirmComplete: "Mark this pickup as completed?",
+        confirmLogout: "Logout from Driver Panel?"
+    },
+
+    hi: {
+        tagline: "आज साफ, कल बेहतर",
+        driverBadge: "ड्राइवर",
+        driverConsole: "ड्राइवर कंसोल",
+        hey: "नमस्ते,",
+        keepCityClean: "शहर को<br>साफ रखें",
+        pending: "लंबित",
+        newRequests: "↗ नई रिक्वेस्ट",
+        active: "सक्रिय",
+        onRoute: "↗ रूट पर",
+        completed: "पूर्ण",
+        goodJob: "↗ बढ़िया काम!",
+        yourTruck: "आपका ट्रक",
+        activeVehicle: "↗ सक्रिय वाहन",
+        activeTruck: "सक्रिय ट्रक",
+        switchTruckSub: "अगर आज दूसरी गाड़ी चला रहे हैं तो बदलें।",
+        pickupRequests: "पिकअप रिक्वेस्ट",
+        loadingRequests: "पिकअप रिक्वेस्ट लोड हो रही हैं...",
+        myActiveRoute: "मेरा सक्रिय रूट",
+        currentActivity: "आपकी मौजूदा कलेक्शन गतिविधि",
+        viewRoute: "रूट देखें ›",
+        noActiveStops: "कोई सक्रिय स्टॉप नहीं",
+        acceptToStart: "शुरू करने के लिए पिकअप रिक्वेस्ट स्वीकार करें।",
+        collectionProgress: "कलेक्शन प्रगति",
+        tlRequest: "रिक्वेस्ट",
+        tlAssigned: "असाइन्ड",
+        tlPicked: "पिकअप",
+        tlDone: "पूर्ण",
+        noActivePickup: "कोई सक्रिय पिकअप नहीं।",
+        navRequests: "रिक्वेस्ट",
+        navRoute: "रूट",
+        navTruck: "ट्रक",
+        navLogout: "लॉगआउट",
+
+        driverAccountFallback: "ड्राइवर खाता",
+        driverFallback: "ड्राइवर",
+
+        statusPending: "⏳ लंबित",
+        statusAssigned: "🚚 असाइन किया गया",
+        statusPicked: "📦 पिकअप हुआ",
+        statusCompleted: "✓ पूर्ण",
+
+        connectionError: "कनेक्शन त्रुटि",
+        couldNotLoad: "रिक्वेस्ट लोड नहीं हो सकीं",
+        checkFirebase: "Firebase कनेक्शन जांचें।",
+        noPickupRequests: "कोई पिकअप रिक्वेस्ट नहीं",
+        newRequestsAppear: "नई नागरिक रिक्वेस्ट यहां अपने आप दिखेंगी।",
+
+        area: "क्षेत्र",
+        phone: "फ़ोन",
+        requested: "अनुरोध किया",
+        driverLabel: "ड्राइवर",
+        unassigned: "असाइन नहीं किया गया",
+        noDescription: "कोई विवरण नहीं दिया गया",
+        areaNotProvided: "क्षेत्र नहीं दिया गया",
+        notProvided: "उपलब्ध नहीं",
+
+        btnAccept: "✓ पिकअप स्वीकार करें",
+        btnStart: "🚚 पिकअप शुरू करें",
+        btnComplete: "✓ पिकअप पूर्ण करें",
+        btnCompleted: "✓ पूर्ण हुआ",
+
+        pickupArea: "पिकअप क्षेत्र",
+        waste: "कचरा",
+
+        truckHasActive: (truck, n) => `ट्रक ${truck} के पास अभी ${n} सक्रिय पिकअप ${n > 1 ? "हैं" : "है"}।`,
+        completedOf: (done, total) => `${total} में से ${done} पूर्ण`,
+        requestSubText: (p, a, c) => `${p} लंबित · ${a} सक्रिय · ${c} पूर्ण`,
+
+        toastTruckChanged: (truck) => `ट्रक बदलकर ${truck} किया गया`,
+        toastAcceptSuccess: "पिकअप सफलतापूर्वक स्वीकार किया गया",
+        toastNotFound: "रिक्वेस्ट नहीं मिली",
+        toastNoLongerPending: "यह रिक्वेस्ट अब लंबित नहीं है",
+        toastCouldNotAccept: "पिकअप स्वीकार नहीं हो सका",
+        toastAssignedOther: "यह पिकअप किसी दूसरे ट्रक को असाइन है",
+        toastStarted: "पिकअप शुरू हो गया",
+        toastCouldNotStart: "पिकअप शुरू नहीं हो सका",
+        toastCompletedSuccess: "पिकअप सफलतापूर्वक पूर्ण हुआ ✓",
+        toastCouldNotComplete: "पिकअप पूर्ण नहीं हो सका",
+
+        confirmComplete: "क्या इस पिकअप को पूर्ण के रूप में चिह्नित करें?",
+        confirmLogout: "ड्राइवर पैनल से लॉगआउट करें?"
+    },
+
+    pa: {
+        tagline: "ਅੱਜ ਸਾਫ਼, ਕੱਲ੍ਹ ਬਿਹਤਰ",
+        driverBadge: "ਡਰਾਈਵਰ",
+        driverConsole: "ਡਰਾਈਵਰ ਕੰਸੋਲ",
+        hey: "ਸਤ ਸ੍ਰੀ ਅਕਾਲ,",
+        keepCityClean: "ਸ਼ਹਿਰ ਨੂੰ<br>ਸਾਫ਼ ਰੱਖੋ",
+        pending: "ਬਾਕੀ",
+        newRequests: "↗ ਨਵੀਆਂ ਬੇਨਤੀਆਂ",
+        active: "ਸਰਗਰਮ",
+        onRoute: "↗ ਰੂਟ 'ਤੇ",
+        completed: "ਪੂਰਾ ਹੋਇਆ",
+        goodJob: "↗ ਵਧੀਆ ਕੰਮ!",
+        yourTruck: "ਤੁਹਾਡਾ ਟਰੱਕ",
+        activeVehicle: "↗ ਸਰਗਰਮ ਵਾਹਨ",
+        activeTruck: "ਸਰਗਰਮ ਟਰੱਕ",
+        switchTruckSub: "ਜੇ ਅੱਜ ਵੱਖਰੀ ਗੱਡੀ ਚਲਾ ਰਹੇ ਹੋ ਤਾਂ ਬਦਲੋ।",
+        pickupRequests: "ਪਿਕਅੱਪ ਬੇਨਤੀਆਂ",
+        loadingRequests: "ਪਿਕਅੱਪ ਬੇਨਤੀਆਂ ਲੋਡ ਹੋ ਰਹੀਆਂ ਹਨ...",
+        myActiveRoute: "ਮੇਰਾ ਸਰਗਰਮ ਰੂਟ",
+        currentActivity: "ਤੁਹਾਡੀ ਮੌਜੂਦਾ ਕਲੈਕਸ਼ਨ ਗਤੀਵਿਧੀ",
+        viewRoute: "ਰੂਟ ਵੇਖੋ ›",
+        noActiveStops: "ਕੋਈ ਸਰਗਰਮ ਸਟਾਪ ਨਹੀਂ",
+        acceptToStart: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਪਿਕਅੱਪ ਬੇਨਤੀ ਸਵੀਕਾਰ ਕਰੋ।",
+        collectionProgress: "ਕਲੈਕਸ਼ਨ ਤਰੱਕੀ",
+        tlRequest: "ਬੇਨਤੀ",
+        tlAssigned: "ਸੌਂਪਿਆ",
+        tlPicked: "ਪਿਕਅੱਪ",
+        tlDone: "ਪੂਰਾ",
+        noActivePickup: "ਕੋਈ ਸਰਗਰਮ ਪਿਕਅੱਪ ਨਹੀਂ।",
+        navRequests: "ਬੇਨਤੀਆਂ",
+        navRoute: "ਰੂਟ",
+        navTruck: "ਟਰੱਕ",
+        navLogout: "ਲਾਗਆਉਟ",
+
+        driverAccountFallback: "ਡਰਾਈਵਰ ਖਾਤਾ",
+        driverFallback: "ਡਰਾਈਵਰ",
+
+        statusPending: "⏳ ਬਾਕੀ",
+        statusAssigned: "🚚 ਸੌਂਪਿਆ ਗਿਆ",
+        statusPicked: "📦 ਪਿਕਅੱਪ ਹੋਇਆ",
+        statusCompleted: "✓ ਪੂਰਾ ਹੋਇਆ",
+
+        connectionError: "ਕਨੈਕਸ਼ਨ ਗਲਤੀ",
+        couldNotLoad: "ਬੇਨਤੀਆਂ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀਆਂ",
+        checkFirebase: "Firebase ਕਨੈਕਸ਼ਨ ਚੈੱਕ ਕਰੋ।",
+        noPickupRequests: "ਕੋਈ ਪਿਕਅੱਪ ਬੇਨਤੀ ਨਹੀਂ",
+        newRequestsAppear: "ਨਵੀਆਂ ਨਾਗਰਿਕ ਬੇਨਤੀਆਂ ਇੱਥੇ ਆਪਣੇ ਆਪ ਦਿਖਣਗੀਆਂ।",
+
+        area: "ਖੇਤਰ",
+        phone: "ਫੋਨ",
+        requested: "ਬੇਨਤੀ ਕੀਤੀ",
+        driverLabel: "ਡਰਾਈਵਰ",
+        unassigned: "ਸੌਂਪਿਆ ਨਹੀਂ ਗਿਆ",
+        noDescription: "ਕੋਈ ਵੇਰਵਾ ਨਹੀਂ ਦਿੱਤਾ ਗਿਆ",
+        areaNotProvided: "ਖੇਤਰ ਨਹੀਂ ਦਿੱਤਾ ਗਿਆ",
+        notProvided: "ਉਪਲਬਧ ਨਹੀਂ",
+
+        btnAccept: "✓ ਪਿਕਅੱਪ ਸਵੀਕਾਰ ਕਰੋ",
+        btnStart: "🚚 ਪਿਕਅੱਪ ਸ਼ੁਰੂ ਕਰੋ",
+        btnComplete: "✓ ਪਿਕਅੱਪ ਪੂਰਾ ਕਰੋ",
+        btnCompleted: "✓ ਪੂਰਾ ਹੋਇਆ",
+
+        pickupArea: "ਪਿਕਅੱਪ ਖੇਤਰ",
+        waste: "ਕੂੜਾ",
+
+        truckHasActive: (truck, n) => `ਟਰੱਕ ${truck} ਕੋਲ ਹੁਣ ${n} ਸਰਗਰਮ ਪਿਕਅੱਪ ${n > 1 ? "ਹਨ" : "ਹੈ"}।`,
+        completedOf: (done, total) => `${total} ਵਿੱਚੋਂ ${done} ਪੂਰਾ`,
+        requestSubText: (p, a, c) => `${p} ਬਾਕੀ · ${a} ਸਰਗਰਮ · ${c} ਪੂਰਾ`,
+
+        toastTruckChanged: (truck) => `ਟਰੱਕ ਬਦਲ ਕੇ ${truck} ਕੀਤਾ ਗਿਆ`,
+        toastAcceptSuccess: "ਪਿਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਸਵੀਕਾਰ ਕੀਤਾ ਗਿਆ",
+        toastNotFound: "ਬੇਨਤੀ ਨਹੀਂ ਮਿਲੀ",
+        toastNoLongerPending: "ਇਹ ਬੇਨਤੀ ਹੁਣ ਬਾਕੀ ਨਹੀਂ ਹੈ",
+        toastCouldNotAccept: "ਪਿਕਅੱਪ ਸਵੀਕਾਰ ਨਹੀਂ ਹੋ ਸਕਿਆ",
+        toastAssignedOther: "ਇਹ ਪਿਕਅੱਪ ਕਿਸੇ ਹੋਰ ਟਰੱਕ ਨੂੰ ਸੌਂਪਿਆ ਗਿਆ ਹੈ",
+        toastStarted: "ਪਿਕਅੱਪ ਸ਼ੁਰੂ ਹੋ ਗਿਆ",
+        toastCouldNotStart: "ਪਿਕਅੱਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕਿਆ",
+        toastCompletedSuccess: "ਪਿਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਪੂਰਾ ਹੋਇਆ ✓",
+        toastCouldNotComplete: "ਪਿਕਅੱਪ ਪੂਰਾ ਨਹੀਂ ਹੋ ਸਕਿਆ",
+
+        confirmComplete: "ਇਸ ਪਿਕਅੱਪ ਨੂੰ ਪੂਰਾ ਹੋਇਆ ਮੰਨੀਏ?",
+        confirmLogout: "ਡਰਾਈਵਰ ਪੈਨਲ ਤੋਂ ਲਾਗਆਉਟ ਕਰਨਾ ਹੈ?"
+    }
+
+};
+
+let currentLang =
+    localStorage.getItem("eco_lang") || "en";
+
+function t(key, ...args) {
+
+    const dict =
+        I18N[currentLang] || I18N.en;
+
+    const value =
+        dict[key] !== undefined
+            ? dict[key]
+            : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+
+    if (typeof value === "function") {
+
+        return value(...args);
+
+    }
+
+    return value;
+
+}
+
+function applyStaticTranslations() {
+
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(function (el) {
+
+            const key =
+                el.getAttribute("data-i18n");
+
+            const value =
+                t(key);
+
+            el.innerHTML = value;
+
+        });
+
+    const langSelect =
+        document.getElementById("langSelect");
+
+    if (langSelect) {
+
+        langSelect.value = currentLang;
+
+    }
+
+}
+
+function setLanguage(lang) {
+
+    currentLang =
+        I18N[lang] ? lang : "en";
+
+    localStorage.setItem(
+        "eco_lang",
+        currentLang
+    );
+
+    applyStaticTranslations();
+
+    // Re-render dynamic content in the new language
+    renderPickupRequests();
+    updateActiveRoute();
+
+}
+
 
 /* ============================================================
    FIREBASE CONFIG
@@ -2298,6 +2661,8 @@ let currentNotificationTs = null;
 ============================================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
+
+    applyStaticTranslations();
 
     loadDriverSession();
 
@@ -2361,12 +2726,12 @@ function loadDriverSession() {
 
     document.getElementById("driverName").textContent =
         driverUser.displayName ||
-        "Driver";
+        t("driverFallback");
 
 
     document.getElementById("driverEmail").textContent =
         driverUser.email ||
-        "Driver account";
+        t("driverAccountFallback");
 
 
     const initial =
@@ -2421,7 +2786,7 @@ function changeTruck() {
         MY_TRUCK_ID;
 
     showToast(
-        "Truck changed to " + MY_TRUCK_ID,
+        t("toastTruckChanged", MY_TRUCK_ID),
         "success"
     );
 
@@ -2579,11 +2944,11 @@ async function loadPickupRequests() {
                 </div>
 
                 <div class="empty-title">
-                    Could not load requests
+                    ${t("couldNotLoad")}
                 </div>
 
                 <div class="empty-sub">
-                    Check Firebase connection.
+                    ${t("checkFirebase")}
                 </div>
 
             </div>
@@ -2593,7 +2958,7 @@ async function loadPickupRequests() {
         document.getElementById(
             "requestSub"
         ).textContent =
-            "Connection error";
+            t("connectionError");
 
     }
 
@@ -2723,7 +3088,7 @@ function renderPickupRequests() {
     document.getElementById(
         "requestSub"
     ).textContent =
-        `${pending.length} pending · ${active.length} active · ${completed.length} completed`;
+        t("requestSubText", pending.length, active.length, completed.length);
 
 
     if (!requests.length) {
@@ -2737,11 +3102,11 @@ function renderPickupRequests() {
                 </div>
 
                 <div class="empty-title">
-                    No pickup requests
+                    ${t("noPickupRequests")}
                 </div>
 
                 <div class="empty-sub">
-                    New citizen requests will appear here automatically.
+                    ${t("newRequestsAppear")}
                 </div>
 
             </div>
@@ -2785,22 +3150,22 @@ function requestCard(request) {
     const type =
         request.wasteType ||
         request.itemType ||
-        "General Waste";
+        t("waste");
 
 
     const area =
         request.area ||
-        "Area not provided";
+        t("areaNotProvided");
 
 
     const phone =
         request.phone ||
-        "Not provided";
+        t("notProvided");
 
 
     const description =
         request.description ||
-        "No description provided";
+        t("noDescription");
 
 
     const assignedDriver =
@@ -2824,7 +3189,7 @@ function requestCard(request) {
                 class="action-btn btn-accept"
                 onclick="acceptPickup('${request.id}')">
 
-                ✓ Accept Pickup
+                ${t("btnAccept")}
 
             </button>
 
@@ -2848,7 +3213,7 @@ function requestCard(request) {
                 class="action-btn btn-start"
                 onclick="startPickup('${request.id}')">
 
-                🚚 Start Pickup
+                ${t("btnStart")}
 
             </button>
 
@@ -2872,7 +3237,7 @@ function requestCard(request) {
                 class="action-btn btn-complete"
                 onclick="completePickup('${request.id}')">
 
-                ✓ Complete Pickup
+                ${t("btnComplete")}
 
             </button>
 
@@ -2893,7 +3258,7 @@ function requestCard(request) {
                 class="action-btn btn-cancel"
                 disabled>
 
-                ✓ Completed
+                ${t("btnCompleted")}
 
             </button>
 
@@ -2932,7 +3297,7 @@ function requestCard(request) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        AREA
+                        ${t("area")}
                     </div>
 
                     <div class="detail-value">
@@ -2945,7 +3310,7 @@ function requestCard(request) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        PHONE
+                        ${t("phone")}
                     </div>
 
                     <div class="detail-value">
@@ -2958,7 +3323,7 @@ function requestCard(request) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        REQUESTED
+                        ${t("requested")}
                     </div>
 
                     <div class="detail-value">
@@ -2971,13 +3336,13 @@ function requestCard(request) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        DRIVER
+                        ${t("driverLabel")}
                     </div>
 
                     <div class="detail-value">
                         ${assignedDriver
                             ? escapeHTML(assignedDriver)
-                            : "Unassigned"}
+                            : t("unassigned")}
                     </div>
 
                 </div>
@@ -3018,7 +3383,7 @@ function getStatusInfo(status) {
 
         return {
 
-            label: "🚚 Assigned",
+            label: t("statusAssigned"),
 
             className:
                 "badge-assigned"
@@ -3032,7 +3397,7 @@ function getStatusInfo(status) {
 
         return {
 
-            label: "📦 Picked Up",
+            label: t("statusPicked"),
 
             className:
                 "badge-picked"
@@ -3046,7 +3411,7 @@ function getStatusInfo(status) {
 
         return {
 
-            label: "✓ Completed",
+            label: t("statusCompleted"),
 
             className:
                 "badge-completed"
@@ -3058,7 +3423,7 @@ function getStatusInfo(status) {
 
     return {
 
-        label: "⏳ Pending",
+        label: t("statusPending"),
 
         className:
             "badge-pending"
@@ -3100,7 +3465,7 @@ function renderTimeline(status) {
                 <div class="timeline-dot"></div>
 
                 <div class="timeline-label">
-                    REQUEST
+                    ${t("tlRequest")}
                 </div>
 
             </div>
@@ -3111,7 +3476,7 @@ function renderTimeline(status) {
                 <div class="timeline-dot"></div>
 
                 <div class="timeline-label">
-                    ASSIGNED
+                    ${t("tlAssigned")}
                 </div>
 
             </div>
@@ -3122,7 +3487,7 @@ function renderTimeline(status) {
                 <div class="timeline-dot"></div>
 
                 <div class="timeline-label">
-                    PICKED
+                    ${t("tlPicked")}
                 </div>
 
             </div>
@@ -3133,7 +3498,7 @@ function renderTimeline(status) {
                 <div class="timeline-dot"></div>
 
                 <div class="timeline-label">
-                    DONE
+                    ${t("tlDone")}
                 </div>
 
             </div>
@@ -3158,7 +3523,7 @@ async function acceptPickup(requestId) {
     if (!request) {
 
         showToast(
-            "Request not found",
+            t("toastNotFound"),
             "error"
         );
 
@@ -3173,7 +3538,7 @@ async function acceptPickup(requestId) {
     ) {
 
         showToast(
-            "This request is no longer pending",
+            t("toastNoLongerPending"),
             "warning"
         );
 
@@ -3218,7 +3583,7 @@ async function acceptPickup(requestId) {
 
 
         showToast(
-            "Pickup accepted successfully",
+            t("toastAcceptSuccess"),
             "success"
         );
 
@@ -3245,7 +3610,7 @@ async function acceptPickup(requestId) {
         console.error(error);
 
         showToast(
-            "Could not accept pickup",
+            t("toastCouldNotAccept"),
             "error"
         );
 
@@ -3267,7 +3632,7 @@ async function startPickup(requestId) {
     if (!request) {
 
         showToast(
-            "Request not found",
+            t("toastNotFound"),
             "error"
         );
 
@@ -3282,7 +3647,7 @@ async function startPickup(requestId) {
     ) {
 
         showToast(
-            "This pickup is assigned to another truck",
+            t("toastAssignedOther"),
             "warning"
         );
 
@@ -3312,7 +3677,7 @@ async function startPickup(requestId) {
 
 
         showToast(
-            "Pickup started",
+            t("toastStarted"),
             "success"
         );
 
@@ -3339,7 +3704,7 @@ async function startPickup(requestId) {
         console.error(error);
 
         showToast(
-            "Could not start pickup",
+            t("toastCouldNotStart"),
             "error"
         );
 
@@ -3361,7 +3726,7 @@ async function completePickup(requestId) {
     if (!request) {
 
         showToast(
-            "Request not found",
+            t("toastNotFound"),
             "error"
         );
 
@@ -3376,7 +3741,7 @@ async function completePickup(requestId) {
     ) {
 
         showToast(
-            "This pickup is assigned to another truck",
+            t("toastAssignedOther"),
             "warning"
         );
 
@@ -3387,7 +3752,7 @@ async function completePickup(requestId) {
 
     const confirmed =
         confirm(
-            "Mark this pickup as completed?"
+            t("confirmComplete")
         );
 
 
@@ -3422,7 +3787,7 @@ async function completePickup(requestId) {
 
 
         showToast(
-            "Pickup completed successfully ✓",
+            t("toastCompletedSuccess"),
             "success"
         );
 
@@ -3449,7 +3814,7 @@ async function completePickup(requestId) {
         console.error(error);
 
         showToast(
-            "Could not complete pickup",
+            t("toastCouldNotComplete"),
             "error"
         );
 
@@ -3600,7 +3965,7 @@ function updateActiveRoute() {
     if (progressCount) {
 
         progressCount.textContent =
-            `${completedByMe} of ${totalForMe} completed`;
+            t("completedOf", completedByMe, totalForMe);
 
     }
 
@@ -3616,11 +3981,11 @@ function updateActiveRoute() {
                 </div>
 
                 <div class="empty-title">
-                    No active stops
+                    ${t("noActiveStops")}
                 </div>
 
                 <div class="empty-sub">
-                    Accept a pickup request to start.
+                    ${t("acceptToStart")}
                 </div>
 
             </div>
@@ -3633,7 +3998,7 @@ function updateActiveRoute() {
         document.getElementById(
             "routeMessage"
         ).innerHTML =
-            "<span>ℹ️</span> No active pickup.";
+            `<span>ℹ️</span> ${t("noActivePickup")}`;
 
         return;
 
@@ -3657,7 +4022,7 @@ function updateActiveRoute() {
                             <div class="stop-name">
                                 ${escapeHTML(
                                     request.area ||
-                                    "Pickup Area"
+                                    t("pickupArea")
                                 )}
                             </div>
 
@@ -3665,7 +4030,7 @@ function updateActiveRoute() {
                                 ${escapeHTML(
                                     request.wasteType ||
                                     request.itemType ||
-                                    "Waste"
+                                    t("waste")
                                 )}
                                 ·
                                 ${escapeHTML(
@@ -3695,7 +4060,7 @@ function updateActiveRoute() {
     document.getElementById(
         "routeMessage"
     ).innerHTML =
-        `<span>ℹ️</span> Truck ${MY_TRUCK_ID} currently has ${activeRequests.length} active pickup${activeRequests.length > 1 ? "s" : ""}.`;
+        `<span>ℹ️</span> ${t("truckHasActive", MY_TRUCK_ID, activeRequests.length, activeRequests.length > 1 ? "s" : "")}`;
 
 }
 
@@ -4263,7 +4628,7 @@ function logoutDriver() {
 
     const confirmed =
         confirm(
-            "Logout from Driver Panel?"
+            t("confirmLogout")
         );
 
 
