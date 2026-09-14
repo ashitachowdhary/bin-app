@@ -361,7 +361,7 @@
 
 .modal-overlay {
   display: none;
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
@@ -822,11 +822,6 @@
   </nav>
 
   <div class="toast-wrap" id="toastWrap"></div>
-
-  <!-- FAB -->
-  <div style="position:fixed;bottom:calc(var(--navH,64px)+16px);right:16px;z-index:15">
-    <button onclick="goScan()" style="width:52px;height:52px;border-radius:50%;background:var(--green);border:none;cursor:pointer;font-size:22px;color:#fff;box-shadow:0 4px 16px rgba(26,122,62,.4);display:flex;align-items:center;justify-content:center;transition:transform .15s" onmousedown="this.style.transform='scale(.95)'" onmouseup="this.style.transform=''">+</button>
-  </div>
 
   <!-- SIGN IN MODAL -->
   <div class="modal-overlay" id="signInModal" onclick="closeSignIn(event)">
