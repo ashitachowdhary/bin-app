@@ -2,6 +2,14 @@
   "projects": {
     "default": "ecoroute-a871a"
   },
-  "targets": {},
+  "targets": {
+    "ecoroute-a871a": {
+      "hosting": {
+        "truckpanel": [
+          "ecoroute-a871a-862fa"
+        ]
+      }
+    }
+  },
   "etags": {}
 }

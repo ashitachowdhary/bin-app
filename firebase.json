@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "truckpanel",
     "public": ".",
     "ignore": [
       "firebase.json",
