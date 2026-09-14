@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "quantcraftapp2026"
-  }
+    "default": "ecoroute-a871a"
+  },
+  "targets": {},
+  "etags": {}
 }

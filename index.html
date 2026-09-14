@@ -25,6 +25,48 @@
 .loc-sub{font-size:11px;color:var(--muted,#6b7c71);margin-top:2px;font-family:'DM Mono',monospace;}
 .loc-refresh{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;border-radius:8px;transition:transform .2s;}
 .loc-refresh:hover{transform:rotate(180deg);}
+
+/* ── REQUEST PICKUP SCREEN ── */
+.pickup-header{padding:16px 16px 4px;}
+.pickup-title{font-size:20px;font-weight:700;color:var(--text,#1a2a1e);}
+.pickup-sub{font-size:12px;color:var(--muted,#6b7c71);margin-top:2px;line-height:1.5;}
+.pickup-card{background:var(--surface,#fff);border:1px solid var(--border,#e6ede9);border-radius:16px;padding:18px 16px;margin:12px 16px;}
+.pk-label{font-family:'DM Mono',monospace;font-size:9px;color:#a0b0a6;letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px;display:block;}
+.pk-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.pk-type-btn{padding:12px 8px;border-radius:12px;border:1.5px solid var(--border,#e6ede9);background:var(--bg,#f6f8f5);cursor:pointer;text-align:center;transition:all .2s;}
+.pk-type-btn:hover{border-color:rgba(26,122,62,.3);}
+.pk-type-btn.sel{border-color:var(--green,#1a7a3e);background:var(--green-light,#e8f5ee);}
+.pk-type-ico{font-size:20px;margin-bottom:4px;}
+.pk-type-name{font-size:12px;font-weight:700;color:var(--text,#1a2a1e);}
+.pk-type-btn.sel .pk-type-name{color:var(--green,#1a7a3e);}
+.pk-field{margin-bottom:12px;}
+.pk-input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border,#e6ede9);background:var(--bg,#f6f8f5);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text,#1a2a1e);outline:none;transition:border-color .2s;}
+.pk-input:focus{border-color:var(--green,#1a7a3e);}
+.pk-textarea{resize:vertical;min-height:64px;}
+.pk-submit{width:100%;padding:13px;border-radius:20px;background:var(--green,#1a7a3e);border:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.pk-submit:hover{background:#15693a;}
+.pk-submit:disabled{opacity:.5;cursor:not-allowed;}
+.pk-success{text-align:center;padding:20px 0;display:none;}
+.pk-success.show{display:block;}
+.pk-success-ico{font-size:40px;margin-bottom:10px;}
+.pk-success-title{font-size:15px;font-weight:700;color:var(--green,#1a7a3e);margin-bottom:6px;}
+.pk-success-sub{font-size:12px;color:var(--muted,#6b7c71);line-height:1.6;}
+.pk-track-id{font-family:'DM Mono',monospace;font-size:11px;color:#2563eb;margin-top:10px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:6px 12px;display:inline-block;}
+.pk-my-requests{padding:0 16px 24px;}
+.pk-req-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface,#fff);border:1px solid var(--border,#e6ede9);border-radius:12px;margin-bottom:8px;}
+.pk-req-meta{flex:1;min-width:0;}
+.pk-req-name{font-size:13px;font-weight:700;color:var(--text,#1a2a1e);}
+.pk-req-sub{font-size:11px;color:var(--muted,#6b7c71);margin-top:2px;}
+.pk-req-badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.pk-badge-pending{background:rgba(217,119,6,.1);color:#d97706;}
+.pk-badge-assigned{background:rgba(37,99,235,.1);color:#2563eb;}
+.pk-badge-completed{background:rgba(26,122,62,.1);color:#1a7a3e;}
+.pickup-banner{margin:0 16px 16px;background:linear-gradient(135deg,rgba(26,122,62,.08),rgba(37,99,235,.05));border:1px solid rgba(26,122,62,.15);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s;}
+.pickup-banner:active{transform:scale(.98);}
+.pb-ico{font-size:26px;flex-shrink:0;}
+.pb-title{font-size:14px;font-weight:700;color:var(--text,#1a2a1e);}
+.pb-sub{font-size:11px;color:var(--muted,#6b7c71);margin-top:1px;}
+.pb-arrow{margin-left:auto;font-size:18px;color:#a0b0a6;}
 </style>
 </head>
 <body>
@@ -63,17 +105,17 @@
     <div class="screen active" id="screen-home">
       <div class="home-header pad">
         <div class="greet-small" data-i18n="welcomeBack">WELCOME BACK</div>
-        <div class="greet-big" data-i18n="helloUser">Hello, Niharika! 👋</div>
-        <div class="greet-sub" id="homeSub">You've saved <strong>2.4kg</strong> of CO2 this week.</div>
+        <div class="greet-big" id="homeGreetName" data-i18n="helloUser">Hello! 👋</div>
+        <div class="greet-sub" id="homeSub">Start scanning to earn points.</div>
       </div>
 
       <!-- STAT CARDS -->
       <div class="stat-row">
         <div class="stat-mini">
           <div class="s-ico">🪙</div>
-          <div class="s-val" id="homeStatPts">1,240</div>
+          <div class="s-val" id="homeStatPts">0</div>
           <div class="s-key" data-i18n="rewardPoints">Reward Points</div>
-          <div class="s-trend" data-i18n="todayPts">+45 today</div>
+          <div class="s-trend" id="homeStatTrend" data-i18n="keepItUp">Keep it up!</div>
         </div>
         <div class="stat-mini">
           <div class="s-ico blue">♻️</div>
@@ -81,6 +123,16 @@
           <div class="s-key" data-i18n="totalScans">Total Scans</div>
           <div class="s-trend blue" data-i18n="keepItUp">Keep it up!</div>
         </div>
+      </div>
+
+      <!-- REQUEST PICKUP BANNER -->
+      <div class="pickup-banner" onclick="showScreen('pickup')">
+        <div class="pb-ico">🚛</div>
+        <div>
+          <div class="pb-title" data-i18n="pickupTitle">Request Pickup</div>
+          <div class="pb-sub" data-i18n="pickupBannerSub">Get any waste collected — general, recyclable, e-waste &amp; more</div>
+        </div>
+        <div class="pb-arrow">›</div>
       </div>
 
       <!-- QUICK ACTIONS -->
@@ -109,22 +161,7 @@
           <div class="view-all" onclick="goScan()" data-i18n="viewAll">View All</div>
         </div>
         <div id="homeActivityList">
-          <div class="activity-item">
-            <div class="act-ico">♻️</div>
-            <div class="act-meta">
-              <div class="act-title" data-i18n="actRecycled">Recycled 3 Plastic Bottles</div>
-              <div class="act-time" data-i18n="actRecycledTime">Today, 2:45 PM</div>
-            </div>
-            <div class="act-pts">+45 pts</div>
-          </div>
-          <div class="activity-item">
-            <div class="act-ico">🚛</div>
-            <div class="act-meta">
-              <div class="act-title" data-i18n="actPickup">Bin Pick-up Confirmed</div>
-              <div class="act-time" data-i18n="actPickupTime">Yesterday, 9:00 AM</div>
-            </div>
-            <div class="act-pts">+10 pts</div>
-          </div>
+          <div style="font-size:12px;color:var(--muted,#6b7c71);padding:8px 2px;" data-i18n="noActivity">No activity yet — scan your first item to get started.</div>
         </div>
       </div>
 
@@ -134,15 +171,69 @@
           <div class="reward-link-ico">🏆</div>
           <div>
             <div class="reward-link-title" data-i18n="greenRewardsProg">Green Rewards Programme</div>
-            <div class="reward-link-sub" data-i18n="greenRewardsSub">2 pts per disposal · Redeem from 500 pts</div>
+            <div class="reward-link-sub" data-i18n="greenRewardsSub">2 pts per scan · Redeem from 100 pts</div>
           </div>
         </div>
         <div class="reward-link-arrow">›</div>
       </div>
 
-      <div class="collect-card">
-        <div><div class="collect-v" data-i18n="upcomingCollection">Upcoming Collection</div><div class="collect-k" data-i18n="collectionTime">Tomorrow, 08:30 AM · Sector 4</div></div>
-        <div class="collect-ico">🚛</div>
+    </div>
+
+    <!-- REQUEST PICKUP -->
+    <div class="screen" id="screen-pickup">
+      <div class="pickup-header">
+        <div class="pickup-title" data-i18n="pickupTitle">Request Pickup</div>
+        <div class="pickup-sub" data-i18n="pickupSub">Choose what you're disposing — we'll route it to the right collector, whether that's a municipal truck or a verified kabadiwala.</div>
+      </div>
+
+      <div class="pickup-card" id="pickupFormCard">
+        <label class="pk-label" data-i18n="whatDisposing">What are you disposing?</label>
+        <div class="pk-type-grid" id="pkTypeGrid">
+          <div class="pk-type-btn sel" data-type="General" data-val="general" onclick="selectPkType(this)">
+            <div class="pk-type-ico">🗑️</div><div class="pk-type-name" data-i18n="typeGeneral">General</div>
+          </div>
+          <div class="pk-type-btn" data-type="Recyclable" data-val="recyclable" onclick="selectPkType(this)">
+            <div class="pk-type-ico">♻️</div><div class="pk-type-name" data-i18n="typeRecyclable">Recyclable</div>
+          </div>
+          <div class="pk-type-btn" data-type="Organic" data-val="organic" onclick="selectPkType(this)">
+            <div class="pk-type-ico">🌿</div><div class="pk-type-name" data-i18n="typeOrganic">Organic</div>
+          </div>
+          <div class="pk-type-btn" data-type="Hazardous" data-val="hazardous" onclick="selectPkType(this)">
+            <div class="pk-type-ico">☢️</div><div class="pk-type-name" data-i18n="typeHazardous">Hazardous</div>
+          </div>
+          <div class="pk-type-btn" data-type="E-Waste" data-val="ewaste" onclick="selectPkType(this)" style="grid-column:1/-1;">
+            <div class="pk-type-ico">📱</div><div class="pk-type-name" data-i18n="typeEwaste">E-Waste (phones, batteries, cables, PCBs)</div>
+          </div>
+        </div>
+
+        <div class="pk-field">
+          <label class="pk-label" data-i18n="descLabel">Brief Description (optional)</label>
+          <textarea class="pk-input pk-textarea" id="pkDesc" data-i18n-placeholder="descPlaceholder" placeholder="e.g. two full bags of household waste"></textarea>
+        </div>
+        <div class="pk-field">
+          <label class="pk-label" data-i18n="areaLabel">Pickup Area / Address</label>
+          <input class="pk-input" type="text" id="pkArea" data-i18n-placeholder="areaPlaceholder" placeholder="e.g. Mission Road, Pathankot"/>
+        </div>
+        <div class="pk-field">
+          <label class="pk-label" data-i18n="phoneLabel">Phone Number</label>
+          <input class="pk-input" type="tel" id="pkPhone" data-i18n-placeholder="phonePlaceholder" placeholder="10-digit mobile number"/>
+        </div>
+
+        <button class="pk-submit" id="pkSubmitBtn" onclick="submitPickupRequest()" data-i18n="pickupTitle">Request Pickup</button>
+      </div>
+
+      <div class="pk-success" id="pkSuccessBox">
+        <div class="pk-success-ico">✅</div>
+        <div class="pk-success-title" data-i18n="pkRequestedTitle">Pickup Requested</div>
+        <div class="pk-success-sub" data-i18n="pkRequestedSub">We're matching you with the right collector. Track the status below.</div>
+        <div class="pk-track-id" id="pkTrackId"></div>
+      </div>
+
+      <div class="pk-my-requests">
+        <div class="section-title" data-i18n="myRequests">My Requests</div>
+        <div id="pkMyRequests" style="margin-top:10px;">
+          <div style="font-size:12px;color:var(--muted,#6b7c71);padding:8px 2px;" data-i18n="noRequestsYet">No requests yet — submit one above.</div>
+        </div>
       </div>
     </div>
 
@@ -177,10 +268,10 @@
     <div class="screen" id="screen-rewards">
       <div class="gr-hero">
         <div class="gr-hero-title" data-i18n="greenRewards">Green Rewards 🏆</div>
-        <div class="gr-hero-sub" data-i18n="greenRewardsSub2">Earn points every disposal · Redeem for real benefits</div>
+        <div class="gr-hero-sub" data-i18n="greenRewardsSub2">Earn points every scan · Redeem for real benefits</div>
         <div class="gr-pts-box">
           <div>
-            <div class="gr-pts-num" id="grPtsNum">1,240</div>
+            <div class="gr-pts-num" id="grPtsNum">0</div>
             <div class="gr-pts-label" data-i18n="yourPoints">YOUR POINTS</div>
           </div>
         </div>
@@ -188,10 +279,10 @@
       <div class="gr-info-row">
         <div class="gr-info-box">
           <div class="gr-info-val">2 pts</div>
-          <div class="gr-info-key" data-i18n="perDisposal">Per disposal</div>
+          <div class="gr-info-key" data-i18n="perDisposal">Per scan</div>
         </div>
         <div class="gr-info-box">
-          <div class="gr-info-val">500 pts</div>
+          <div class="gr-info-val">100 pts</div>
           <div class="gr-info-key" data-i18n="minRedeem">Min. redeem</div>
         </div>
         <div class="gr-info-box">
@@ -201,47 +292,36 @@
       </div>
       <div style="padding:4px 16px 0;font-size:17px;font-weight:700;margin-bottom:10px" data-i18n="availableRewards">Available Rewards</div>
       <div class="gr-reward-item">
-        <div class="gr-reward-ico">🌳</div>
-        <div class="gr-reward-meta">
-          <div class="gr-reward-name" data-i18n="rewardTree">Plant a Tree</div>
-          <div class="gr-reward-desc" data-i18n="rewardTreeDesc">Offset 20kg of CO2 by planting a native oak in the EcoRoute forest.</div>
-        </div>
-        <div class="gr-reward-right">
-          <div class="gr-reward-pts">500 pts</div>
-          <button class="gr-reward-btn" onclick="claimReward(500,'Plant a Tree')" data-i18n="claim">Claim</button>
-        </div>
-      </div>
-      <div class="gr-reward-item">
         <div class="gr-reward-ico">🚌</div>
         <div class="gr-reward-meta">
-          <div class="gr-reward-name" data-i18n="rewardBus">Free Bus Pass</div>
-          <div class="gr-reward-desc" data-i18n="rewardBusDesc">7-day unlimited public transit pass for any major city.</div>
+          <div class="gr-reward-name" data-i18n="rewardBus">Bus Ticket</div>
+          <div class="gr-reward-desc" data-i18n="rewardBusDesc">One free local bus ride, redeemable at any city bus stand.</div>
         </div>
         <div class="gr-reward-right">
-          <div class="gr-reward-pts">1,000 pts</div>
-          <button class="gr-reward-btn" onclick="claimReward(1000,'Free Bus Pass')" data-i18n="claim">Claim</button>
+          <div class="gr-reward-pts">100 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(100,'Bus Ticket')" data-i18n="claim">Claim</button>
         </div>
       </div>
       <div class="gr-reward-item">
         <div class="gr-reward-ico">🛒</div>
         <div class="gr-reward-meta">
           <div class="gr-reward-name" data-i18n="rewardGrocery">Grocery Discount</div>
-          <div class="gr-reward-desc" data-i18n="rewardGroceryDesc">₹200 off on your next grocery order at partner stores.</div>
+          <div class="gr-reward-desc" data-i18n="rewardGroceryDesc">₹50 off on your next grocery order at partner stores.</div>
         </div>
         <div class="gr-reward-right">
-          <div class="gr-reward-pts">750 pts</div>
-          <button class="gr-reward-btn" onclick="claimReward(750,'Grocery Discount')" data-i18n="claim">Claim</button>
+          <div class="gr-reward-pts">300 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(300,'Grocery Discount')" data-i18n="claim">Claim</button>
         </div>
       </div>
       <div class="gr-reward-item">
         <div class="gr-reward-ico">⚡</div>
         <div class="gr-reward-meta">
           <div class="gr-reward-name" data-i18n="rewardUtility">Utility Savings</div>
-          <div class="gr-reward-desc" data-i18n="rewardUtilityDesc">₹100 credit on your electricity or water bill.</div>
+          <div class="gr-reward-desc" data-i18n="rewardUtilityDesc">₹75 credit on your electricity or water bill.</div>
         </div>
         <div class="gr-reward-right">
-          <div class="gr-reward-pts">600 pts</div>
-          <button class="gr-reward-btn" onclick="claimReward(600,'Utility Savings')" data-i18n="claim">Claim</button>
+          <div class="gr-reward-pts">500 pts</div>
+          <button class="gr-reward-btn" onclick="claimReward(500,'Utility Savings')" data-i18n="claim">Claim</button>
         </div>
       </div>
     </div>
@@ -251,27 +331,20 @@
       <div class="profile-hero">
         <div class="profile-avatar">🧑🏽‍💼</div>
         <div style="flex:1;min-width:0">
-          <div class="profile-name" id="profileName">Niharika Gupta</div>
-          <div class="profile-id" data-i18n="citizenId">Citizen ID: QC-PTK-00124</div>
-          <div class="tier-pill" data-i18n="tier">🏅 Eco Warrior</div>
+          <div class="profile-name" id="profileName" data-i18n="guestUser">Guest User</div>
         </div>
       </div>
-      <div class="xp-section">
-        <div class="xp-row"><div class="xp-label" data-i18n="xpLabel">XP — Eco Warrior → Guardian</div><div class="xp-pct" id="xpPct">74%</div></div>
-        <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:74%"></div></div>
-        <div style="font-size:11px;color:var(--muted2);margin-top:8px;font-weight:500" data-i18n="progressToNext">Progress to next tier</div>
-      </div>
       <div class="profile-stat-grid">
-        <div class="p-stat-box"><div class="p-stat-v amber" id="profilePts">1,240</div><div class="p-stat-k" data-i18n="greenPoints">Green Points</div></div>
+        <div class="p-stat-box"><div class="p-stat-v amber" id="profilePts">0</div><div class="p-stat-k" data-i18n="greenPoints">Green Points</div></div>
         <div class="p-stat-box"><div class="p-stat-v blue" id="profileScans">0</div><div class="p-stat-k" data-i18n="totalScans">Total Scans</div></div>
-        <div class="p-stat-box"><div class="p-stat-v green" id="profileAcc">94%</div><div class="p-stat-k" data-i18n="accuracy">Accuracy</div></div>
+        <div class="p-stat-box"><div class="p-stat-v green" id="profileAcc">—</div><div class="p-stat-k" data-i18n="accuracy">Accuracy</div></div>
       </div>
       <div style="padding:0 16px"><div class="section-title" data-i18n="badges">Badges</div></div>
       <div class="badge-row">
-        <div class="badge-chip earned"><div class="badge-ico">✨</div><div class="badge-title" data-i18n="badgeFirst">First Scan</div><div class="badge-desc" data-i18n="badgeFirstDesc">Complete 1 scan</div></div>
-        <div class="badge-chip earned"><div class="badge-ico">♻️</div><div class="badge-title" data-i18n="badgeRecycler">Recycler</div><div class="badge-desc" data-i18n="badgeRecyclerDesc">Earn 50 points</div></div>
-        <div class="badge-chip earned"><div class="badge-ico">🔥</div><div class="badge-title" data-i18n="badgeStreak">7-Day Streak</div><div class="badge-desc" data-i18n="badgeStreakDesc">7 unique days</div></div>
-        <div class="badge-chip locked"><div class="badge-ico">💎</div><div class="badge-title" data-i18n="badgeDiamond">Diamond</div><div class="badge-desc" data-i18n="badgeDiamondDesc">Earn 2000 pts</div></div>
+        <div class="badge-chip" id="badgeFirstChip"><div class="badge-ico">✨</div><div class="badge-title" data-i18n="badgeFirst">First Scan</div><div class="badge-desc" data-i18n="badgeFirstDesc">Complete 1 scan</div></div>
+        <div class="badge-chip" id="badgeRecyclerChip"><div class="badge-ico">♻️</div><div class="badge-title" data-i18n="badgeRecycler">Recycler</div><div class="badge-desc" data-i18n="badgeRecyclerDesc">Earn 50 points</div></div>
+        <div class="badge-chip locked"><div class="badge-ico">🔥</div><div class="badge-title" data-i18n="badgeStreak">7-Day Streak</div><div class="badge-desc" data-i18n="badgeStreakDesc">7 unique days</div></div>
+        <div class="badge-chip locked"><div class="badge-ico">💎</div><div class="badge-title" data-i18n="badgeDiamond">Diamond</div><div class="badge-desc" data-i18n="badgeDiamondDesc">Earn 500 pts</div></div>
       </div>
 
       <!-- LIVE LOCATION -->
@@ -287,6 +360,17 @@
           </div>
           <button class="loc-refresh" onclick="refreshLocation()" title="Refresh location">🔄</button>
         </div>
+      </div>
+
+      <!-- DISPLAY NAME -->
+      <div style="padding:0 16px"><div class="section-title" data-i18n="displayNameTitle">Your Name</div></div>
+      <div class="pickup-card" style="margin-top:0;">
+        <label class="pk-label" data-i18n="displayNameLabel">DISPLAY NAME</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="pk-input" type="text" id="profileNameInput" data-i18n-placeholder="namePlaceholder" placeholder="Enter your name" style="flex:1"/>
+          <button class="pk-submit" style="width:auto;padding:11px 18px;white-space:nowrap;" onclick="saveProfileName()" data-i18n="save">Save</button>
+        </div>
+        <button style="margin-top:10px;background:none;border:none;color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;padding:0;" onclick="clearProfileName()" data-i18n="removeName">Remove name</button>
       </div>
 
       <!-- ACCOUNT -->
@@ -337,8 +421,8 @@
         </svg>
       </div><span data-i18n="navScan">Scan</span>
     </div>
-    <div class="nav-item center-nav" data-screen="map" onclick="showScreen('map')">
-      <div class="nav-ico">📍</div><span data-i18n="navBins">Bins</span>
+    <div class="nav-item center-nav" data-screen="pickup" onclick="showScreen('pickup')">
+      <div class="nav-ico">🚛</div><span data-i18n="pickupTitle">Pickup</span>
     </div>
     <div class="nav-item" data-screen="rewards" onclick="showScreen('rewards')">
       <div class="nav-ico">🏆</div><span data-i18n="navRewards">Rewards</span>
@@ -379,6 +463,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 
+/* ===================== FIREBASE (same project as the website) ===================== */
+const FIREBASE_DB_URL = 'https://ecoroute-a871a-default-rtdb.firebaseio.com';
+
 /* ===================== SCAN NAVIGATION ===================== */
 function goScan() { window.location.href = 'scan.html'; }
 
@@ -391,30 +478,28 @@ window.addEventListener('load', () => {
 /* ===================== I18N ===================== */
 const LANG_STRINGS = {
   en: {
-    splashSub:'SMART WASTE MANAGEMENT',welcomeBack:'WELCOME BACK',helloUser:'Hello, Niharika! 👋',
-    co2Saved:"You've saved <strong>2.4kg</strong> of CO2 this week.",rewardPoints:'Reward Points',
-    todayPts:'+45 today',totalScans:'Total Scans',keepItUp:'Keep it up!',quickActions:'Quick Actions',
+    splashSub:'SMART WASTE MANAGEMENT',welcomeBack:'WELCOME BACK',helloUser:'Hello! 👋',
+    noActivity:'No activity yet — scan your first item to get started.',
+    rewardPoints:'Reward Points',
+    totalScans:'Total Scans',keepItUp:'Keep it up!',quickActions:'Quick Actions',
     scanWaste:'Scan Waste',findBin:'Find Bin',rewards:'Rewards',recentActivity:'Recent Activity',
-    viewAll:'View All',actRecycled:'Recycled 3 Plastic Bottles',actRecycledTime:'Today, 2:45 PM',
-    actPickup:'Bin Pick-up Confirmed',actPickupTime:'Yesterday, 9:00 AM',
-    greenRewardsProg:'Green Rewards Programme',greenRewardsSub:'2 pts per disposal · Redeem from 500 pts',
-    upcomingCollection:'Upcoming Collection',collectionTime:'Tomorrow, 08:30 AM · Sector 4',
+    viewAll:'View All',
+    greenRewardsProg:'Green Rewards Programme',greenRewardsSub:'2 pts per scan · Redeem from 100 pts',
     binMap:'Bin Map',fullMap:'🗺️ Full Map',legOk:'OK',legHalf:'Half',legUrgent:'Urgent',
     filterAll:'All',filterDry:'Dry',filterWet:'Wet',filterRecyclable:'Recyclable',filterHazardous:'Hazardous',
     nearestBins:'Nearest Bins',activeUnits:'active units',greenRewards:'Green Rewards 🏆',
-    greenRewardsSub2:'Earn points every disposal · Redeem for real benefits',yourPoints:'YOUR POINTS',
-    perDisposal:'Per disposal',minRedeem:'Min. redeem',noExpiry:'No expiry',pointsValid:'Points valid',
-    availableRewards:'Available Rewards',rewardTree:'Plant a Tree',
-    rewardTreeDesc:'Offset 20kg of CO2 by planting a native oak in the EcoRoute forest.',
-    rewardBus:'Free Bus Pass',rewardBusDesc:'7-day unlimited public transit pass for any major city.',
-    rewardGrocery:'Grocery Discount',rewardGroceryDesc:'₹200 off on your next grocery order at partner stores.',
-    rewardUtility:'Utility Savings',rewardUtilityDesc:'₹100 credit on your electricity or water bill.',
-    claim:'Claim',citizenId:'Citizen ID: QC-PTK-00124',tier:'🏅 Eco Warrior',
+    greenRewardsSub2:'Earn points every scan · Redeem for real benefits',yourPoints:'YOUR POINTS',
+    perDisposal:'Per scan',minRedeem:'Min. redeem',noExpiry:'No expiry',pointsValid:'Points valid',
+    availableRewards:'Available Rewards',
+    rewardBus:'Bus Ticket',rewardBusDesc:'One free local bus ride, redeemable at any city bus stand.',
+    rewardGrocery:'Grocery Discount',rewardGroceryDesc:'₹50 off on your next grocery order at partner stores.',
+    rewardUtility:'Utility Savings',rewardUtilityDesc:'₹75 credit on your electricity or water bill.',
+    claim:'Claim',guestUser:'Guest User',helloUserName:'Hello, {name}! 👋',
     xpLabel:'XP — Eco Warrior → Guardian',progressToNext:'Progress to next tier',
     greenPoints:'Green Points',accuracy:'Accuracy',badges:'Badges',
     badgeFirst:'First Scan',badgeFirstDesc:'Complete 1 scan',badgeRecycler:'Recycler',
     badgeRecyclerDesc:'Earn 50 points',badgeStreak:'7-Day Streak',badgeStreakDesc:'7 unique days',
-    badgeDiamond:'Diamond',badgeDiamondDesc:'Earn 2000 pts',liveLocation:'Live Location',
+    badgeDiamond:'Diamond',badgeDiamondDesc:'Earn 500 pts',liveLocation:'Live Location',
     fetchingLocation:'Fetching location...',tapRefresh:'Tap refresh to update',
     locationFound:'📍 Location found',locationDenied:'❌ Location access denied',
     locationError:'Please enable location in browser settings',locationUpdated:'Location updated',
@@ -429,32 +514,52 @@ const LANG_STRINGS = {
     toastBinSelected:'{name} selected',toastLocationUpdated:'Location updated',
     toastLocationFailed:'Could not get location',confirmReset:'Sign out and reset all local data?',
     fetching:'Fetching location...',pleaseWait:'Please wait...',
+    pickupTitle:'Request Pickup',
+    pickupBannerSub:'Get any waste collected — general, recyclable, e-waste & more',
+    pickupSub:"Choose what you're disposing — we'll route it to the right collector, whether that's a municipal truck or a verified kabadiwala.",
+    whatDisposing:'What are you disposing?',
+    typeGeneral:'General',typeRecyclable:'Recyclable',typeOrganic:'Organic',typeHazardous:'Hazardous',
+    typeEwaste:'E-Waste (phones, batteries, cables, PCBs)',
+    descLabel:'Brief Description (optional)',descPlaceholder:'e.g. two full bags of household waste',
+    areaLabel:'Pickup Area / Address',areaPlaceholder:'e.g. Mission Road, Pathankot',
+    phoneLabel:'Phone Number',phonePlaceholder:'10-digit mobile number',
+    pkRequestedTitle:'Pickup Requested',
+    pkRequestedSub:"We're matching you with the right collector. Track the status below.",
+    myRequests:'My Requests',noRequestsYet:'No requests yet — submit one above.',
+    trackingId:'Tracking ID:',
+    statusPending:'⏳ Pending',statusAssigned:'🚚 Assigned',statusCompleted:'✓ Completed',
+    toastFillAreaPhone:'Fill in area and phone number',
+    toastValidPhone:'Enter a valid 10-digit phone number',
+    submitting:'Submitting…',toastPickupSuccess:'Pickup requested successfully',
+    toastPickupFail:'Could not submit — check connection and try again',
+    couldNotLoadRequests:'Could not load your requests',
+    displayNameTitle:'Your Name',displayNameLabel:'DISPLAY NAME',namePlaceholder:'Enter your name',
+    save:'Save',removeName:'Remove name',
+    toastEnterName:'Please enter a name',toastNameSaved:'Name saved',toastNameRemoved:'Name removed',
   },
   hi: {
-    splashSub:'स्मार्ट कचरा प्रबंधन',welcomeBack:'वापस स्वागत है',helloUser:'नमस्ते, निहारिका! 👋',
-    co2Saved:'आपने इस सप्ताह <strong>2.4kg</strong> CO2 बचाई है।',rewardPoints:'रिवार्ड पॉइंट',
-    todayPts:'+45 आज',totalScans:'कुल स्कैन',keepItUp:'ऐसे ही रहो!',quickActions:'त्वरित क्रियाएँ',
+    splashSub:'स्मार्ट कचरा प्रबंधन',welcomeBack:'वापस स्वागत है',helloUser:'नमस्ते! 👋',
+    noActivity:'अभी तक कोई गतिविधि नहीं — शुरू करने के लिए अपना पहला आइटम स्कैन करें।',
+    rewardPoints:'रिवार्ड पॉइंट',
+    totalScans:'कुल स्कैन',keepItUp:'ऐसे ही रहो!',quickActions:'त्वरित क्रियाएँ',
     scanWaste:'कचरा स्कैन करें',findBin:'डब्बा खोजें',rewards:'पुरस्कार',recentActivity:'हाल की गतिविधि',
-    viewAll:'सभी देखें',actRecycled:'3 प्लास्टिक बोतलें रीसाइकिल कीं',actRecycledTime:'आज, 2:45 अपराह्न',
-    actPickup:'डब्बा पिकअप की पुष्टि हुई',actPickupTime:'कल, 9:00 पूर्वाह्न',
-    greenRewardsProg:'ग्रीन रिवार्ड्स प्रोग्राम',greenRewardsSub:'प्रति निपटान 2 pts · 500 pts से रिडीम करें',
-    upcomingCollection:'आगामी संग्रह',collectionTime:'कल, 08:30 पूर्वाह्न · सेक्टर 4',
+    viewAll:'सभी देखें',
+    greenRewardsProg:'ग्रीन रिवार्ड्स प्रोग्राम',greenRewardsSub:'प्रति स्कैन 2 pts · 100 pts से रिडीम करें',
     binMap:'डब्बा नक्शा',fullMap:'🗺️ पूरा नक्शा',legOk:'ठीक है',legHalf:'आधा',legUrgent:'जरूरी',
     filterAll:'सभी',filterDry:'सूखा',filterWet:'गीला',filterRecyclable:'रीसाइकिल',filterHazardous:'खतरनाक',
     nearestBins:'निकटतम डब्बे',activeUnits:'सक्रिय इकाइयाँ',greenRewards:'ग्रीन रिवार्ड्स 🏆',
-    greenRewardsSub2:'प्रत्येक निपटान पर पॉइंट कमाएं · असली लाभ के लिए रिडीम करें',yourPoints:'आपके पॉइंट',
-    perDisposal:'प्रति निपटान',minRedeem:'न्यूनतम रिडीम',noExpiry:'कोई समाप्ति नहीं',pointsValid:'पॉइंट वैध',
-    availableRewards:'उपलब्ध पुरस्कार',rewardTree:'एक पेड़ लगाएं',
-    rewardTreeDesc:'EcoRoute जंगल में एक देशी ओक लगाकर 20kg CO2 की भरपाई करें।',
-    rewardBus:'मुफ्त बस पास',rewardBusDesc:'किसी भी बड़े शहर में 7 दिन का असीमित पब्लिक ट्रांजिट पास।',
-    rewardGrocery:'किराना छूट',rewardGroceryDesc:'पार्टनर स्टोर पर अगले किराना ऑर्डर पर ₹200 की छूट।',
-    rewardUtility:'उपयोगिता बचत',rewardUtilityDesc:'आपके बिजली या पानी के बिल पर ₹100 का क्रेडिट।',
-    claim:'क्लेम करें',citizenId:'नागरिक ID: QC-PTK-00124',tier:'🏅 इको वॉरियर',
+    greenRewardsSub2:'प्रत्येक स्कैन पर पॉइंट कमाएं · असली लाभ के लिए रिडीम करें',yourPoints:'आपके पॉइंट',
+    perDisposal:'प्रति स्कैन',minRedeem:'न्यूनतम रिडीम',noExpiry:'कोई समाप्ति नहीं',pointsValid:'पॉइंट वैध',
+    availableRewards:'उपलब्ध पुरस्कार',
+    rewardBus:'बस टिकट',rewardBusDesc:'किसी भी शहर के बस स्टैंड पर एक मुफ्त स्थानीय बस यात्रा।',
+    rewardGrocery:'किराना छूट',rewardGroceryDesc:'पार्टनर स्टोर पर अगले किराना ऑर्डर पर ₹50 की छूट।',
+    rewardUtility:'उपयोगिता बचत',rewardUtilityDesc:'आपके बिजली या पानी के बिल पर ₹75 का क्रेडिट।',
+    claim:'क्लेम करें',guestUser:'मेहमान उपयोगकर्ता',helloUserName:'नमस्ते, {name}! 👋',
     xpLabel:'XP — इको वॉरियर → गार्जियन',progressToNext:'अगले स्तर की प्रगति',
     greenPoints:'ग्रीन पॉइंट',accuracy:'सटीकता',badges:'बैज',
     badgeFirst:'पहला स्कैन',badgeFirstDesc:'1 स्कैन पूरा करें',badgeRecycler:'रीसाइकलर',
     badgeRecyclerDesc:'50 पॉइंट कमाएं',badgeStreak:'7 दिन की स्ट्रीक',badgeStreakDesc:'7 अनोखे दिन',
-    badgeDiamond:'डायमंड',badgeDiamondDesc:'2000 pts कमाएं',liveLocation:'लाइव स्थान',
+    badgeDiamond:'डायमंड',badgeDiamondDesc:'500 pts कमाएं',liveLocation:'लाइव स्थान',
     fetchingLocation:'स्थान प्राप्त हो रहा है...',tapRefresh:'अपडेट करने के लिए रिफ्रेश करें',
     locationFound:'📍 स्थान मिल गया',locationDenied:'❌ स्थान की अनुमति अस्वीकृत',
     locationError:'कृपया स्थान अनुमति सक्षम करें',locationUpdated:'स्थान अपडेट किया गया',
@@ -469,32 +574,52 @@ const LANG_STRINGS = {
     toastBinSelected:'{name} चुना गया',toastLocationUpdated:'स्थान अपडेट किया',
     toastLocationFailed:'स्थान नहीं मिल सका',confirmReset:'साइन आउट करें और सभी स्थानीय डेटा रीसेट करें?',
     fetching:'स्थान प्राप्त हो रहा है...',pleaseWait:'कृपया प्रतीक्षा करें...',
+    pickupTitle:'पिकअप का अनुरोध करें',
+    pickupBannerSub:'कोई भी कचरा उठवाएं — सामान्य, रीसाइकिल, ई-वेस्ट और अन्य',
+    pickupSub:'आप क्या फेंक रहे हैं चुनें — हम इसे सही कलेक्टर तक भेजेंगे, चाहे वह नगरपालिका ट्रक हो या सत्यापित कबाड़ीवाला।',
+    whatDisposing:'आप क्या फेंक रहे हैं?',
+    typeGeneral:'सामान्य',typeRecyclable:'रीसाइकिल',typeOrganic:'जैविक',typeHazardous:'खतरनाक',
+    typeEwaste:'ई-वेस्ट (फोन, बैटरी, केबल, PCB)',
+    descLabel:'संक्षिप्त विवरण (वैकल्पिक)',descPlaceholder:'जैसे घरेलू कचरे के दो पूरे बैग',
+    areaLabel:'पिकअप क्षेत्र / पता',areaPlaceholder:'जैसे मिशन रोड, पठानकोट',
+    phoneLabel:'फ़ोन नंबर',phonePlaceholder:'10 अंकों का मोबाइल नंबर',
+    pkRequestedTitle:'पिकअप का अनुरोध किया गया',
+    pkRequestedSub:'हम आपको सही कलेक्टर से जोड़ रहे हैं। नीचे स्थिति ट्रैक करें।',
+    myRequests:'मेरे अनुरोध',noRequestsYet:'अभी तक कोई अनुरोध नहीं — ऊपर एक सबमिट करें।',
+    trackingId:'ट्रैकिंग ID:',
+    statusPending:'⏳ लंबित',statusAssigned:'🚚 सौंपा गया',statusCompleted:'✓ पूर्ण',
+    toastFillAreaPhone:'कृपया क्षेत्र और फ़ोन नंबर भरें',
+    toastValidPhone:'कृपया मान्य 10 अंकों का फ़ोन नंबर दर्ज करें',
+    submitting:'सबमिट हो रहा है…',toastPickupSuccess:'पिकअप का अनुरोध सफलतापूर्वक भेजा गया',
+    toastPickupFail:'सबमिट नहीं हो सका — कनेक्शन जांचें और फिर से प्रयास करें',
+    couldNotLoadRequests:'आपके अनुरोध लोड नहीं हो सके',
+    displayNameTitle:'आपका नाम',displayNameLabel:'प्रदर्शित नाम',namePlaceholder:'अपना नाम दर्ज करें',
+    save:'सेव करें',removeName:'नाम हटाएं',
+    toastEnterName:'कृपया एक नाम दर्ज करें',toastNameSaved:'नाम सेव किया गया',toastNameRemoved:'नाम हटा दिया गया',
   },
   pa: {
-    splashSub:'ਸਮਾਰਟ ਕੂੜਾ ਪ੍ਰਬੰਧਨ',welcomeBack:'ਵਾਪਸ ਜੀ ਆਇਆਂ',helloUser:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ, ਨਿਹਾਰਿਕਾ! 👋',
-    co2Saved:'ਤੁਸੀਂ ਇਸ ਹਫ਼ਤੇ <strong>2.4kg</strong> CO2 ਬਚਾਈ ਹੈ।',rewardPoints:'ਇਨਾਮ ਪੁਆਇੰਟ',
-    todayPts:'+45 ਅੱਜ',totalScans:'ਕੁੱਲ ਸਕੈਨ',keepItUp:'ਇਸੇ ਤਰ੍ਹਾਂ ਚੱਲਦੇ ਰਹੋ!',quickActions:'ਤੇਜ਼ ਕਾਰਵਾਈਆਂ',
+    splashSub:'ਸਮਾਰਟ ਕੂੜਾ ਪ੍ਰਬੰਧਨ',welcomeBack:'ਵਾਪਸ ਜੀ ਆਇਆਂ',helloUser:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! 👋',
+    noActivity:'ਅਜੇ ਤੱਕ ਕੋਈ ਗਤੀਵਿਧੀ ਨਹੀਂ — ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਆਪਣਾ ਪਹਿਲਾ ਆਈਟਮ ਸਕੈਨ ਕਰੋ।',
+    rewardPoints:'ਇਨਾਮ ਪੁਆਇੰਟ',
+    totalScans:'ਕੁੱਲ ਸਕੈਨ',keepItUp:'ਇਸੇ ਤਰ੍ਹਾਂ ਚੱਲਦੇ ਰਹੋ!',quickActions:'ਤੇਜ਼ ਕਾਰਵਾਈਆਂ',
     scanWaste:'ਕੂੜਾ ਸਕੈਨ ਕਰੋ',findBin:'ਡੱਬਾ ਲੱਭੋ',rewards:'ਇਨਾਮ',recentActivity:'ਹਾਲੀਆ ਗਤੀਵਿਧੀ',
-    viewAll:'ਸਭ ਦੇਖੋ',actRecycled:'3 ਪਲਾਸਟਿਕ ਬੋਤਲਾਂ ਰੀਸਾਈਕਲ ਕੀਤੀਆਂ',actRecycledTime:'ਅੱਜ, 2:45 ਸ਼ਾਮ',
-    actPickup:'ਡੱਬਾ ਪਿਕਅੱਪ ਪੁਸ਼ਟੀ ਹੋਈ',actPickupTime:'ਕੱਲ੍ਹ, 9:00 ਸਵੇਰੇ',
-    greenRewardsProg:'ਗ੍ਰੀਨ ਰਿਵਾਰਡਜ਼ ਪ੍ਰੋਗਰਾਮ',greenRewardsSub:'ਪ੍ਰਤੀ ਨਿਪਟਾਰੇ 2 pts · 500 pts ਤੋਂ ਰਿਡੀਮ ਕਰੋ',
-    upcomingCollection:'ਆਉਣ ਵਾਲਾ ਸੰਗ੍ਰਹਿ',collectionTime:'ਕੱਲ੍ਹ, 08:30 ਸਵੇਰੇ · ਸੈਕਟਰ 4',
+    viewAll:'ਸਭ ਦੇਖੋ',
+    greenRewardsProg:'ਗ੍ਰੀਨ ਰਿਵਾਰਡਜ਼ ਪ੍ਰੋਗਰਾਮ',greenRewardsSub:'ਪ੍ਰਤੀ ਸਕੈਨ 2 pts · 100 pts ਤੋਂ ਰਿਡੀਮ ਕਰੋ',
     binMap:'ਡੱਬਾ ਨਕਸ਼ਾ',fullMap:'🗺️ ਪੂਰਾ ਨਕਸ਼ਾ',legOk:'ਠੀਕ ਹੈ',legHalf:'ਅੱਧਾ',legUrgent:'ਜ਼ਰੂਰੀ',
     filterAll:'ਸਭ',filterDry:'ਸੁੱਕਾ',filterWet:'ਗਿੱਲਾ',filterRecyclable:'ਰੀਸਾਈਕਲ',filterHazardous:'ਖ਼ਤਰਨਾਕ',
     nearestBins:'ਨੇੜੇ ਦੇ ਡੱਬੇ',activeUnits:'ਸਕਿਰਿਆ ਇਕਾਈਆਂ',greenRewards:'ਗ੍ਰੀਨ ਰਿਵਾਰਡਜ਼ 🏆',
-    greenRewardsSub2:'ਹਰ ਨਿਪਟਾਰੇ ਤੇ ਪੁਆਇੰਟ ਕਮਾਓ · ਅਸਲ ਫ਼ਾਇਦਿਆਂ ਲਈ ਰਿਡੀਮ ਕਰੋ',yourPoints:'ਤੁਹਾਡੇ ਪੁਆਇੰਟ',
-    perDisposal:'ਪ੍ਰਤੀ ਨਿਪਟਾਰਾ',minRedeem:'ਘੱਟੋ-ਘੱਟ ਰਿਡੀਮ',noExpiry:'ਕੋਈ ਮਿਆਦ ਨਹੀਂ',pointsValid:'ਪੁਆਇੰਟ ਵੈਧ',
-    availableRewards:'ਉਪਲਬਧ ਇਨਾਮ',rewardTree:'ਇੱਕ ਰੁੱਖ ਲਗਾਓ',
-    rewardTreeDesc:'EcoRoute ਜੰਗਲ ਵਿੱਚ ਦੇਸੀ ਓਕ ਲਗਾ ਕੇ 20kg CO2 ਦੀ ਭਰਪਾਈ ਕਰੋ।',
-    rewardBus:'ਮੁਫ਼ਤ ਬੱਸ ਪਾਸ',rewardBusDesc:'ਕਿਸੇ ਵੀ ਵੱਡੇ ਸ਼ਹਿਰ ਲਈ 7 ਦਿਨਾਂ ਦਾ ਅਸੀਮਤ ਬੱਸ ਪਾਸ।',
-    rewardGrocery:'ਕਰਿਆਨੇ ਦੀ ਛੋਟ',rewardGroceryDesc:'ਸਾਂਝੇ ਸਟੋਰਾਂ ਤੇ ਅਗਲੇ ਆਰਡਰ ਤੇ ₹200 ਦੀ ਛੋਟ।',
-    rewardUtility:'ਉਪਯੋਗਤਾ ਬੱਚਤ',rewardUtilityDesc:'ਤੁਹਾਡੇ ਬਿਜਲੀ ਜਾਂ ਪਾਣੀ ਦੇ ਬਿੱਲ ਤੇ ₹100 ਕ੍ਰੈਡਿਟ।',
-    claim:'ਕਲੇਮ ਕਰੋ',citizenId:'ਨਾਗਰਿਕ ID: QC-PTK-00124',tier:'🏅 ਈਕੋ ਵਾਰੀਅਰ',
+    greenRewardsSub2:'ਹਰ ਸਕੈਨ ਤੇ ਪੁਆਇੰਟ ਕਮਾਓ · ਅਸਲ ਫ਼ਾਇਦਿਆਂ ਲਈ ਰਿਡੀਮ ਕਰੋ',yourPoints:'ਤੁਹਾਡੇ ਪੁਆਇੰਟ',
+    perDisposal:'ਪ੍ਰਤੀ ਸਕੈਨ',minRedeem:'ਘੱਟੋ-ਘੱਟ ਰਿਡੀਮ',noExpiry:'ਕੋਈ ਮਿਆਦ ਨਹੀਂ',pointsValid:'ਪੁਆਇੰਟ ਵੈਧ',
+    availableRewards:'ਉਪਲਬਧ ਇਨਾਮ',
+    rewardBus:'ਬੱਸ ਟਿਕਟ',rewardBusDesc:'ਕਿਸੇ ਵੀ ਸ਼ਹਿਰ ਦੇ ਬੱਸ ਸਟੈਂਡ ਤੇ ਇੱਕ ਮੁਫ਼ਤ ਸਥਾਨਕ ਬੱਸ ਯਾਤਰਾ।',
+    rewardGrocery:'ਕਰਿਆਨੇ ਦੀ ਛੋਟ',rewardGroceryDesc:'ਸਾਂਝੇ ਸਟੋਰਾਂ ਤੇ ਅਗਲੇ ਆਰਡਰ ਤੇ ₹50 ਦੀ ਛੋਟ।',
+    rewardUtility:'ਉਪਯੋਗਤਾ ਬੱਚਤ',rewardUtilityDesc:'ਤੁਹਾਡੇ ਬਿਜਲੀ ਜਾਂ ਪਾਣੀ ਦੇ ਬਿੱਲ ਤੇ ₹75 ਕ੍ਰੈਡਿਟ।',
+    claim:'ਕਲੇਮ ਕਰੋ',guestUser:'ਮਹਿਮਾਨ ਉਪਭੋਗਤਾ',helloUserName:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ, {name}! 👋',
     xpLabel:'XP — ਈਕੋ ਵਾਰੀਅਰ → ਗਾਰਡੀਅਨ',progressToNext:'ਅਗਲੇ ਦਰਜੇ ਵੱਲ ਪ੍ਰਗਤੀ',
     greenPoints:'ਗ੍ਰੀਨ ਪੁਆਇੰਟ',accuracy:'ਸ਼ੁੱਧਤਾ',badges:'ਬੈਜ',
     badgeFirst:'ਪਹਿਲਾ ਸਕੈਨ',badgeFirstDesc:'1 ਸਕੈਨ ਪੂਰਾ ਕਰੋ',badgeRecycler:'ਰੀਸਾਈਕਲਰ',
     badgeRecyclerDesc:'50 ਪੁਆਇੰਟ ਕਮਾਓ',badgeStreak:'7 ਦਿਨ ਦੀ ਸਟ੍ਰੀਕ',badgeStreakDesc:'7 ਵੱਖਰੇ ਦਿਨ',
-    badgeDiamond:'ਹੀਰਾ',badgeDiamondDesc:'2000 pts ਕਮਾਓ',liveLocation:'ਲਾਈਵ ਸਥਾਨ',
+    badgeDiamond:'ਹੀਰਾ',badgeDiamondDesc:'500 pts ਕਮਾਓ',liveLocation:'ਲਾਈਵ ਸਥਾਨ',
     fetchingLocation:'ਸਥਾਨ ਪ੍ਰਾਪਤ ਹੋ ਰਿਹਾ ਹੈ...',tapRefresh:'ਅੱਪਡੇਟ ਕਰਨ ਲਈ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ',
     locationFound:'📍 ਸਥਾਨ ਮਿਲ ਗਿਆ',locationDenied:'❌ ਸਥਾਨ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ',
     locationError:'ਕਿਰਪਾ ਕਰਕੇ ਸਥਾਨ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ',locationUpdated:'ਸਥਾਨ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ',
@@ -510,6 +635,28 @@ const LANG_STRINGS = {
     toastLocationFailed:'ਸਥਾਨ ਨਹੀਂ ਮਿਲ ਸਕਿਆ',
     confirmReset:'ਸਾਈਨ ਆਉਟ ਕਰੋ ਅਤੇ ਸਾਰਾ ਸਥਾਨਕ ਡੇਟਾ ਰੀਸੈੱਟ ਕਰੋ?',
     fetching:'ਸਥਾਨ ਪ੍ਰਾਪਤ ਹੋ ਰਿਹਾ ਹੈ...',pleaseWait:'ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ...',
+    pickupTitle:'ਪਿਕਅੱਪ ਦੀ ਬੇਨਤੀ ਕਰੋ',
+    pickupBannerSub:'ਕੋਈ ਵੀ ਕੂੜਾ ਚੁਕਵਾਓ — ਸਧਾਰਨ, ਰੀਸਾਈਕਲ, ਈ-ਵੇਸਟ ਅਤੇ ਹੋਰ',
+    pickupSub:'ਤੁਸੀਂ ਕੀ ਸੁੱਟ ਰਹੇ ਹੋ ਚੁਣੋ — ਅਸੀਂ ਇਸਨੂੰ ਸਹੀ ਕਲੈਕਟਰ ਤੱਕ ਭੇਜਾਂਗੇ, ਭਾਵੇਂ ਉਹ ਨਗਰਪਾਲਿਕਾ ਟਰੱਕ ਹੋਵੇ ਜਾਂ ਪ੍ਰਮਾਣਿਤ ਕਬਾੜੀਵਾਲਾ।',
+    whatDisposing:'ਤੁਸੀਂ ਕੀ ਸੁੱਟ ਰਹੇ ਹੋ?',
+    typeGeneral:'ਸਧਾਰਨ',typeRecyclable:'ਰੀਸਾਈਕਲ',typeOrganic:'ਜੈਵਿਕ',typeHazardous:'ਖ਼ਤਰਨਾਕ',
+    typeEwaste:'ਈ-ਵੇਸਟ (ਫ਼ੋਨ, ਬੈਟਰੀ, ਕੇਬਲ, PCB)',
+    descLabel:'ਸੰਖੇਪ ਵੇਰਵਾ (ਵਿਕਲਪਿਕ)',descPlaceholder:'ਜਿਵੇਂ ਘਰੇਲੂ ਕੂੜੇ ਦੇ ਦੋ ਪੂਰੇ ਬੈਗ',
+    areaLabel:'ਪਿਕਅੱਪ ਖੇਤਰ / ਪਤਾ',areaPlaceholder:'ਜਿਵੇਂ ਮਿਸ਼ਨ ਰੋਡ, ਪਠਾਨਕੋਟ',
+    phoneLabel:'ਫ਼ੋਨ ਨੰਬਰ',phonePlaceholder:'10 ਅੰਕਾਂ ਦਾ ਮੋਬਾਈਲ ਨੰਬਰ',
+    pkRequestedTitle:'ਪਿਕਅੱਪ ਦੀ ਬੇਨਤੀ ਕੀਤੀ ਗਈ',
+    pkRequestedSub:'ਅਸੀਂ ਤੁਹਾਨੂੰ ਸਹੀ ਕਲੈਕਟਰ ਨਾਲ ਜੋੜ ਰਹੇ ਹਾਂ। ਹੇਠਾਂ ਸਥਿਤੀ ਟਰੈਕ ਕਰੋ।',
+    myRequests:'ਮੇਰੀਆਂ ਬੇਨਤੀਆਂ',noRequestsYet:'ਅਜੇ ਤੱਕ ਕੋਈ ਬੇਨਤੀ ਨਹੀਂ — ਉੱਪਰ ਇੱਕ ਸਬਮਿਟ ਕਰੋ।',
+    trackingId:'ਟਰੈਕਿੰਗ ID:',
+    statusPending:'⏳ ਬਕਾਇਆ',statusAssigned:'🚚 ਸੌਂਪਿਆ ਗਿਆ',statusCompleted:'✓ ਪੂਰਾ ਹੋਇਆ',
+    toastFillAreaPhone:'ਕਿਰਪਾ ਕਰਕੇ ਖੇਤਰ ਅਤੇ ਫ਼ੋਨ ਨੰਬਰ ਭਰੋ',
+    toastValidPhone:'ਕਿਰਪਾ ਕਰਕੇ ਵੈਧ 10 ਅੰਕਾਂ ਦਾ ਫ਼ੋਨ ਨੰਬਰ ਦਰਜ ਕਰੋ',
+    submitting:'ਸਬਮਿਟ ਹੋ ਰਿਹਾ ਹੈ…',toastPickupSuccess:'ਪਿਕਅੱਪ ਦੀ ਬੇਨਤੀ ਸਫਲਤਾਪੂਰਵਕ ਭੇਜੀ ਗਈ',
+    toastPickupFail:'ਸਬਮਿਟ ਨਹੀਂ ਹੋ ਸਕਿਆ — ਕਨੈਕਸ਼ਨ ਜਾਂਚੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
+    couldNotLoadRequests:'ਤੁਹਾਡੀਆਂ ਬੇਨਤੀਆਂ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀਆਂ',
+    displayNameTitle:'ਤੁਹਾਡਾ ਨਾਮ',displayNameLabel:'ਦਿਖਾਇਆ ਜਾਣ ਵਾਲਾ ਨਾਮ',namePlaceholder:'ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ',
+    save:'ਸੇਵ ਕਰੋ',removeName:'ਨਾਮ ਹਟਾਓ',
+    toastEnterName:'ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਨਾਮ ਦਰਜ ਕਰੋ',toastNameSaved:'ਨਾਮ ਸੇਵ ਕੀਤਾ ਗਿਆ',toastNameRemoved:'ਨਾਮ ਹਟਾ ਦਿੱਤਾ ਗਿਆ',
   }
 };
 
@@ -521,12 +668,13 @@ function t(key, vars) {
 }
 function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder'))); });
   const filtered = activeFilter==='all' ? BINS : BINS.filter(b=>b.cat===activeFilter);
   document.getElementById('binCountLabel').textContent = filtered.length+' '+t('activeUnits');
-  document.getElementById('homeSub').innerHTML = t('co2Saved');
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('lang'+currentLang.charAt(0).toUpperCase()+currentLang.slice(1)).classList.add('active');
   renderBinList();
+  updateProfileUI();
 }
 function setLang(lang) {
   currentLang = lang;
@@ -535,8 +683,14 @@ function setLang(lang) {
 }
 
 /* ===================== STATE ===================== */
+/* POINTS_PER_SCAN — every completed scan awards exactly this many points.
+   scan.html is the file that actually performs the scan and should call this
+   same constant when crediting points; it isn't included in this upload, so
+   update it there too if it hardcodes a different value. */
+const POINTS_PER_SCAN = 2;
+
 const STATE_KEY = 'qc_state_v1';
-let state = { points:1240, scans:0, scanLog:[], lastPrediction:null };
+let state = { points:0, scans:0, scanLog:[], lastPrediction:null, customName:'' };
 function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem(STATE_KEY)||'{}');
@@ -544,12 +698,31 @@ function loadState() {
     if (s.scans!==undefined) state.scans=s.scans;
     if (Array.isArray(s.scanLog)) state.scanLog=s.scanLog.slice(0,20);
     if (s.lang) currentLang=s.lang;
+    if (s.customName) state.customName=s.customName;
   } catch(e){}
 }
 function saveState() {
-  localStorage.setItem(STATE_KEY, JSON.stringify({points:state.points,scans:state.scans,scanLog:state.scanLog,lang:currentLang}));
+  localStorage.setItem(STATE_KEY, JSON.stringify({points:state.points,scans:state.scans,scanLog:state.scanLog,lang:currentLang,customName:state.customName}));
 }
 loadState();
+
+/* ===================== DISPLAY NAME ===================== */
+function saveProfileName() {
+  const val = document.getElementById('profileNameInput').value.trim();
+  if (!val) { showToast(t('toastEnterName'), 'warn'); return; }
+  state.customName = val;
+  saveState();
+  updateProfileUI();
+  showToast(t('toastNameSaved'), 'ok');
+}
+function clearProfileName() {
+  state.customName = '';
+  saveState();
+  const input = document.getElementById('profileNameInput');
+  if (input) input.value = '';
+  updateProfileUI();
+  showToast(t('toastNameRemoved'), 'ok');
+}
 
 /* ===================== NAV ===================== */
 function showScreen(name) {
@@ -561,7 +734,10 @@ function showScreen(name) {
   if (name==='profile') {
     // Small delay so screen is visible before Leaflet tries to size itself
     setTimeout(initProfileMap, 80);
+    const input = document.getElementById('profileNameInput');
+    if (input) input.value = state.customName || '';
   }
+  if (name==='pickup') { loadMyPickupRequests(); }
   updateProfileUI();
 }
 
@@ -573,6 +749,102 @@ function showToast(msg, type='ok') {
   el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
   document.getElementById('toastWrap').appendChild(el);
   setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),350); },2800);
+}
+
+/* ===================== REQUEST PICKUP (any waste type) ===================== */
+let pkSelectedType = 'General';
+let pkSelectedVal = 'general';
+
+function selectPkType(el){
+  document.querySelectorAll('.pk-type-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  pkSelectedType = el.dataset.type;
+  pkSelectedVal = el.dataset.val;
+}
+
+function getPickupRequestIds(){
+  try{ return JSON.parse(localStorage.getItem('qc_pickup_ids')||'[]'); }
+  catch(e){ return []; }
+}
+function savePickupRequestId(id, storeName){
+  try{
+    const ids = getPickupRequestIds();
+    ids.unshift({id, store: storeName});
+    localStorage.setItem('qc_pickup_ids', JSON.stringify(ids.slice(0,20)));
+  }catch(e){}
+}
+
+async function submitPickupRequest(){
+  const desc = document.getElementById('pkDesc').value.trim();
+  const area = document.getElementById('pkArea').value.trim();
+  const phone = document.getElementById('pkPhone').value.trim();
+
+  if(!area || !phone){ showToast(t('toastFillAreaPhone'),'warn'); return; }
+  if(!/^\d{10}$/.test(phone)){ showToast(t('toastValidPhone'),'warn'); return; }
+
+  const btn = document.getElementById('pkSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = t('submitting');
+
+  // E-waste goes to the same node the admin's Kabadiwala flow already reads (ewaste_requests).
+  // Everything else goes to a general pickup_requests node for the ops/truck side.
+  const isEwaste = pkSelectedVal === 'ewaste';
+  const id = (isEwaste ? 'EW-' : 'PK-') + Date.now();
+  const storeName = isEwaste ? 'ewaste_requests' : 'pickup_requests';
+
+  const payload = isEwaste
+    ? { itemType: pkSelectedType, description: desc, area, phone, status: 'pending', assignedKabadiwala: null, requestedAt: new Date().toISOString() }
+    : { wasteType: pkSelectedType, description: desc, area, phone, status: 'pending', requestedAt: new Date().toISOString() };
+
+  try{
+    const res = await fetch(`${FIREBASE_DB_URL}/${storeName}/${id}.json`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('write failed');
+
+    savePickupRequestId(id, storeName);
+    document.getElementById('pickupFormCard').style.display = 'none';
+    const successBox = document.getElementById('pkSuccessBox');
+    successBox.classList.add('show');
+    document.getElementById('pkTrackId').textContent = t('trackingId') + ' ' + id;
+    showToast(t('toastPickupSuccess'), 'ok');
+    loadMyPickupRequests();
+  }catch(e){
+    showToast(t('toastPickupFail'), 'err');
+    btn.disabled = false;
+    btn.textContent = t('pickupTitle');
+  }
+}
+
+async function loadMyPickupRequests(){
+  const entries = getPickupRequestIds();
+  const box = document.getElementById('pkMyRequests');
+  if(!entries.length){
+    box.innerHTML = `<div style="font-size:12px;color:var(--muted,#6b7c71);padding:8px 2px;">${t('noRequestsYet')}</div>`;
+    return;
+  }
+  try{
+    const results = await Promise.all(entries.map(({id, store}) =>
+      fetch(`${FIREBASE_DB_URL}/${store}/${id}.json`).then(r=>r.json()).then(data=>({id,store,data}))
+    ));
+    box.innerHTML = results.filter(r=>r.data).map(r=>{
+      const st = r.data.status || 'pending';
+      const badgeClass = st === 'completed' ? 'pk-badge-completed' : st === 'assigned' ? 'pk-badge-assigned' : 'pk-badge-pending';
+      const badgeLabel = st === 'completed' ? t('statusCompleted') : st === 'assigned' ? t('statusAssigned') : t('statusPending');
+      const typeLabel = r.data.itemType || r.data.wasteType || 'Waste';
+      return `<div class="pk-req-row">
+        <div class="pk-req-meta">
+          <div class="pk-req-name">${typeLabel} · ${r.id}</div>
+          <div class="pk-req-sub">${r.data.area || ''}</div>
+        </div>
+        <span class="pk-req-badge ${badgeClass}">${badgeLabel}</span>
+      </div>`;
+    }).join('') || `<div style="font-size:12px;color:var(--muted,#6b7c71);padding:8px 2px;">${t('noRequestsYet')}</div>`;
+  }catch(e){
+    box.innerHTML = `<div style="font-size:12px;color:#dc2626;padding:8px 2px;">${t('couldNotLoadRequests')}</div>`;
+  }
 }
 
 /* ===================== BINS DATA ===================== */
@@ -724,16 +996,58 @@ function updateProfileUI() {
   document.getElementById('homeStatPts').textContent=pts.toLocaleString();
   document.getElementById('homeStatScans').textContent=state.scans;
   document.getElementById('grPtsNum').textContent=pts.toLocaleString();
-  const pct=Math.min(100,Math.max(0,Math.round(((pts-1000)/(2000-1000))*100)));
-  document.getElementById('xpPct').textContent=pct+'%';
-  document.getElementById('xpBar').style.width=pct+'%';
+  // XP progress toward the 500 pt "Guardian" tier — purely derived from real points, no fake baseline.
+  const pct=Math.min(100,Math.max(0,Math.round((pts/500)*100)));
+  const xpPctEl=document.getElementById('xpPct');
+  const xpBarEl=document.getElementById('xpBar');
+  if (xpPctEl) xpPctEl.textContent=pct+'%';
+  if (xpBarEl) xpBarEl.style.width=pct+'%';
 
-  // Show logged-in user's name if available
-  try {
-    const user = JSON.parse(sessionStorage.getItem('eco_user')||'{}');
-    if (user.displayName) document.getElementById('profileName').textContent = user.displayName+' 👋';
-    else if (user.email) document.getElementById('profileName').textContent = user.email.split('@')[0]+' 👋';
-  } catch(e){}
+  // Badges reflect real progress instead of being pre-unlocked.
+  document.getElementById('badgeFirstChip').classList.toggle('locked', state.scans<1);
+  document.getElementById('badgeFirstChip').classList.toggle('earned', state.scans>=1);
+  document.getElementById('badgeRecyclerChip').classList.toggle('locked', pts<50);
+  document.getElementById('badgeRecyclerChip').classList.toggle('earned', pts>=50);
+
+  // Home sub-line — real CO2-saved estimate based on actual scans, not a fixed fake number.
+  const homeSub = document.getElementById('homeSub');
+  if (homeSub) {
+    homeSub.textContent = state.scans>0
+      ? `You've completed ${state.scans} scan${state.scans===1?'':'s'} so far.`
+      : t('noActivity');
+  }
+  const activityList = document.getElementById('homeActivityList');
+  if (activityList) {
+    if (state.scanLog && state.scanLog.length) {
+      activityList.innerHTML = state.scanLog.slice(0,5).map(item => `
+        <div class="activity-item">
+          <div class="act-ico">♻️</div>
+          <div class="act-meta">
+            <div class="act-title">${item.title||'Scan completed'}</div>
+            <div class="act-time">${item.time||''}</div>
+          </div>
+          <div class="act-pts">+${POINTS_PER_SCAN} pts</div>
+        </div>`).join('');
+    } else {
+      activityList.innerHTML = `<div style="font-size:12px;color:var(--muted,#6b7c71);padding:8px 2px;">${t('noActivity')}</div>`;
+    }
+  }
+
+  // Show the real user's name everywhere — never a hardcoded name.
+  // Priority: name the user typed into "Your Name" > signed-in account name > guest.
+  let displayName = state.customName || '';
+  if (!displayName) {
+    try {
+      const user = JSON.parse(sessionStorage.getItem('eco_user')||'{}');
+      if (user.displayName) displayName = user.displayName;
+      else if (user.email) displayName = user.email.split('@')[0];
+    } catch(e){}
+  }
+
+  const nameEl = document.getElementById('profileName');
+  if (nameEl) nameEl.textContent = displayName || t('guestUser');
+  const greetEl = document.getElementById('homeGreetName');
+  if (greetEl) greetEl.textContent = displayName ? t('helloUserName',{name:displayName}) : t('helloUser');
 }
 updateProfileUI();
 

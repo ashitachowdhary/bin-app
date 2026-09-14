@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>EcoRoute — Kabadi & Scrap Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #edf7ef,
+                    #f7faf7
+                );
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            color: #17251b;
+
+        }
+
+        .container {
+
+            width: 100%;
+
+            max-width: 470px;
+
+        }
+
+        .brand {
+
+            text-align: center;
+
+            margin-bottom: 20px;
+
+        }
+
+        .brand-icon {
+
+            width: 62px;
+
+            height: 62px;
+
+            margin: 0 auto 10px;
+
+            border-radius: 18px;
+
+            background: #dff3e5;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 32px;
+
+        }
+
+        .brand h1 {
+
+            font-size: 27px;
+
+            color: #147a3d;
+
+            margin-bottom: 5px;
+
+        }
+
+        .brand p {
+
+            font-size: 12px;
+
+            color: #6d7e72;
+
+        }
+
+        .card {
+
+            background: white;
+
+            border: 1px solid #e1ebe4;
+
+            border-radius: 22px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 15px 45px
+                rgba(25,70,40,.08);
+
+        }
+
+        .tabs {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 7px;
+
+            background: #f2f6f3;
+
+            padding: 5px;
+
+            border-radius: 12px;
+
+            margin-bottom: 23px;
+
+        }
+
+        .tab {
+
+            border: none;
+
+            background: transparent;
+
+            padding: 10px;
+
+            border-radius: 9px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            color: #748278;
+
+        }
+
+        .tab.active {
+
+            background: white;
+
+            color: #147a3d;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0,0,0,.06);
+
+        }
+
+        .form-title {
+
+            font-size: 19px;
+
+            margin-bottom: 5px;
+
+        }
+
+        .form-sub {
+
+            font-size: 11px;
+
+            color: #748278;
+
+            margin-bottom: 18px;
+
+            line-height: 1.5;
+
+        }
+
+        .field {
+
+            margin-bottom: 14px;
+
+        }
+
+        label {
+
+            display: block;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            color: #66766b;
+
+            text-transform: uppercase;
+
+            letter-spacing: .6px;
+
+            margin-bottom: 6px;
+
+        }
+
+        input,
+        select {
+
+            width: 100%;
+
+            height: 44px;
+
+            border: 1px solid #dfe9e2;
+
+            border-radius: 10px;
+
+            padding: 0 12px;
+
+            outline: none;
+
+            font-size: 13px;
+
+            color: #1c2c21;
+
+            background: #fbfdfb;
+
+        }
+
+        input:focus,
+        select:focus {
+
+            border-color: #1b8245;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(27,130,69,.08);
+
+        }
+
+        .role-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 8px;
+
+        }
+
+        .role-option {
+
+            border: 1px solid #dfe9e2;
+
+            border-radius: 11px;
+
+            padding: 11px 7px;
+
+            text-align: center;
+
+            cursor: pointer;
+
+            background: #fbfdfb;
+
+            transition: .15s;
+
+        }
+
+        .role-option:hover {
+
+            border-color: #a8cfb5;
+
+        }
+
+        .role-option.selected {
+
+            border-color: #1b8245;
+
+            background: #eaf7ee;
+
+        }
+
+        .role-option .emoji {
+
+            font-size: 22px;
+
+            margin-bottom: 5px;
+
+        }
+
+        .role-option .name {
+
+            font-size: 9px;
+
+            line-height: 1.3;
+
+            font-weight: 700;
+
+            color: #536359;
+
+        }
+
+        .role-option.selected .name {
+
+            color: #147a3d;
+
+        }
+
+        .btn {
+
+            width: 100%;
+
+            height: 45px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background: #147a3d;
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            margin-top: 4px;
+
+        }
+
+        .btn:hover {
+
+            background: #0f6933;
+
+        }
+
+        .btn:disabled {
+
+            opacity: .55;
+
+            cursor: not-allowed;
+
+        }
+
+        .switch-text {
+
+            text-align: center;
+
+            font-size: 11px;
+
+            color: #77857b;
+
+            margin-top: 17px;
+
+        }
+
+        .switch-text button {
+
+            border: none;
+
+            background: transparent;
+
+            color: #147a3d;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+        }
+
+        .notice {
+
+            padding: 11px 12px;
+
+            border-radius: 10px;
+
+            margin-bottom: 14px;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+            display: none;
+
+        }
+
+        .notice.show {
+
+            display: block;
+
+        }
+
+        .notice.error {
+
+            background: #fff0f0;
+
+            color: #c62828;
+
+            border: 1px solid #ffd5d5;
+
+        }
+
+        .notice.success {
+
+            background: #edf9f1;
+
+            color: #17723b;
+
+            border: 1px solid #cfead8;
+
+        }
+
+        .notice.warning {
+
+            background: #fff8e9;
+
+            color: #9a6500;
+
+            border: 1px solid #f5dfaa;
+
+        }
+
+        .hidden {
+
+            display: none !important;
+
+        }
+
+        .back-link {
+
+            display: block;
+
+            text-align: center;
+
+            margin-top: 16px;
+
+            font-size: 11px;
+
+            color: #68776d;
+
+            text-decoration: none;
+
+        }
+
+        .back-link:hover {
+
+            color: #147a3d;
+
+        }
+
+        @media(max-width:430px) {
+
+            .card {
+
+                padding: 19px;
+
+            }
+
+            .role-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ♻️
+        </div>
+
+        <h1>
+            EcoRoute
+        </h1>
+
+        <p>
+            Kabadi • Raddi • Scrap Collection
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="tabs">
+
+            <button
+                class="tab active"
+                id="loginTab"
+                onclick="showLogin()">
+
+                Login
+
+            </button>
+
+            <button
+                class="tab"
+                id="registerTab"
+                onclick="showRegister()">
+
+                Register
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="notice"
+            class="notice">
+        </div>
+
+
+        <!-- =================================================
+             LOGIN
+        ================================================== -->
+
+        <div id="loginForm">
+
+            <h2 class="form-title">
+                Welcome back 👋
+            </h2>
+
+            <p class="form-sub">
+                Login to manage your scrap and collection requests.
+            </p>
+
+
+            <div class="field">
+
+                <label>
+                    Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="loginPhone"
+                    maxlength="10"
+                    placeholder="10-digit phone number">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Login PIN
+                </label>
+
+                <input
+                    type="password"
+                    id="loginPin"
+                    maxlength="6"
+                    placeholder="Enter your PIN">
+
+            </div>
+
+
+            <button
+                class="btn"
+                id="loginBtn"
+                onclick="loginKabadiwala()">
+
+                Login
+
+            </button>
+
+
+            <div class="switch-text">
+
+                New collector?
+
+                <button onclick="showRegister()">
+                    Create account
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REGISTER
+        ================================================== -->
+
+        <div
+            id="registerForm"
+            class="hidden">
+
+            <h2 class="form-title">
+                Join EcoRoute ♻️
+            </h2>
+
+            <p class="form-sub">
+                Register as a Kabadiwala, Raddi Wala, Scrap Dealer or E-Waste Collector.
+                Your account will be verified by the admin.
+            </p>
+
+
+            <!-- ROLE -->
+
+            <div class="field">
+
+                <label>
+                    Collection Type
+                </label>
+
+                <div class="role-grid">
+
+                    <div
+                        class="role-option selected"
+                        data-role="kabadiwala"
+                        onclick="selectRole(this)">
+
+                        <div class="emoji">
+                            🛒
+                        </div>
+
+                        <div class="name">
+                            Kabadiwala /
+                            Raddi Wala
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="role-option"
+                        data-role="scrap"
+                        onclick="selectRole(this)">
+
+                        <div class="emoji">
+                            ♻️
+                        </div>
+
+                        <div class="name">
+                            Scrap
+                            Dealer
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="role-option"
+                        data-role="ewaste"
+                        onclick="selectRole(this)">
+
+                        <div class="emoji">
+                            🔋
+                        </div>
+
+                        <div class="name">
+                            E-Waste
+                            Collector
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="regName"
+                    placeholder="Enter full name">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="regPhone"
+                    maxlength="10"
+                    placeholder="10-digit phone number">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Area / City
+                </label>
+
+                <input
+                    type="text"
+                    id="regArea"
+                    placeholder="e.g. Pathankot">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    ID Type
+                </label>
+
+                <select id="regIdType">
+
+                    <option value="">
+                        Select ID type
+                    </option>
+
+                    <option value="Aadhaar">
+                        Aadhaar
+                    </option>
+
+                    <option value="Driving License">
+                        Driving License
+                    </option>
+
+                    <option value="PAN">
+                        PAN Card
+                    </option>
+
+                    <option value="Voter ID">
+                        Voter ID
+                    </option>
+
+                    <option value="Business ID">
+                        Business ID
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Experience
+                </label>
+
+                <input
+                    type="number"
+                    id="regExperience"
+                    min="0"
+                    max="60"
+                    placeholder="Years of experience">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Create Login PIN
+                </label>
+
+                <input
+                    type="password"
+                    id="regPin"
+                    maxlength="6"
+                    placeholder="4–6 digit PIN">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Confirm PIN
+                </label>
+
+                <input
+                    type="password"
+                    id="regPinConfirm"
+                    maxlength="6"
+                    placeholder="Re-enter PIN">
+
+            </div>
+
+
+            <button
+                class="btn"
+                id="registerBtn"
+                onclick="registerKabadiwala()">
+
+                Register
+
+            </button>
+
+
+            <div class="switch-text">
+
+                Already registered?
+
+                <button onclick="showLogin()">
+                    Login
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <a
+        href="index.html"
+        class="back-link">
+
+        ← Back to EcoRoute
+
+    </a>
+
+</div>
+
+
+<script>
+
+/* ============================================================
+   FIREBASE
+============================================================ */
+
+const FIREBASE_DB_URL =
+    "https://ecoroute-a871a-default-rtdb.firebaseio.com";
+
+
+/* ============================================================
+   CURRENT ROLE
+============================================================ */
+
+let selectedRole =
+    "kabadiwala";
+
+
+/* ============================================================
+   PAGE SWITCH
+============================================================ */
+
+function showLogin() {
+
+    document
+        .getElementById("loginForm")
+        .classList
+        .remove("hidden");
+
+    document
+        .getElementById("registerForm")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("loginTab")
+        .classList
+        .add("active");
+
+    document
+        .getElementById("registerTab")
+        .classList
+        .remove("active");
+
+
+    clearNotice();
+
+}
+
+
+function showRegister() {
+
+    document
+        .getElementById("loginForm")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("registerForm")
+        .classList
+        .remove("hidden");
+
+
+    document
+        .getElementById("loginTab")
+        .classList
+        .remove("active");
+
+    document
+        .getElementById("registerTab")
+        .classList
+        .add("active");
+
+
+    clearNotice();
+
+}
+
+
+/* ============================================================
+   ROLE SELECT
+============================================================ */
+
+function selectRole(element) {
+
+    document
+        .querySelectorAll(".role-option")
+        .forEach(function (item) {
+
+            item.classList.remove(
+                "selected"
+            );
+
+        });
+
+
+    element.classList.add(
+        "selected"
+    );
+
+
+    selectedRole =
+        element.dataset.role;
+
+}
+
+
+/* ============================================================
+   NOTICE
+============================================================ */
+
+function showNotice(
+    message,
+    type
+) {
+
+    const notice =
+        document.getElementById(
+            "notice"
+        );
+
+
+    notice.textContent =
+        message;
+
+
+    notice.className =
+        "notice show " +
+        (type || "error");
+
+}
+
+
+function clearNotice() {
+
+    const notice =
+        document.getElementById(
+            "notice"
+        );
+
+
+    notice.textContent =
+        "";
+
+
+    notice.className =
+        "notice";
+
+}
+
+
+/* ============================================================
+   FIREBASE GET
+============================================================ */
+
+async function firebaseGet(path) {
+
+    const response =
+        await fetch(
+            FIREBASE_DB_URL +
+            "/" +
+            path +
+            ".json"
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Firebase connection failed"
+        );
+
+    }
+
+
+    return await response.json();
+
+}
+
+
+/* ============================================================
+   FIREBASE PUT
+============================================================ */
+
+async function firebasePut(
+    path,
+    data
+) {
+
+    const response =
+        await fetch(
+            FIREBASE_DB_URL +
+            "/" +
+            path +
+            ".json",
+            {
+
+                method: "PUT",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body:
+                    JSON.stringify(data)
+
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Firebase write failed"
+        );
+
+    }
+
+
+    return await response.json();
+
+}
+
+
+/* ============================================================
+   GENERATE ID
+============================================================ */
+
+function generateId() {
+
+    return (
+        "KBW-" +
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .substring(2, 7)
+            .toUpperCase()
+    );
+
+}
+
+
+/* ============================================================
+   ROLE LABEL
+============================================================ */
+
+function getRoleLabel(role) {
+
+    if (role === "scrap") {
+
+        return "Scrap Dealer";
+
+    }
+
+
+    if (role === "ewaste") {
+
+        return "E-Waste Collector";
+
+    }
+
+
+    return "Kabadiwala / Raddi Wala";
+
+}
+
+
+/* ============================================================
+   REGISTER
+============================================================ */
+
+async function registerKabadiwala() {
+
+    clearNotice();
+
+
+    const name =
+        document
+            .getElementById("regName")
+            .value
+            .trim();
+
+
+    const phone =
+        document
+            .getElementById("regPhone")
+            .value
+            .trim();
+
+
+    const area =
+        document
+            .getElementById("regArea")
+            .value
+            .trim();
+
+
+    const idType =
+        document
+            .getElementById("regIdType")
+            .value;
+
+
+    const experience =
+        document
+            .getElementById("regExperience")
+            .value;
+
+
+    const pin =
+        document
+            .getElementById("regPin")
+            .value
+            .trim();
+
+
+    const pinConfirm =
+        document
+            .getElementById("regPinConfirm")
+            .value
+            .trim();
+
+
+    /* VALIDATION */
+
+    if (
+        !name ||
+        !phone ||
+        !area ||
+        !idType ||
+        !pin
+    ) {
+
+        showNotice(
+            "Please fill all required fields.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !/^\d{10}$/.test(phone)
+    ) {
+
+        showNotice(
+            "Enter a valid 10-digit phone number.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !/^\d{4,6}$/.test(pin)
+    ) {
+
+        showNotice(
+            "PIN must contain 4 to 6 digits.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        pin !== pinConfirm
+    ) {
+
+        showNotice(
+            "PIN and confirm PIN do not match.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "registerBtn"
+        );
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Registering...";
+
+
+    try {
+
+        const existing =
+            await firebaseGet(
+                "kabadiwalas"
+            );
+
+
+        const records =
+            existing || {};
+
+
+        const duplicate =
+            Object.values(records)
+                .find(function (item) {
+
+                    return (
+                        item &&
+                        String(
+                            item.phone || ""
+                        ) === phone
+                    );
+
+                });
+
+
+        if (duplicate) {
+
+            showNotice(
+                "This phone number is already registered. Please login.",
+                "warning"
+            );
+
+            button.disabled = false;
+
+            button.textContent =
+                "Register";
+
+            return;
+
+        }
+
+
+        const id =
+            generateId();
+
+
+        /*
+         * IMPORTANT:
+         *
+         * These existing fields are preserved
+         * because admin already reads them.
+         */
+
+        const payload = {
+
+            name:
+                name,
+
+            phone:
+                phone,
+
+            area:
+                area,
+
+            idType:
+                idType,
+
+            experienceYears:
+                Number(
+                    experience || 0
+                ),
+
+            status:
+                "pending",
+
+            registeredAt:
+                new Date()
+                    .toISOString(),
+
+
+            /*
+             * NEW FIELDS
+             */
+
+            collectorType:
+                selectedRole,
+
+            collectorTypeLabel:
+                getRoleLabel(
+                    selectedRole
+                ),
+
+            loginPin:
+                pin,
+
+            active:
+                true
+
+        };
+
+
+        await firebasePut(
+            "kabadiwalas/" + id,
+            payload
+        );
+
+
+        /*
+         * Save temporary registration
+         */
+
+        sessionStorage.setItem(
+            "eco_kabadi_pending_id",
+            id
+        );
+
+
+        showNotice(
+            "Registration successful. Wait for admin verification before login.",
+            "success"
+        );
+
+
+        document
+            .getElementById("regName")
+            .value = "";
+
+
+        document
+            .getElementById("regPhone")
+            .value = "";
+
+
+        document
+            .getElementById("regArea")
+            .value = "";
+
+
+        document
+            .getElementById("regExperience")
+            .value = "";
+
+
+        document
+            .getElementById("regPin")
+            .value = "";
+
+
+        document
+            .getElementById("regPinConfirm")
+            .value = "";
+
+
+        setTimeout(
+            showLogin,
+            1600
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        showNotice(
+            "Could not register. Check Firebase connection.",
+            "error"
+        );
+
+    }
+
+
+    button.disabled = false;
+
+    button.textContent =
+        "Register";
+
+}
+
+
+/* ============================================================
+   LOGIN
+============================================================ */
+
+async function loginKabadiwala() {
+
+    clearNotice();
+
+
+    const phone =
+        document
+            .getElementById("loginPhone")
+            .value
+            .trim();
+
+
+    const pin =
+        document
+            .getElementById("loginPin")
+            .value
+            .trim();
+
+
+    if (
+        !/^\d{10}$/.test(phone)
+    ) {
+
+        showNotice(
+            "Enter a valid 10-digit phone number.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !pin
+    ) {
+
+        showNotice(
+            "Enter your login PIN.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "loginBtn"
+        );
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Checking...";
+
+
+    try {
+
+        const data =
+            await firebaseGet(
+                "kabadiwalas"
+            );
+
+
+        const records =
+            data || {};
+
+
+        const match =
+            Object.entries(records)
+                .map(
+                    ([id, value]) => ({
+                        id,
+                        ...value
+                    })
+                )
+                .find(function (item) {
+
+                    return (
+                        String(
+                            item.phone || ""
+                        ) === phone
+                    );
+
+                });
+
+
+        if (!match) {
+
+            showNotice(
+                "No account found with this phone number.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * ADMIN VERIFICATION
+         */
+
+        if (
+            match.status !==
+            "verified"
+        ) {
+
+            if (
+                match.status ===
+                "rejected"
+            ) {
+
+                showNotice(
+                    "Your registration was rejected by admin.",
+                    "error"
+                );
+
+            } else {
+
+                showNotice(
+                    "Your account is still pending admin verification.",
+                    "warning"
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        /*
+         * PIN CHECK
+         */
+
+        if (
+            String(
+                match.loginPin || ""
+            ) !== pin
+        ) {
+
+            showNotice(
+                "Incorrect PIN.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * SESSION
+         *
+         * FIX: these keys must match what kabadi-guard.js and
+         * kabadiwala.html actually read:
+         *   - guard checks sessionStorage.getItem('eco_role')
+         *   - panel reads sessionStorage.getItem('eco_kabadiwala')
+         * Previously this wrote 'eco_kabadi_role' / 'eco_kabadi_user',
+         * which the guard/panel never looked for — causing an
+         * immediate bounce back to this login page after a
+         * successful login.
+         */
+
+        const sessionData = {
+
+            id:
+                match.id,
+
+            name:
+                match.name || "Collector",
+
+            phone:
+                match.phone || "",
+
+            area:
+                match.area || "",
+
+            status:
+                match.status,
+
+            collectorType:
+                match.collectorType ||
+                "kabadiwala",
+
+            collectorTypeLabel:
+                match.collectorTypeLabel ||
+                "Kabadiwala / Raddi Wala"
+
+        };
+
+
+        sessionStorage.setItem(
+            "eco_role",
+            "kabadiwala"
+        );
+
+
+        sessionStorage.setItem(
+            "eco_kabadiwala",
+            JSON.stringify(
+                sessionData
+            )
+        );
+
+
+        window.location.href =
+            "kabadiwala.html";
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        showNotice(
+            "Could not connect to Firebase.",
+            "error"
+        );
+
+    }
+
+
+    button.disabled = false;
+
+    button.textContent =
+        "Login";
+
+}
+
+
+/* ============================================================
+   ENTER KEY
+============================================================ */
+
+document.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key !==
+            "Enter"
+        ) {
+
+            return;
+
+        }
+
+
+        const loginVisible =
+            !document
+                .getElementById(
+                    "loginForm"
+                )
+                .classList
+                .contains("hidden");
+
+
+        if (loginVisible) {
+
+            loginKabadiwala();
+
+        } else {
+
+            registerKabadiwala();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

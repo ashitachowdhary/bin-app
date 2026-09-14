@@ -1,15 +1,22 @@
 /**
  * truck-guard.js — EcoRoute
- * Add as FIRST script in truckpanel.html.
- * Only drivers can enter. Everyone else is bounced out.
+ * Driver-only protection for truckpanel.html
  */
+
 (function () {
-  var role = sessionStorage.getItem('eco_role');
-  if (!role) {
-    // Not logged in → sign in
-    window.location.replace('signin.html');
-  } else if (role !== 'driver') {
-    // Logged in but not a driver → back to citizen home
-    window.location.replace('index.html');
-  }
+
+    const role = sessionStorage.getItem("eco_role");
+
+    // Not logged in
+    if (!role) {
+        window.location.replace("signin.html");
+        return;
+    }
+
+    // Logged in but not driver
+    if (role !== "driver") {
+        window.location.replace("index.html");
+        return;
+    }
+
 })();

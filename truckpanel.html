@@ -1,784 +1,3893 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <script src="truck-guard.js"></script>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EcoRoute — Truck Panel</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-  <style>
-  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-  :root{
-    --green:#1a7a3e;
-    --green-light:#e8f5ee;
-    --green-mid:#9FE1CB;
-    --amber:#d97706;
-    --red:#dc2626;
-    --bg:#f6f8f5;
-    --surface:#ffffff;
-    --border:#e6ede9;
-    --text:#1a2a1e;
-    --muted:#6b7c71;
-    --muted2:#a0b0a6;
-    --navH:64px;
-    --radius:14px;
-    --radius-sm:10px;
-  }
-  html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);overflow:hidden;}
 
-  .shell{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;position:relative;background:var(--bg);}
+    <!-- DRIVER GUARD MUST BE FIRST -->
+    <script src="truck-guard.js"></script>
 
-  /* TOPBAR */
-  .topbar{display:flex;align-items:center;padding:0 16px;height:54px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;gap:10px;z-index:100;}
-  .topbar-logo{display:flex;align-items:center;gap:8px;}
-  .logo-ico{font-size:20px;}
-  .logo-text{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;color:var(--green);}
-  .truck-badge{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid rgba(26,122,62,.2);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-left:2px;}
-  .tbadge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.6s ease infinite;flex-shrink:0;}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
-  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
-  .ti-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
-  .ti-btn:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
-  .ti-btn.danger{border-color:rgba(220,38,38,.2);color:var(--red);background:#fef2f2;}
-  .clock{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);}
+    <meta charset="UTF-8">
 
-  /* BODY */
-  .body{display:flex;flex:1;overflow:hidden;flex-direction:column;}
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-  /* MAP */
-  .map-area{flex:1;position:relative;overflow:hidden;min-height:240px;}
-  #map{position:absolute;inset:0;}
-  .leaflet-control-zoom,.leaflet-control-attribution{display:none!important;}
+    <title>EcoRoute — Driver Panel</title>
 
-  /* MAP HUD */
-  .map-hud{position:absolute;top:10px;left:10px;z-index:900;display:flex;gap:8px;}
-  .hud-card{background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;backdrop-filter:blur(6px);min-width:130px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-  .hud-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px;}
-  .hud-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--green);line-height:1.1;}
-  .hud-sub{font-size:10px;color:var(--muted);margin-top:2px;}
-  .hud-eta{font-family:'DM Mono',monospace;font-size:13px;color:#0284c7;font-weight:500;}
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
 
-  .map-legend{position:absolute;bottom:10px;left:10px;z-index:900;background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-  .lrow{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-bottom:3px;}
-  .lrow:last-child{margin-bottom:0;}
-  .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .ldash{width:18px;height:3px;border-radius:2px;flex-shrink:0;}
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
 
-  .zbtns{position:absolute;bottom:10px;right:10px;z-index:900;display:flex;flex-direction:column;gap:5px;}
-  .zbtn{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.96);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-  .zbtn:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
 
-  /* TRUCK MARKER */
-  .truck-marker{width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--green);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(26,122,62,.35);font-size:14px;}
+    <style>
 
-  /* BOTTOM PANEL */
-  .bottom-panel{background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;border-top:1px solid var(--border);z-index:200;display:flex;flex-direction:column;max-height:62vh;box-shadow:0 -4px 20px rgba(0,0,0,.07);}
-  .panel-drag{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-  /* ROUTE SELECTOR */
-  .route-sel{padding:12px 14px 10px;border-bottom:1px solid var(--border);}
-  .rs-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px;}
-  .rs-grid{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
-  .rs-grid::-webkit-scrollbar{display:none;}
-  .rb{flex-shrink:0;padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;color:var(--muted);font-weight:500;}
-  .rb:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
-  .rb.sel{border-color:var(--rc,var(--green));background:color-mix(in srgb,var(--rc,var(--green)) 10%,#fff);color:var(--text);}
+        :root {
 
-  /* PROGRESS BAR */
-  .prog-wrap{padding:10px 14px 8px;border-bottom:1px solid var(--border);}
-  .dp-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:2px;}
-  .dp-row span:last-child{color:var(--text);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;}
-  .progress-bar{height:5px;background:var(--border);border-radius:3px;margin:6px 0 3px;overflow:hidden;}
-  .progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),#00c8ff);transition:width .5s ease;}
-  .dp-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;}
+            --green: #1a7a3e;
+            --green-light: #e8f5ee;
+            --green-mid: #9FE1CB;
+            --green-deep: #0f5c2c;
 
-  /* STOP LIST */
-  .snav{flex:1;overflow-y:auto;padding:10px 14px;}
-  .sl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-  .sl-title{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;}
-  .sl-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:500;}
+            --blue: #0284c7;
+            --blue-light: #e0f2fe;
 
-  .ni{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);margin-bottom:6px;cursor:pointer;transition:all .2s;width:100%;text-align:left;font-family:'DM Sans',sans-serif;}
-  .ni:hover{border-color:rgba(26,122,62,.25);background:var(--green-light);}
-  .ni.active{border-color:var(--green);background:var(--green-light);}
-  .ni.done{opacity:.45;}
-  .ni.urgent{border-color:rgba(220,38,38,.3);background:#fff8f8;}
-  .stop-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);min-width:18px;margin-top:2px;}
-  .ni.active .stop-num{color:var(--green);}
-  .stop-info{flex:1;}
-  .stop-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
-  .ni.done .stop-name{color:var(--muted2);}
-  .ni.active .stop-name{color:var(--green);}
-  .stop-sub{font-size:10px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-  .fill-bar-wrap{width:50px;height:3px;background:var(--border);border-radius:2px;display:inline-block;vertical-align:middle;}
-  .fill-bar{height:3px;border-radius:2px;}
-  .stop-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:500;}
-  .badge-full{background:#fee2e2;color:#dc2626;}
-  .badge-half{background:#fff7ed;color:#d97706;}
-  .badge-ok{background:var(--green-light);color:var(--green);}
-  .stop-tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
-  .ni.done .stop-tick{background:var(--green-light);border-color:rgba(26,122,62,.3);}
-  .ni.active .stop-tick{border-color:var(--green);}
+            --amber: #d97706;
+            --amber-light: #fff7ed;
 
-  /* STATS */
-  .stats-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;border-top:1px solid var(--border);}
-  .stat-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;}
-  .stat-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;}
-  .stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+            --red: #dc2626;
+            --red-light: #fee2e2;
 
-  /* NAV BTNS */
-  .nav-btns{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);}
-  .nbtn{flex:1;padding:10px 6px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;font-weight:500;}
-  .nbtn:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
-  .nbtn.primary{background:var(--green);border-color:var(--green);color:#fff;}
-  .nbtn.primary:hover{background:#15693a;}
-  .nbtn:disabled{opacity:.3;cursor:not-allowed;}
+            --purple: #7c3aed;
+            --purple-light: #f3e8ff;
 
-  /* FOOTER LINKS */
-  .sfooter{display:flex;gap:6px;padding:8px 14px 10px;border-top:1px solid var(--border);}
-  .fi{display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:9px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .2s;border:1px solid var(--border);background:var(--bg);text-decoration:none;}
-  .fi:hover{color:var(--green);border-color:rgba(26,122,62,.3);background:var(--green-light);}
-  .fi.signout:hover{color:var(--red);border-color:rgba(220,38,38,.2);background:#fef2f2;}
+            --bg: #eef4ef;
+            --surface: #ffffff;
 
-  /* LOADING */
-  #loading{position:absolute;inset:0;background:rgba(246,248,245,.9);display:flex;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);}
-  .spinner{width:28px;height:28px;border:2.5px solid rgba(26,122,62,.2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px;}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .load-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.4px;text-align:center;}
+            --border: #e6ede9;
 
-  /* TOAST */
-  #toast-wrap{position:fixed;bottom:80px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
-  .toast{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.08);animation:toastIn .22s ease forwards;}
-  @keyframes toastIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+            --text: #1a2a1e;
+            --muted: #6b7c71;
+            --muted2: #9aaa9f;
 
-  /* COMPLETE OVERLAY */
-  #complete-overlay{position:fixed;inset:0;background:rgba(246,248,245,.92);z-index:5000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-  .co-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;text-align:center;max-width:320px;margin:16px;box-shadow:0 12px 40px rgba(0,0,0,.08);}
-  .co-icon{font-size:40px;margin-bottom:10px;}
-  .co-title{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px;}
-  .co-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
-  .co-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
-  .cs-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;}
-  .cs-val{font-family:'DM Mono',monospace;font-size:18px;color:var(--green);font-weight:500;}
-  .cs-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
-  .co-btn{padding:10px 24px;border-radius:20px;background:var(--green);border:none;color:#fff;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;font-weight:500;transition:all .2s;}
-  .co-btn:hover{background:#15693a;}
+            --shadow: 0 2px 10px rgba(20,40,28,.05);
+            --shadow-shell: 0 30px 60px rgba(15,45,25,.14);
 
-  /* Leaflet popup */
-  .leaflet-popup-content-wrapper{background:#fff!important;border:1px solid var(--border)!important;border-radius:12px!important;color:var(--text)!important;box-shadow:0 8px 24px rgba(0,0,0,.08)!important;}
-  .leaflet-popup-tip{background:#fff!important;}
-  .leaflet-popup-content{margin:10px 14px!important;font-family:'DM Sans',sans-serif;}
-  .popup-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);margin-bottom:6px;font-weight:500;letter-spacing:.3px;}
-  .popup-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:2px;gap:12px;}
-  .popup-row span:last-child{color:var(--text);}
-  .leaflet-popup-close-button{color:var(--muted2)!important;}
+            --radius: 18px;
+            --radius-sm: 12px;
 
-  ::-webkit-scrollbar{width:3px;}
-  ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+        }
 
-  /* ── DRIVER NOTIFICATION POPUP ── */
-  #notif-overlay{
-    position:fixed;inset:0;z-index:8000;
-    display:none;align-items:flex-start;justify-content:center;
-    padding-top:64px;          /* below topbar */
-    pointer-events:none;
-  }
-  #notif-overlay.show{display:flex;}
-  .notif-popup{
-    pointer-events:all;
-    width:calc(100% - 28px);max-width:400px;
-    background:var(--surface);
-    border:1.5px solid var(--notif-color, var(--green));
-    border-radius:16px;
-    box-shadow:0 8px 32px rgba(0,0,0,.14);
-    overflow:hidden;
-    animation:popIn .25s cubic-bezier(.34,1.56,.64,1) forwards;
-  }
-  @keyframes popIn{from{opacity:0;transform:scale(.92) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-  .np-header{
-    display:flex;align-items:center;gap:10px;
-    padding:12px 14px 10px;
-    background:color-mix(in srgb,var(--notif-color,var(--green)) 8%,#fff);
-    border-bottom:1px solid color-mix(in srgb,var(--notif-color,var(--green)) 15%,var(--border));
-  }
-  .np-icon{font-size:20px;flex-shrink:0;}
-  .np-from{flex:1;}
-  .np-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;font-weight:500;
-    color:var(--notif-color,var(--green));text-transform:uppercase;}
-  .np-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
-  .np-close{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:18px;
-    padding:0 2px;line-height:1;transition:color .2s;}
-  .np-close:hover{color:var(--red);}
-  .np-body{padding:12px 14px 14px;}
-  .np-msg{font-size:15px;font-weight:600;color:var(--text);line-height:1.45;margin-bottom:10px;}
-  .np-actions{display:flex;gap:8px;}
-  .np-btn{flex:1;padding:8px;border-radius:20px;font-family:'DM Mono',monospace;font-size:11px;
-    cursor:pointer;font-weight:500;transition:all .2s;border:1px solid var(--border);}
-  .np-btn-dismiss{background:var(--bg);color:var(--muted);}
-  .np-btn-dismiss:hover{color:var(--text);}
-  .np-btn-ack{background:var(--notif-color,var(--green));border-color:var(--notif-color,var(--green));color:#fff;}
-  .np-btn-ack:hover{filter:brightness(.9);}
+        html,
+        body {
 
-  /* notification bell badge on topbar */
-  .notif-bell{position:relative;padding:5px 10px;border-radius:20px;border:1px solid var(--border);
-    background:var(--bg);color:var(--muted);font-size:14px;cursor:pointer;transition:all .2s;}
-  .notif-bell:hover{border-color:rgba(26,122,62,.3);color:var(--green);}
-  .notif-bell.has-new{border-color:rgba(220,38,38,.3);color:var(--red);background:#fef2f2;animation:bellShake .4s ease;}
-  @keyframes bellShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
-  .notif-count{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;
-    background:var(--red);color:#fff;font-family:'DM Mono',monospace;font-size:9px;
-    display:flex;align-items:center;justify-content:center;font-weight:500;}
-  </style>
+            width: 100%;
+            min-height: 100%;
+
+            font-family: "DM Sans", sans-serif;
+
+            color: var(--text);
+
+        }
+
+        body {
+
+            background: radial-gradient(circle at 50% 0%, #f2f8f3 0%, var(--bg) 55%);
+
+            display: flex;
+
+            justify-content: center;
+
+            min-height: 100vh;
+
+        }
+
+        /* =====================================================
+           APP SHELL — phone-style frame, matches citizen app
+        ===================================================== */
+
+        .app-shell {
+
+            width: 100%;
+
+            max-width: 448px;
+
+            min-height: 100vh;
+
+            background: var(--surface);
+
+            position: relative;
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+        @media (min-width: 500px) {
+
+            body {
+                padding: 28px 12px;
+            }
+
+            .app-shell {
+
+                min-height: calc(100vh - 56px);
+
+                border-radius: 34px;
+
+                overflow: hidden;
+
+                box-shadow: var(--shadow-shell);
+
+                border: 1px solid #e2ece4;
+
+            }
+
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .app-header {
+
+            height: 64px;
+
+            flex-shrink: 0;
+
+            background: var(--surface);
+
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 18px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 50;
+
+        }
+
+        .app-header-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+        .app-logo-mark {
+
+            width: 30px;
+
+            height: 30px;
+
+            border-radius: 9px;
+
+            background: var(--green-light);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 15px;
+
+        }
+
+        .app-logo-text {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            color: var(--green);
+
+            letter-spacing: -.3px;
+
+        }
+
+        .app-header-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+        .driver-pill {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 6px 10px;
+
+            background: var(--green-light);
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            color: var(--green);
+
+            letter-spacing: .3px;
+
+        }
+
+        .driver-dot {
+
+            width: 6px;
+
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow: 0 0 0 3px rgba(34,197,94,.18);
+
+        }
+
+        .icon-btn {
+
+            width: 34px;
+
+            height: 34px;
+
+            border-radius: 50%;
+
+            border: 1px solid var(--border);
+
+            background: white;
+
+            color: var(--muted);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 14px;
+
+            cursor: pointer;
+
+        }
+
+        .icon-btn:hover {
+
+            border-color: var(--red);
+
+            color: var(--red);
+
+        }
+
+        /* =====================================================
+           SCROLL BODY
+        ===================================================== */
+
+        .app-body {
+
+            flex: 1;
+
+            padding: 20px 18px 100px;
+
+        }
+
+        /* =====================================================
+           GREETING
+        ===================================================== */
+
+        .greeting-block {
+
+            margin-bottom: 20px;
+
+        }
+
+        .eyebrow {
+
+            font-family: "DM Mono", monospace;
+
+            font-size: 10px;
+
+            letter-spacing: 1.2px;
+
+            color: var(--green);
+
+            font-weight: 700;
+
+            margin-bottom: 6px;
+
+        }
+
+        .greeting-title {
+
+            font-size: 25px;
+
+            line-height: 1.25;
+
+            font-weight: 700;
+
+        }
+
+        .greeting-title .wave {
+
+            display: inline-block;
+
+        }
+
+        .greeting-row {
+
+            margin-top: 8px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+        }
+
+        .greeting-email {
+
+            font-size: 12px;
+
+            color: var(--muted);
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+        }
+
+        .clock-chip {
+
+            font-family: "DM Mono", monospace;
+
+            font-size: 12px;
+
+            color: var(--muted);
+
+            background: var(--bg);
+
+            border-radius: 9px;
+
+            padding: 6px 10px;
+
+            flex-shrink: 0;
+
+        }
+
+        /* =====================================================
+           STAT GRID — 2x2 like citizen dashboard
+        ===================================================== */
+
+        .stat-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+
+            margin-bottom: 14px;
+
+        }
+
+        .stat-card {
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius);
+
+            padding: 15px;
+
+            box-shadow: var(--shadow);
+
+        }
+
+        .stat-icon {
+
+            width: 32px;
+
+            height: 32px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 9px;
+
+            font-size: 15px;
+
+            margin-bottom: 10px;
+
+        }
+
+        .stat-value {
+
+            font-size: 24px;
+
+            font-weight: 700;
+
+            line-height: 1;
+
+        }
+
+        .stat-label {
+
+            margin-top: 6px;
+
+            font-size: 12px;
+
+            color: var(--muted);
+
+        }
+
+        .stat-hint {
+
+            margin-top: 3px;
+
+            font-size: 10px;
+
+            color: var(--green);
+
+            font-weight: 600;
+
+        }
+
+        /* =====================================================
+           FEATURE ROW CARD (truck selector)
+        ===================================================== */
+
+        .feature-card {
+
+            background: var(--green-light);
+
+            border: 1px solid #d5ecdf;
+
+            border-radius: var(--radius);
+
+            padding: 14px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            margin-bottom: 18px;
+
+        }
+
+        .feature-icon {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 12px;
+
+            background: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 20px;
+
+            flex-shrink: 0;
+
+        }
+
+        .feature-body {
+
+            flex: 1;
+
+            min-width: 0;
+
+        }
+
+        .feature-title {
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+        }
+
+        .feature-sub {
+
+            font-size: 11px;
+
+            color: var(--green-deep);
+
+            opacity: .75;
+
+            margin-top: 1px;
+
+        }
+
+        .truck-select {
+
+            border: 1px solid #cfe6d9;
+
+            background: white;
+
+            border-radius: 9px;
+
+            padding: 8px 10px;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            outline: none;
+
+            flex-shrink: 0;
+
+        }
+
+        /* =====================================================
+           NOTIFICATION
+        ===================================================== */
+
+        .notification-area {
+
+            margin-bottom: 18px;
+
+        }
+
+        .notification-box {
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-left: 4px solid var(--blue);
+
+            border-radius: var(--radius);
+
+            padding: 13px 14px;
+
+            display: none;
+
+            align-items: center;
+
+            gap: 11px;
+
+        }
+
+        .notification-box.show {
+
+            display: flex;
+
+        }
+
+        .notification-icon {
+
+            font-size: 18px;
+
+        }
+
+        .notification-content {
+
+            flex: 1;
+
+            min-width: 0;
+
+        }
+
+        .notification-title {
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+        }
+
+        .notification-message {
+
+            font-size: 11px;
+
+            color: var(--muted);
+
+            margin-top: 3px;
+
+            line-height: 1.4;
+
+        }
+
+        .notification-close {
+
+            border: none;
+
+            background: transparent;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            color: var(--muted);
+
+            flex-shrink: 0;
+
+        }
+
+        /* =====================================================
+           CARD SECTION
+        ===================================================== */
+
+        .card-section {
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 16px;
+
+            overflow: hidden;
+
+        }
+
+        .card-section-head {
+
+            padding: 15px 16px;
+
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 10px;
+
+        }
+
+        .card-section-title-wrap {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            min-width: 0;
+
+        }
+
+        .card-section-icon {
+
+            width: 34px;
+
+            height: 34px;
+
+            border-radius: 10px;
+
+            background: var(--green-light);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex-shrink: 0;
+
+        }
+
+        .card-section-title {
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+        }
+
+        .card-section-sub {
+
+            font-size: 11px;
+
+            color: var(--muted);
+
+            margin-top: 2px;
+
+        }
+
+        .refresh-btn {
+
+            border: 1px solid var(--border);
+
+            background: white;
+
+            border-radius: 8px;
+
+            width: 32px;
+
+            height: 32px;
+
+            cursor: pointer;
+
+            color: var(--muted);
+
+            font-size: 14px;
+
+            flex-shrink: 0;
+
+        }
+
+        .refresh-btn:hover {
+
+            color: var(--green);
+
+            border-color: var(--green-mid);
+
+        }
+
+        .card-section-body {
+
+            padding: 14px;
+
+        }
+
+        /* =====================================================
+           REQUEST CARDS — single column, mobile-first
+        ===================================================== */
+
+        .requests-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr;
+
+            gap: 12px;
+
+        }
+
+        .request-card {
+
+            border: 1px solid var(--border);
+
+            border-radius: 14px;
+
+            padding: 14px;
+
+            background: #fff;
+
+        }
+
+        .request-top {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+            margin-bottom: 11px;
+
+        }
+
+        .request-id {
+
+            font-family: "DM Mono", monospace;
+
+            font-size: 10px;
+
+            color: var(--muted);
+
+        }
+
+        .request-type {
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            margin-top: 3px;
+
+        }
+
+        .badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            height: 24px;
+
+            padding: 0 9px;
+
+            border-radius: 20px;
+
+            font-size: 9px;
+
+            font-family: "DM Mono", monospace;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            flex-shrink: 0;
+
+        }
+
+        .badge-pending {
+
+            background: var(--amber-light);
+
+            color: var(--amber);
+
+        }
+
+        .badge-assigned {
+
+            background: var(--blue-light);
+
+            color: var(--blue);
+
+        }
+
+        .badge-picked {
+
+            background: var(--purple-light);
+
+            color: var(--purple);
+
+        }
+
+        .badge-completed {
+
+            background: var(--green-light);
+
+            color: var(--green);
+
+        }
+
+        .detail-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 8px;
+
+            margin-bottom: 12px;
+
+        }
+
+        .detail {
+
+            background: var(--bg);
+
+            border-radius: 9px;
+
+            padding: 8px 9px;
+
+        }
+
+        .detail-label {
+
+            font-size: 8px;
+
+            font-family: "DM Mono", monospace;
+
+            color: var(--muted2);
+
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+
+        }
+
+        .detail-value {
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            margin-top: 3px;
+
+            word-break: break-word;
+
+        }
+
+        .description {
+
+            font-size: 11px;
+
+            color: var(--muted);
+
+            line-height: 1.5;
+
+            background: #fafcfb;
+
+            border: 1px dashed var(--border);
+
+            padding: 9px;
+
+            border-radius: 9px;
+
+            margin-bottom: 12px;
+
+        }
+
+        .request-actions {
+
+            display: flex;
+
+            gap: 7px;
+
+            flex-wrap: wrap;
+
+        }
+
+        .action-btn {
+
+            flex: 1;
+
+            min-width: 110px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            padding: 10px 11px;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+        }
+
+        .action-btn:disabled {
+
+            opacity: .55;
+
+            cursor: not-allowed;
+
+        }
+
+        .btn-accept {
+
+            background: var(--green);
+
+            color: white;
+
+        }
+
+        .btn-start {
+
+            background: var(--blue);
+
+            color: white;
+
+        }
+
+        .btn-complete {
+
+            background: var(--purple);
+
+            color: white;
+
+        }
+
+        .btn-cancel {
+
+            background: #f3f4f6;
+
+            color: var(--muted);
+
+        }
+
+        .empty {
+
+            text-align: center;
+
+            padding: 34px 20px;
+
+            color: var(--muted);
+
+        }
+
+        .empty-icon {
+
+            font-size: 30px;
+
+            margin-bottom: 8px;
+
+        }
+
+        .empty-title {
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: var(--text);
+
+        }
+
+        .empty-sub {
+
+            font-size: 11px;
+
+            margin-top: 4px;
+
+        }
+
+        /* =====================================================
+           STATUS TIMELINE (inside a request card)
+        ===================================================== */
+
+        .timeline {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 0;
+
+            margin-top: 12px;
+
+            margin-bottom: 12px;
+
+        }
+
+        .timeline-step {
+
+            flex: 1;
+
+            text-align: center;
+
+            position: relative;
+
+        }
+
+        .timeline-step:not(:last-child)::after {
+
+            content: "";
+
+            position: absolute;
+
+            top: 8px;
+
+            left: 50%;
+
+            width: 100%;
+
+            height: 2px;
+
+            background: var(--border);
+
+            z-index: 0;
+
+        }
+
+        .timeline-dot {
+
+            width: 16px;
+
+            height: 16px;
+
+            border-radius: 50%;
+
+            background: #e5e7eb;
+
+            margin: 0 auto 5px;
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+        .timeline-step.active .timeline-dot {
+
+            background: var(--green);
+
+            box-shadow: 0 0 0 4px rgba(26,122,62,.1);
+
+        }
+
+        .timeline-label {
+
+            font-size: 8px;
+
+            color: var(--muted);
+
+            font-family: "DM Mono", monospace;
+
+        }
+
+        .timeline-step.active .timeline-label {
+
+            color: var(--green);
+
+            font-weight: 700;
+
+        }
+
+        /* =====================================================
+           ROUTE / PROGRESS
+        ===================================================== */
+
+        .route-stop {
+
+            display: flex;
+
+            gap: 10px;
+
+            padding: 10px 0;
+
+            border-bottom: 1px solid #f0f3f1;
+
+        }
+
+        .route-stop:last-child {
+
+            border-bottom: none;
+
+        }
+
+        .stop-number {
+
+            width: 24px;
+
+            height: 24px;
+
+            border-radius: 50%;
+
+            background: var(--green-light);
+
+            color: var(--green);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            flex-shrink: 0;
+
+        }
+
+        .stop-name {
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+        .stop-detail {
+
+            font-size: 10px;
+
+            color: var(--muted);
+
+            margin-top: 2px;
+
+        }
+
+        .progress-block {
+
+            margin-top: 16px;
+
+            padding-top: 16px;
+
+            border-top: 1px solid var(--border);
+
+        }
+
+        .progress-block-title {
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            color: var(--muted);
+
+            margin-bottom: 4px;
+
+        }
+
+        .route-message {
+
+            font-size: 11px;
+
+            color: var(--muted);
+
+            line-height: 1.6;
+
+        }
+
+        /* =====================================================
+           BOTTOM NAV — mirrors citizen app's tab bar
+        ===================================================== */
+
+        .bottom-nav {
+
+            position: sticky;
+
+            bottom: 0;
+
+            flex-shrink: 0;
+
+            background: white;
+
+            border-top: 1px solid var(--border);
+
+            display: flex;
+
+            padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+
+            gap: 4px;
+
+            z-index: 50;
+
+        }
+
+        .nav-item {
+
+            flex: 1;
+
+            border: none;
+
+            background: transparent;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 3px;
+
+            padding: 7px 4px;
+
+            border-radius: 12px;
+
+            font-family: inherit;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            color: var(--muted2);
+
+            cursor: pointer;
+
+        }
+
+        .nav-item span.nav-icon {
+
+            font-size: 17px;
+
+        }
+
+        .nav-item.active {
+
+            color: var(--green);
+
+            background: var(--green-light);
+
+        }
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        #toast-wrap {
+
+            position: fixed;
+
+            left: 50%;
+
+            bottom: 90px;
+
+            transform: translateX(-50%);
+
+            z-index: 9999;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 8px;
+
+            width: min(400px, calc(100% - 32px));
+
+        }
+
+        .toast {
+
+            width: 100%;
+
+            max-width: 360px;
+
+            background: #142019;
+
+            color: white;
+
+            padding: 11px 14px;
+
+            border-radius: 10px;
+
+            box-shadow: 0 8px 30px rgba(0,0,0,.2);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            font-size: 12px;
+
+            animation: toastIn .2s ease;
+
+        }
+
+        @keyframes toastIn {
+
+            from {
+
+                transform: translateY(8px);
+
+                opacity: 0;
+
+            }
+
+            to {
+
+                transform: translateY(0);
+
+                opacity: 1;
+
+            }
+
+        }
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        .loading {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+        .spinner {
+
+            width: 22px;
+
+            height: 22px;
+
+            border: 2px solid var(--border);
+
+            border-top-color: var(--green);
+
+            border-radius: 50%;
+
+            animation: spin .7s linear infinite;
+
+            margin: 0 auto 10px;
+
+        }
+
+        @keyframes spin {
+
+            to {
+
+                transform: rotate(360deg);
+
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <body>
-<div class="shell">
 
-  <!-- TOPBAR (unchanged except bell button added) -->
-  <div class="topbar">
-    <div class="topbar-logo">
-      <div class="logo-ico">🌿</div>
-      <div class="logo-text">EcoRoute</div>
-    </div>
-    <div class="truck-badge">
-      <span class="tbadge-dot"></span>
-      <span id="truck-id">TRUCK-07 · LIVE</span>
-    </div>
-    <div class="topbar-right">
-      <!-- notification bell (new) -->
-      <button class="notif-bell" id="notif-bell" onclick="showPendingNotif()" title="Notifications">
-        🔔<span class="notif-count" id="notif-badge" style="display:none;">0</span>
-      </button>
-      <button class="ti-btn" onclick="resetRoute()">↺ Reset</button>
-      <button class="ti-btn danger" onclick="emergencyStop()">✕ Stop</button>
-      <span class="clock" id="clock">--:--:--</span>
-    </div>
-  </div>
+<div class="app-shell">
 
-  <div class="body">
-    <!-- MAP AREA (unchanged) -->
-    <div class="map-area">
-      <div id="map"></div>
-      <div id="loading">
-        <div>
-          <div class="spinner"></div>
-          <div class="load-text">PLOTTING SMART ROUTE…</div>
+    <!-- =========================================================
+         HEADER
+    ========================================================= -->
+
+    <header class="app-header">
+
+        <div class="app-header-left">
+
+            <span class="app-logo-mark">🌿</span>
+
+            <span class="app-logo-text">EcoRoute</span>
+
         </div>
-      </div>
 
-      <!-- HUD -->
-      <div class="map-hud">
-        <div class="hud-card">
-          <div class="hud-lbl">Current Stop</div>
-          <div class="hud-val" id="hud-stop">—</div>
-          <div class="hud-sub" id="hud-area">Select a route</div>
+        <div class="app-header-right">
+
+            <div class="driver-pill">
+
+                <span class="driver-dot"></span>
+
+                DRIVER
+
+            </div>
+
+            <button class="icon-btn"
+                    onclick="logoutDriver()"
+                    title="Logout"
+                    aria-label="Logout">
+
+                ⎋
+
+            </button>
+
         </div>
-        <div class="hud-card">
-          <div class="hud-lbl">ETA Next</div>
-          <div class="hud-eta" id="hud-eta">—</div>
-          <div class="hud-sub" id="hud-fill-status">—</div>
+
+    </header>
+
+
+    <main class="app-body">
+
+
+        <!-- =====================================================
+             GREETING
+        ====================================================== -->
+
+        <section class="greeting-block">
+
+            <div class="eyebrow">
+                DRIVER CONSOLE
+            </div>
+
+            <h1 class="greeting-title">
+                Hey, <span id="driverName">Driver</span> <span class="wave">👋</span>
+            </h1>
+
+            <div class="greeting-row">
+
+                <span class="greeting-email"
+                      id="driverEmail">
+                    Loading...
+                </span>
+
+                <span class="clock-chip"
+                      id="clock">
+                    --:--:--
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             STATS
+        ====================================================== -->
+
+        <section class="stat-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-icon"
+                     style="background:#fff7ed;">
+                    ⏳
+                </div>
+
+                <div class="stat-value"
+                     id="pendingCount">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    Pending
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon"
+                     style="background:#e0f2fe;">
+                    🚚
+                </div>
+
+                <div class="stat-value"
+                     id="activeCount">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    Active
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon"
+                     style="background:#e8f5ee;">
+                    ✓
+                </div>
+
+                <div class="stat-value"
+                     id="completedCount">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    Completed
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon"
+                     style="background:#f3e8ff;">
+                    🚛
+                </div>
+
+                <div class="stat-value"
+                     id="truckStat"
+                     style="font-size:18px;">
+                    TRK-001
+                </div>
+
+                <div class="stat-label">
+                    Your truck
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             TRUCK SELECTOR
+        ====================================================== -->
+
+        <section class="feature-card"
+                  id="truckCard">
+
+            <div class="feature-icon">
+                🚛
+            </div>
+
+            <div class="feature-body">
+
+                <div class="feature-title">
+                    Active truck
+                </div>
+
+                <div class="feature-sub">
+                    Switch if you're driving a different vehicle today
+                </div>
+
+            </div>
+
+            <select id="truckSelect"
+                    class="truck-select"
+                    onchange="changeTruck()">
+
+                <option value="TRK-001">
+                    TRK-001
+                </option>
+
+                <option value="TRK-002">
+                    TRK-002
+                </option>
+
+                <option value="TRK-003">
+                    TRK-003
+                </option>
+
+                <option value="TRK-004">
+                    TRK-004
+                </option>
+
+            </select>
+
+        </section>
+
+
+        <!-- =====================================================
+             NOTIFICATIONS
+        ====================================================== -->
+
+        <div class="notification-area">
+
+            <div class="notification-box"
+                 id="notificationBox">
+
+                <div class="notification-icon"
+                     id="notificationIcon">
+                    🔔
+                </div>
+
+                <div class="notification-content">
+
+                    <div class="notification-title"
+                         id="notificationTitle">
+                        Admin Notification
+                    </div>
+
+                    <div class="notification-message"
+                         id="notificationMessage">
+                        --
+                    </div>
+
+                </div>
+
+                <button class="notification-close"
+                        onclick="closeNotification()">
+                    ×
+                </button>
+
+            </div>
+
         </div>
-      </div>
 
-      <!-- LEGEND -->
-      <div class="map-legend">
-        <div class="lrow"><span class="ldot" style="background:#dc2626"></span>Full ≥80%</div>
-        <div class="lrow"><span class="ldot" style="background:#d97706"></span>Half 40–79%</div>
-        <div class="lrow"><span class="ldot" style="background:#1a7a3e"></span>OK &lt;40%</div>
-        <div class="lrow" style="margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
-          <span class="ldash" style="background:#1a7a3e;opacity:.6"></span>Route
-        </div>
-        <div class="lrow"><span style="font-size:12px;">🚛</span>Your truck</div>
-      </div>
 
-      <div class="zbtns">
-        <button class="zbtn" onclick="map.zoomIn()">+</button>
-        <button class="zbtn" onclick="map.zoomOut()">−</button>
-        <button class="zbtn" onclick="fitRoute()" title="Fit">⊙</button>
-      </div>
-    </div>
+        <!-- =====================================================
+             PICKUP REQUESTS
+        ====================================================== -->
 
-    <!-- BOTTOM PANEL (unchanged) -->
-    <div class="bottom-panel">
-      <div class="panel-drag"></div>
+        <section class="card-section"
+                  id="requestsSection">
 
-      <!-- ROUTE SELECTOR -->
-      <div class="route-sel">
-        <div class="rs-label">Select Route</div>
-        <div class="rs-grid" id="routeGrid"></div>
-      </div>
+            <div class="card-section-head">
 
-      <!-- PROGRESS -->
-      <div class="prog-wrap">
-        <div class="dp-row"><span>Route</span><span id="dp-route">—</span></div>
-        <div class="dp-row"><span>Next Stop</span><span id="dp-next">—</span></div>
-        <div class="dp-row"><span>ETA Next</span><span id="dp-eta">—</span></div>
-        <div class="dp-row"><span>Stops Left</span><span id="dp-left">—</span></div>
-        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
-        <div class="dp-pct" id="dp-pct">0% complete</div>
-      </div>
+                <div class="card-section-title-wrap">
 
-      <!-- STOP LIST -->
-      <div class="snav" id="stopList">
-        <div class="sl-head">
-          <div class="sl-title">Stop Sequence</div>
-          <div class="sl-meta" id="sl-meta">0 / 0 done</div>
-        </div>
-        <div id="stopItems"></div>
-      </div>
+                    <div class="card-section-icon">
+                        📦
+                    </div>
 
-      <!-- STATS -->
-      <div class="stats-bar">
-        <div class="stat-box"><div class="stat-val" id="s-full" style="color:#dc2626">0</div><div class="stat-lbl">Full Bins</div></div>
-        <div class="stat-box"><div class="stat-val" id="s-done" style="color:var(--green)">0</div><div class="stat-lbl">Serviced</div></div>
-      </div>
+                    <div>
 
-      <!-- NAV BTNS -->
-      <div class="nav-btns">
-        <button class="nbtn" onclick="prevStop()" id="btn-prev">◀ PREV</button>
-        <button class="nbtn primary" onclick="markDone()" id="btn-done">DONE ✓</button>
-        <button class="nbtn" onclick="skipStop()" id="btn-skip">SKIP ▶</button>
-      </div>
+                        <div class="card-section-title">
+                            Pickup Requests
+                        </div>
 
-      <!-- FOOTER LINKS -->
-      <div class="sfooter">
-        <a class="fi" href="map.html">🗺️ Full Map</a>
-        <a class="fi signout" href="#" onclick="signOut()">🚪 Sign Out</a>
-      </div>
-    </div>
-  </div>
+                        <div class="card-section-sub"
+                             id="requestSub">
+                            Loading requests...
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <button class="refresh-btn"
+                        onclick="loadPickupRequests()"
+                        aria-label="Refresh">
+
+                    ↻
+
+                </button>
+
+            </div>
+
+
+            <div class="card-section-body">
+
+                <div id="requestsContainer">
+
+                    <div class="loading">
+
+                        <div class="spinner"></div>
+
+                        Loading pickup requests...
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             MY ACTIVE ROUTE
+        ====================================================== -->
+
+        <section class="card-section"
+                  id="routeSection">
+
+            <div class="card-section-head">
+
+                <div class="card-section-title-wrap">
+
+                    <div class="card-section-icon">
+                        🗺️
+                    </div>
+
+                    <div>
+
+                        <div class="card-section-title">
+                            My Active Route
+                        </div>
+
+                        <div class="card-section-sub">
+                            Your current collection activity
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-section-body">
+
+                <div id="activeRouteStops">
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            🗺️
+                        </div>
+
+                        <div class="empty-title">
+                            No active stops
+                        </div>
+
+                        <div class="empty-sub">
+                            Accept a pickup request to start.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-block">
+
+                    <div class="progress-block-title">
+                        Collection progress
+                    </div>
+
+                    <div class="timeline">
+
+                        <div class="timeline-step"
+                             id="tlPending">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="timeline-label">
+                                REQUEST
+                            </div>
+
+                        </div>
+
+
+                        <div class="timeline-step"
+                             id="tlAssigned">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="timeline-label">
+                                ASSIGNED
+                            </div>
+
+                        </div>
+
+
+                        <div class="timeline-step"
+                             id="tlPicked">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="timeline-label">
+                                PICKED
+                            </div>
+
+                        </div>
+
+
+                        <div class="timeline-step"
+                             id="tlCompleted">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="timeline-label">
+                                DONE
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div id="routeMessage"
+                         class="route-message">
+
+                        No active pickup.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =========================================================
+         BOTTOM NAV
+    ========================================================= -->
+
+    <nav class="bottom-nav">
+
+        <button class="nav-item active"
+                onclick="document.getElementById('requestsSection').scrollIntoView({behavior:'smooth'})">
+
+            <span class="nav-icon">📦</span>
+
+            Requests
+
+        </button>
+
+        <button class="nav-item"
+                onclick="document.getElementById('routeSection').scrollIntoView({behavior:'smooth'})">
+
+            <span class="nav-icon">🗺️</span>
+
+            Route
+
+        </button>
+
+        <button class="nav-item"
+                onclick="document.getElementById('truckCard').scrollIntoView({behavior:'smooth'})">
+
+            <span class="nav-icon">🚛</span>
+
+            Truck
+
+        </button>
+
+        <button class="nav-item"
+                onclick="logoutDriver()">
+
+            <span class="nav-icon">⎋</span>
+
+            Logout
+
+        </button>
+
+    </nav>
+
 </div>
 
-<!-- COMPLETE OVERLAY (unchanged) -->
-<div id="complete-overlay">
-  <div class="co-card">
-    <div class="co-icon">🎉</div>
-    <div class="co-title">Route Complete!</div>
-    <div class="co-sub" id="co-sub">All bins on this route have been serviced!</div>
-    <div class="co-stats" id="co-stats"></div>
-    <button class="co-btn" onclick="closeComplete()">Close & Reset</button>
-  </div>
-</div>
 
-<!-- NOTIFICATION POPUP (new) -->
-<div id="notif-overlay">
-  <div class="notif-popup" id="notif-popup">
-    <div class="np-header">
-      <div class="np-icon" id="np-icon">📢</div>
-      <div class="np-from">
-        <div class="np-label" id="np-label">Admin · Info</div>
-        <div class="np-time" id="np-time">Just now</div>
-      </div>
-      <button class="np-close" onclick="dismissNotif()">×</button>
-    </div>
-    <div class="np-body">
-      <div class="np-msg" id="np-msg">Notification message here</div>
-      <div class="np-actions">
-        <button class="np-btn np-btn-dismiss" onclick="dismissNotif()">Dismiss</button>
-        <button class="np-btn np-btn-ack" onclick="acknowledgeNotif()">✓ Acknowledge</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- =========================================================
+     TOAST
+========================================================= -->
 
 <div id="toast-wrap"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
 <script>
-/* ── SIGN OUT (unchanged) ── */
-function signOut(){
-  if(confirm('Sign out of the truck panel?')){
-    sessionStorage.clear();
-    window.location.href='signin.html';
-  }
+
+/* ============================================================
+   FIREBASE CONFIG
+============================================================ */
+
+const FIREBASE_DB_URL =
+    "https://ecoroute-a871a-default-rtdb.firebaseio.com";
+
+
+/* ============================================================
+   DRIVER SESSION
+============================================================ */
+
+let driverUser = null;
+
+let MY_TRUCK_ID =
+    localStorage.getItem("eco_driver_truck") || "TRK-001";
+
+
+/* ============================================================
+   REQUEST DATA
+============================================================ */
+
+let allPickupRequests = {};
+
+let currentActiveRequest = null;
+
+
+/* ============================================================
+   NOTIFICATION DATA
+============================================================ */
+
+let notificationCache = {};
+
+let currentNotificationId = null;
+
+
+/* ============================================================
+   INIT
+============================================================ */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    loadDriverSession();
+
+    setTruckUI();
+
+    updateClock();
+
+    setInterval(updateClock, 1000);
+
+    loadPickupRequests();
+
+    setInterval(loadPickupRequests, 5000);
+
+    pollNotifications();
+
+    setInterval(pollNotifications, 5000);
+
+});
+
+
+/* ============================================================
+   DRIVER SESSION
+============================================================ */
+
+function loadDriverSession() {
+
+    try {
+
+        const raw =
+            sessionStorage.getItem("eco_user");
+
+        if (raw) {
+
+            driverUser = JSON.parse(raw);
+
+        }
+
+    } catch (error) {
+
+        console.error("Driver session error:", error);
+
+    }
+
+
+    if (!driverUser) {
+
+        driverUser = {
+
+            uid: "",
+
+            email: "",
+
+            displayName: "Driver"
+
+        };
+
+    }
+
+
+    document.getElementById("driverName").textContent =
+        driverUser.displayName ||
+        "Driver";
+
+
+    document.getElementById("driverEmail").textContent =
+        driverUser.email ||
+        "Driver account";
+
+
 }
 
-/* ── DATA (unchanged) ── */
-const BINS=[
-  {id:'BIN-001',name:'Pathankot Bus Stand',area:'Bus Stand',fill:88,type:'General',lat:32.2748,lng:75.6520},
-  {id:'BIN-002',name:'Railway Station',area:'Railway Station',fill:42,type:'Recyclable',lat:32.2684,lng:75.6443},
-  {id:'BIN-003',name:'Dalhousie Road Market',area:'Dalhousie Road',fill:19,type:'Organic',lat:32.2810,lng:75.6478},
-  {id:'BIN-004',name:'Chakki Bank',area:'Chakki Bank',fill:73,type:'General',lat:32.2612,lng:75.6571},
-  {id:'BIN-005',name:'Mamun Road',area:'Mamun',fill:55,type:'Recyclable',lat:32.2890,lng:75.6340},
-  {id:'BIN-006',name:'Civil Lines Market',area:'Civil Lines',fill:91,type:'General',lat:32.2762,lng:75.6598},
-  {id:'BIN-007',name:'Shahpur Kandi Road',area:'Shahpur Kandi',fill:33,type:'Organic',lat:32.2530,lng:75.6420},
-  {id:'BIN-008',name:'Mirthal Chowk',area:'Mirthal',fill:66,type:'General',lat:32.3050,lng:75.6250},
-  {id:'BIN-009',name:'Sujanpur Road',area:'Sujanpur',fill:12,type:'Recyclable',lat:32.2680,lng:75.6670},
-  {id:'BIN-010',name:'Dunera Chowk',area:'Dunera',fill:80,type:'Hazardous',lat:32.2920,lng:75.6600},
-  {id:'BIN-011',name:'Pathankot Fort Area',area:'Fort',fill:48,type:'Organic',lat:32.2720,lng:75.6380},
-  {id:'BIN-012',name:'Nurpur Road Junction',area:'Nurpur Road',fill:95,type:'General',lat:32.2600,lng:75.6490},
-];
-const ROUTES=[
-  {id:'RT-01',label:'North · Bus Stand',color:'#1a7a3e',bins:['BIN-001','BIN-006','BIN-010','BIN-003']},
-  {id:'RT-02',label:'East · Civil Lines',color:'#0284c7',bins:['BIN-002','BIN-011','BIN-009','BIN-004']},
-  {id:'RT-03',label:'West · Mamun Rd',color:'#d97706',bins:['BIN-008','BIN-005','BIN-003']},
-  {id:'RT-04',label:'South · Chakki',color:'#9333ea',bins:['BIN-012','BIN-004','BIN-007']},
-];
 
-const getBin=id=>BINS.find(b=>b.id===id);
-const binColor=f=>f>=80?'#dc2626':f>=40?'#d97706':'#1a7a3e';
-const binStatus=f=>f>=80?'FULL':f>=40?'HALF':'OK';
-const binBadge=f=>f>=80?'badge-full':f>=40?'badge-half':'badge-ok';
-const calcETA=(a,b)=>{
-  if(!a||!b) return '—';
-  const d=Math.sqrt(Math.pow((a.lat-b.lat)*111,2)+Math.pow((a.lng-b.lng)*89,2));
-  return Math.max(2,Math.round(d*3.5))+' min';
-};
+/* ============================================================
+   TRUCK
+============================================================ */
 
-/* ── STATE (unchanged) ── */
-let activeRoute=null, currentStop=0, doneStops=new Set();
-let routePoly=null, binMarkers={}, truckMarker=null;
+function setTruckUI() {
 
-/* ── MAP (unchanged) ── */
-const map=L.map('map',{zoomControl:false,attributionControl:false}).setView([32.2748,75.6520],13);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
+    const select =
+        document.getElementById("truckSelect");
 
-/* ── ROUTE BUTTONS (unchanged) ── */
-function buildRouteGrid(){
-  document.getElementById('routeGrid').innerHTML=ROUTES.map((r,i)=>`
-    <button class="rb" id="rb-${i}" style="--rc:${r.color}" onclick="selectRoute(${i})">${r.id} · ${r.label.split('·')[1]?.trim()||''}</button>`).join('');
+    select.value = MY_TRUCK_ID;
+
+    document.getElementById("truckStat").textContent =
+        MY_TRUCK_ID;
+
 }
 
-function selectRoute(idx){
-  doneStops.clear(); currentStop=0; clearLayers();
-  activeRoute=ROUTES[idx];
-  document.querySelectorAll('.rb').forEach((b,i)=>b.classList.toggle('sel',i===idx));
-  buildStopList(); updatePanel(); drawRoute(); placeTruck(0);
-  toast(activeRoute.label+' loaded — follow the smart route!','success');
+
+function changeTruck() {
+
+    const select =
+        document.getElementById("truckSelect");
+
+    MY_TRUCK_ID = select.value;
+
+    localStorage.setItem(
+        "eco_driver_truck",
+        MY_TRUCK_ID
+    );
+
+    document.getElementById("truckStat").textContent =
+        MY_TRUCK_ID;
+
+    showToast(
+        "Truck changed to " + MY_TRUCK_ID,
+        "success"
+    );
+
+    loadPickupRequests();
+
 }
 
-/* ── STOP LIST (unchanged) ── */
-function buildStopList(){
-  if(!activeRoute) return;
-  const head=`<div class="sl-head"><div class="sl-title">Stop Sequence</div><div class="sl-meta" id="sl-meta">${doneStops.size} / ${activeRoute.bins.length} done</div></div>`;
-  const items=activeRoute.bins.map((bid,i)=>{
-    const b=getBin(bid); if(!b) return '';
-    const isDone=doneStops.has(i), isCur=i===currentStop&&!isDone;
-    const cls=isDone?'done':isCur?'active':(b.fill>=80?'urgent':'');
-    return `<div class="ni ${cls}" id="si-${i}" onclick="jumpToStop(${i})">
-      <div class="stop-num">${String(i+1).padStart(2,'0')}</div>
-      <div class="stop-info">
-        <div class="stop-name">${b.name}</div>
-        <div class="stop-sub">
-          <span style="color:${binColor(b.fill)};font-family:'DM Mono',monospace;font-size:10px">${b.fill}%</span>
-          <span class="fill-bar-wrap"><span class="fill-bar" style="width:${b.fill}%;background:${binColor(b.fill)}"></span></span>
-          <span class="stop-badge ${binBadge(b.fill)}">${binStatus(b.fill)}</span>
+
+/* ============================================================
+   CLOCK
+============================================================ */
+
+function updateClock() {
+
+    const now = new Date();
+
+    const time =
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0") +
+        ":" +
+        String(now.getSeconds()).padStart(2, "0");
+
+    document.getElementById("clock").textContent =
+        time;
+
+}
+
+
+/* ============================================================
+   FETCH FIREBASE
+============================================================ */
+
+async function firebaseGet(path) {
+
+    const response =
+        await fetch(
+            FIREBASE_DB_URL +
+            "/" +
+            path +
+            ".json"
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Firebase GET failed"
+        );
+
+    }
+
+    return await response.json();
+
+}
+
+
+/* ============================================================
+   UPDATE FIREBASE
+============================================================ */
+
+async function firebasePatch(path, data) {
+
+    const response =
+        await fetch(
+            FIREBASE_DB_URL +
+            "/" +
+            path +
+            ".json",
+            {
+                method: "PATCH",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify(data)
+            }
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Firebase PATCH failed"
+        );
+
+    }
+
+    return await response.json();
+
+}
+
+
+/* ============================================================
+   LOAD PICKUP REQUESTS
+============================================================ */
+
+async function loadPickupRequests() {
+
+    try {
+
+        const data =
+            await firebaseGet(
+                "pickup_requests"
+            );
+
+        allPickupRequests =
+            data || {};
+
+        renderPickupRequests();
+
+        updateStats();
+
+        updateActiveRoute();
+
+    } catch (error) {
+
+        console.error(
+            "Pickup request error:",
+            error
+        );
+
+        document.getElementById(
+            "requestsContainer"
+        ).innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    ⚠️
+                </div>
+
+                <div class="empty-title">
+                    Could not load requests
+                </div>
+
+                <div class="empty-sub">
+                    Check Firebase connection.
+                </div>
+
+            </div>
+
+        `;
+
+        document.getElementById(
+            "requestSub"
+        ).textContent =
+            "Connection error";
+
+    }
+
+}
+
+
+/* ============================================================
+   FILTER REQUESTS FOR DRIVER
+============================================================ */
+
+function getDriverRequests() {
+
+    const entries =
+        Object.entries(
+            allPickupRequests || {}
+        );
+
+
+    /*
+     * Driver can see:
+     *
+     * 1. pending requests
+     * 2. requests already assigned to this driver
+     * 3. requests completed by this driver
+     *
+     * Other driver's assigned requests are hidden.
+     */
+
+    return entries
+        .map(function ([id, data]) {
+
+            return {
+                id: id,
+                ...data
+            };
+
+        })
+        .filter(function (request) {
+
+            const assignedDriver =
+                request.assignedDriver ||
+                request.driverId ||
+                null;
+
+
+            if (request.status === "pending") {
+
+                return true;
+
+            }
+
+
+            if (
+                assignedDriver &&
+                assignedDriver === MY_TRUCK_ID
+            ) {
+
+                return true;
+
+            }
+
+
+            return false;
+
+        })
+        .sort(function (a, b) {
+
+            const order = {
+
+                pending: 1,
+
+                assigned: 2,
+
+                picked_up: 3,
+
+                completed: 4
+
+            };
+
+            return (
+                (order[a.status] || 9) -
+                (order[b.status] || 9)
+            );
+
+        });
+
+}
+
+
+/* ============================================================
+   RENDER REQUESTS
+============================================================ */
+
+function renderPickupRequests() {
+
+    const container =
+        document.getElementById(
+            "requestsContainer"
+        );
+
+
+    const requests =
+        getDriverRequests();
+
+
+    const pending =
+        requests.filter(
+            r => r.status === "pending"
+        );
+
+
+    const active =
+        requests.filter(
+            r =>
+                r.status === "assigned" ||
+                r.status === "picked_up"
+        );
+
+
+    const completed =
+        requests.filter(
+            r =>
+                r.status === "completed"
+        );
+
+
+    document.getElementById(
+        "requestSub"
+    ).textContent =
+        `${pending.length} pending · ${active.length} active · ${completed.length} completed`;
+
+
+    if (!requests.length) {
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    🗑️
+                </div>
+
+                <div class="empty-title">
+                    No pickup requests
+                </div>
+
+                <div class="empty-sub">
+                    New citizen requests will appear here automatically.
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="requests-grid">
+
+            ${requests
+                .map(requestCard)
+                .join("")}
+
         </div>
-      </div>
-      <div class="stop-tick">
-        ${isDone?`<svg width="10" height="10" fill="none" stroke="#1a7a3e" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`:''}
-        ${isCur?`<svg width="8" height="8" fill="#1a7a3e" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`:''}
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('stopList').innerHTML=head+'<div id="stopItems">'+items+'</div>';
-  document.getElementById('si-'+currentStop)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+
+    `;
+
 }
 
-/* ── PANEL (unchanged) ── */
-function updatePanel(){
-  if(!activeRoute){
-    ['dp-route','dp-next','dp-eta','dp-left'].forEach(id=>document.getElementById(id).textContent='—');
-    document.getElementById('prog-fill').style.width='0%';
-    document.getElementById('dp-pct').textContent='0% complete';
-    document.getElementById('hud-stop').textContent='—';
-    document.getElementById('hud-area').textContent='Select a route to begin';
-    document.getElementById('hud-eta').textContent='—';
-    document.getElementById('hud-fill-status').textContent='—';
-    return;
-  }
-  const total=activeRoute.bins.length, done=doneStops.size, pct=Math.round(done/total*100);
-  let nextIdx=-1;
-  for(let i=currentStop;i<activeRoute.bins.length;i++){if(!doneStops.has(i)){nextIdx=i;break;}}
-  const curBin=nextIdx>=0?getBin(activeRoute.bins[nextIdx]):null;
-  const prevBin=nextIdx>0?getBin(activeRoute.bins[nextIdx-1]):null;
-  const nextBin=nextIdx>=0&&nextIdx+1<activeRoute.bins.length?getBin(activeRoute.bins[nextIdx+1]):null;
 
-  document.getElementById('dp-route').textContent=activeRoute.id;
-  document.getElementById('dp-next').textContent=curBin?curBin.name:'All done!';
-  document.getElementById('dp-eta').textContent=prevBin&&curBin?calcETA(prevBin,curBin):'—';
-  document.getElementById('dp-left').textContent=(total-done)+' / '+total;
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('dp-pct').textContent=pct+'% complete';
-  document.getElementById('hud-stop').textContent=curBin?'#'+(nextIdx+1)+' '+curBin.area:'DONE';
-  document.getElementById('hud-area').textContent=curBin?curBin.name:'Route complete!';
-  document.getElementById('hud-eta').textContent=curBin&&nextBin?calcETA(curBin,nextBin):'—';
-  document.getElementById('hud-fill-status').textContent=curBin?`Fill: ${curBin.fill}% · ${binStatus(curBin.fill)}`:'';
-  document.getElementById('s-done').textContent=done;
-  document.getElementById('s-full').textContent=activeRoute.bins.filter(id=>{const b=getBin(id);return b&&b.fill>=80&&!doneStops.has(activeRoute.bins.indexOf(id));}).length;
-  document.getElementById('btn-done').disabled=done===total;
-  document.getElementById('btn-skip').disabled=done>=total-1;
-  document.getElementById('btn-prev').disabled=done===0;
+/* ============================================================
+   REQUEST CARD
+============================================================ */
+
+function requestCard(request) {
+
+    const status =
+        request.status || "pending";
+
+
+    const statusInfo =
+        getStatusInfo(status);
+
+
+    const type =
+        request.wasteType ||
+        request.itemType ||
+        "General Waste";
+
+
+    const area =
+        request.area ||
+        "Area not provided";
+
+
+    const phone =
+        request.phone ||
+        "Not provided";
+
+
+    const description =
+        request.description ||
+        "No description provided";
+
+
+    const assignedDriver =
+        request.assignedDriver ||
+        request.driverId ||
+        "";
+
+
+    let actions = "";
+
+
+    /*
+     * PENDING
+     */
+
+    if (status === "pending") {
+
+        actions = `
+
+            <button
+                class="action-btn btn-accept"
+                onclick="acceptPickup('${request.id}')">
+
+                ✓ Accept Pickup
+
+            </button>
+
+        `;
+
+    }
+
+
+    /*
+     * ASSIGNED
+     */
+
+    else if (
+        status === "assigned" &&
+        assignedDriver === MY_TRUCK_ID
+    ) {
+
+        actions = `
+
+            <button
+                class="action-btn btn-start"
+                onclick="startPickup('${request.id}')">
+
+                🚚 Start Pickup
+
+            </button>
+
+        `;
+
+    }
+
+
+    /*
+     * PICKED UP
+     */
+
+    else if (
+        status === "picked_up" &&
+        assignedDriver === MY_TRUCK_ID
+    ) {
+
+        actions = `
+
+            <button
+                class="action-btn btn-complete"
+                onclick="completePickup('${request.id}')">
+
+                ✓ Complete Pickup
+
+            </button>
+
+        `;
+
+    }
+
+
+    /*
+     * COMPLETED
+     */
+
+    else if (status === "completed") {
+
+        actions = `
+
+            <button
+                class="action-btn btn-cancel"
+                disabled>
+
+                ✓ Completed
+
+            </button>
+
+        `;
+
+    }
+
+
+    return `
+
+        <div class="request-card">
+
+            <div class="request-top">
+
+                <div>
+
+                    <div class="request-id">
+                        ${escapeHTML(request.id)}
+                    </div>
+
+                    <div class="request-type">
+                        ${escapeHTML(type)}
+                    </div>
+
+                </div>
+
+                <span class="badge ${statusInfo.className}">
+                    ${statusInfo.label}
+                </span>
+
+            </div>
+
+
+            <div class="detail-grid">
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        AREA
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHTML(area)}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        PHONE
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHTML(phone)}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        REQUESTED
+                    </div>
+
+                    <div class="detail-value">
+                        ${formatDate(request.requestedAt)}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        DRIVER
+                    </div>
+
+                    <div class="detail-value">
+                        ${assignedDriver
+                            ? escapeHTML(assignedDriver)
+                            : "Unassigned"}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="description">
+
+                ${escapeHTML(description)}
+
+            </div>
+
+
+            ${renderTimeline(status)}
+
+
+            <div class="request-actions">
+
+                ${actions}
+
+            </div>
+
+        </div>
+
+    `;
+
 }
 
-/* ── MAP DRAW (unchanged) ── */
-function clearLayers(){
-  if(routePoly){map.removeLayer(routePoly);routePoly=null;}
-  Object.values(binMarkers).forEach(m=>map.removeLayer(m));
-  binMarkers={};
-  if(truckMarker){map.removeLayer(truckMarker);truckMarker=null;}
+
+/* ============================================================
+   STATUS INFO
+============================================================ */
+
+function getStatusInfo(status) {
+
+    if (status === "assigned") {
+
+        return {
+
+            label: "🚚 Assigned",
+
+            className:
+                "badge-assigned"
+
+        };
+
+    }
+
+
+    if (status === "picked_up") {
+
+        return {
+
+            label: "📦 Picked Up",
+
+            className:
+                "badge-picked"
+
+        };
+
+    }
+
+
+    if (status === "completed") {
+
+        return {
+
+            label: "✓ Completed",
+
+            className:
+                "badge-completed"
+
+        };
+
+    }
+
+
+    return {
+
+        label: "⏳ Pending",
+
+        className:
+            "badge-pending"
+
+    };
+
 }
 
-async function drawRoute(){
-  if(!activeRoute) return;
-  const pts=activeRoute.bins.map(id=>{const b=getBin(id);return b?[b.lat,b.lng]:null;}).filter(Boolean);
-  const ws=pts.map(p=>p[1]+','+p[0]).join(';');
-  let poly;
-  try{
-    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${ws}?overview=full&geometries=geojson`,{signal:AbortSignal.timeout(6000)});
-    const d=await r.json();
-    if(d.routes?.[0]) poly=L.geoJSON(d.routes[0].geometry,{style:{color:activeRoute.color,weight:4,opacity:.7}}).addTo(map);
-  }catch(e){}
-  if(!poly) poly=L.polyline(pts,{color:activeRoute.color,weight:3,opacity:.6,dashArray:'10 6'}).addTo(map);
-  routePoly=poly;
 
-  activeRoute.bins.forEach((bid,i)=>{
-    const b=getBin(bid); if(!b) return;
-    const isDone=doneStops.has(i), isCur=i===currentStop&&!isDone;
-    const c=isDone?'#94a3b8':binColor(b.fill);
-    const sz=isCur?22:16;
-    const icon=L.divIcon({
-      className:'',
-      html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 2px ${isCur?16:8}px ${c};display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:8px;color:#fff;font-weight:500;${isDone?'opacity:.4':''};">${i+1}</div>`,
-      iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-14],
+/* ============================================================
+   TIMELINE
+============================================================ */
+
+function renderTimeline(status) {
+
+    const steps = {
+
+        pending: 1,
+
+        assigned: 2,
+
+        picked_up: 3,
+
+        completed: 4
+
+    };
+
+
+    const active =
+        steps[status] || 1;
+
+
+    return `
+
+        <div class="timeline">
+
+            <div class="timeline-step ${active >= 1 ? "active" : ""}">
+
+                <div class="timeline-dot"></div>
+
+                <div class="timeline-label">
+                    REQUEST
+                </div>
+
+            </div>
+
+
+            <div class="timeline-step ${active >= 2 ? "active" : ""}">
+
+                <div class="timeline-dot"></div>
+
+                <div class="timeline-label">
+                    ASSIGNED
+                </div>
+
+            </div>
+
+
+            <div class="timeline-step ${active >= 3 ? "active" : ""}">
+
+                <div class="timeline-dot"></div>
+
+                <div class="timeline-label">
+                    PICKED
+                </div>
+
+            </div>
+
+
+            <div class="timeline-step ${active >= 4 ? "active" : ""}">
+
+                <div class="timeline-dot"></div>
+
+                <div class="timeline-label">
+                    DONE
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ============================================================
+   ACCEPT PICKUP
+============================================================ */
+
+async function acceptPickup(requestId) {
+
+    const request =
+        allPickupRequests[requestId];
+
+
+    if (!request) {
+
+        showToast(
+            "Request not found",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        request.status &&
+        request.status !== "pending"
+    ) {
+
+        showToast(
+            "This request is no longer pending",
+            "warning"
+        );
+
+        loadPickupRequests();
+
+        return;
+
+    }
+
+
+    try {
+
+        const update = {
+
+            status: "assigned",
+
+            assignedDriver:
+                MY_TRUCK_ID,
+
+            assignedDriverName:
+                driverUser.displayName ||
+                driverUser.email ||
+                "Driver",
+
+            assignedTruck:
+                MY_TRUCK_ID,
+
+            assignedAt:
+                new Date().toISOString(),
+
+            driverUid:
+                driverUser.uid || null
+
+        };
+
+
+        await firebasePatch(
+            "pickup_requests/" +
+            requestId,
+            update
+        );
+
+
+        showToast(
+            "Pickup accepted successfully",
+            "success"
+        );
+
+
+        await createDriverNotification(
+            "ADMIN",
+            "info",
+            `${MY_TRUCK_ID} accepted pickup ${requestId}`,
+            {
+                requestId:
+                    requestId,
+
+                driver:
+                    MY_TRUCK_ID
+            }
+        );
+
+
+        await loadPickupRequests();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Could not accept pickup",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   START PICKUP
+============================================================ */
+
+async function startPickup(requestId) {
+
+    const request =
+        allPickupRequests[requestId];
+
+
+    if (!request) {
+
+        showToast(
+            "Request not found",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        request.assignedDriver !==
+        MY_TRUCK_ID
+    ) {
+
+        showToast(
+            "This pickup is assigned to another truck",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await firebasePatch(
+            "pickup_requests/" +
+            requestId,
+            {
+
+                status:
+                    "picked_up",
+
+                pickedUpAt:
+                    new Date().toISOString(),
+
+                pickupStartedAt:
+                    new Date().toISOString()
+
+            }
+        );
+
+
+        showToast(
+            "Pickup started",
+            "success"
+        );
+
+
+        await createDriverNotification(
+            "ADMIN",
+            "info",
+            `${MY_TRUCK_ID} started pickup ${requestId}`,
+            {
+                requestId:
+                    requestId,
+
+                driver:
+                    MY_TRUCK_ID
+            }
+        );
+
+
+        await loadPickupRequests();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Could not start pickup",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   COMPLETE PICKUP
+============================================================ */
+
+async function completePickup(requestId) {
+
+    const request =
+        allPickupRequests[requestId];
+
+
+    if (!request) {
+
+        showToast(
+            "Request not found",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        request.assignedDriver !==
+        MY_TRUCK_ID
+    ) {
+
+        showToast(
+            "This pickup is assigned to another truck",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Mark this pickup as completed?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await firebasePatch(
+            "pickup_requests/" +
+            requestId,
+            {
+
+                status:
+                    "completed",
+
+                completedAt:
+                    new Date().toISOString(),
+
+                completedBy:
+                    MY_TRUCK_ID,
+
+                completedByUid:
+                    driverUser.uid || null
+
+            }
+        );
+
+
+        showToast(
+            "Pickup completed successfully ✓",
+            "success"
+        );
+
+
+        await createDriverNotification(
+            "ADMIN",
+            "success",
+            `${MY_TRUCK_ID} completed pickup ${requestId}`,
+            {
+                requestId:
+                    requestId,
+
+                driver:
+                    MY_TRUCK_ID
+            }
+        );
+
+
+        await loadPickupRequests();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Could not complete pickup",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   UPDATE STATS
+============================================================ */
+
+function updateStats() {
+
+    const entries =
+        Object.entries(
+            allPickupRequests || {}
+        );
+
+
+    const pending =
+        entries.filter(
+            ([id, request]) =>
+                request.status === "pending"
+        ).length;
+
+
+    const active =
+        entries.filter(
+            ([id, request]) =>
+                (
+                    request.status === "assigned" ||
+                    request.status === "picked_up"
+                ) &&
+                (
+                    request.assignedDriver ===
+                    MY_TRUCK_ID
+                )
+        ).length;
+
+
+    const completed =
+        entries.filter(
+            ([id, request]) =>
+                request.status === "completed" &&
+                (
+                    request.assignedDriver ===
+                    MY_TRUCK_ID
+                )
+        ).length;
+
+
+    document.getElementById(
+        "pendingCount"
+    ).textContent =
+        pending;
+
+
+    document.getElementById(
+        "activeCount"
+    ).textContent =
+        active;
+
+
+    document.getElementById(
+        "completedCount"
+    ).textContent =
+        completed;
+
+
+    document.getElementById(
+        "truckStat"
+    ).textContent =
+        MY_TRUCK_ID;
+
+}
+
+
+/* ============================================================
+   ACTIVE ROUTE
+============================================================ */
+
+function updateActiveRoute() {
+
+    const container =
+        document.getElementById(
+            "activeRouteStops"
+        );
+
+
+    const activeRequests =
+        Object.entries(
+            allPickupRequests || {}
+        )
+        .map(
+            ([id, data]) => ({
+                id,
+                ...data
+            })
+        )
+        .filter(function (request) {
+
+            return (
+                request.assignedDriver ===
+                MY_TRUCK_ID
+            ) &&
+            (
+                request.status ===
+                    "assigned" ||
+
+                request.status ===
+                    "picked_up"
+            );
+
+        });
+
+
+    if (!activeRequests.length) {
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    🗺️
+                </div>
+
+                <div class="empty-title">
+                    No active stops
+                </div>
+
+                <div class="empty-sub">
+                    Accept a pickup request to start.
+                </div>
+
+            </div>
+
+        `;
+
+
+        resetTimeline();
+
+        document.getElementById(
+            "routeMessage"
+        ).textContent =
+            "No active pickup.";
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        activeRequests
+            .map(function (request, index) {
+
+                return `
+
+                    <div class="route-stop">
+
+                        <div class="stop-number">
+                            ${index + 1}
+                        </div>
+
+                        <div>
+
+                            <div class="stop-name">
+                                ${escapeHTML(
+                                    request.area ||
+                                    "Pickup Area"
+                                )}
+                            </div>
+
+                            <div class="stop-detail">
+                                ${escapeHTML(
+                                    request.wasteType ||
+                                    request.itemType ||
+                                    "Waste"
+                                )}
+                                ·
+                                ${escapeHTML(
+                                    request.id
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            })
+            .join("");
+
+
+    const current =
+        activeRequests[0];
+
+
+    updateTimeline(
+        current.status
+    );
+
+
+    document.getElementById(
+        "routeMessage"
+    ).textContent =
+        `Truck ${MY_TRUCK_ID} currently has ${activeRequests.length} active pickup${activeRequests.length > 1 ? "s" : ""}.`;
+
+}
+
+
+/* ============================================================
+   TIMELINE
+============================================================ */
+
+function resetTimeline() {
+
+    [
+        "tlPending",
+        "tlAssigned",
+        "tlPicked",
+        "tlCompleted"
+
+    ].forEach(function (id) {
+
+        document
+            .getElementById(id)
+            .classList
+            .remove("active");
+
     });
-    const popup=`<div class="popup-title">${b.id} · Stop #${i+1}</div>
-      <div class="popup-row"><span>Location</span><span>${b.name}</span></div>
-      <div class="popup-row"><span>Fill</span><span style="color:${binColor(b.fill)}">${b.fill}%</span></div>
-      <div class="popup-row"><span>Type</span><span>${b.type}</span></div>
-      <div class="popup-row"><span>Status</span><span>${isDone?'✅ Serviced':'⏳ Pending'}</span></div>`;
-    binMarkers[i]=L.marker([b.lat,b.lng],{icon}).addTo(map).bindPopup(popup,{maxWidth:220});
-  });
 
-  document.getElementById('loading').style.display='none';
-  fitRoute();
 }
 
-function fitRoute(){
-  if(!activeRoute) return;
-  const pts=activeRoute.bins.map(id=>{const b=getBin(id);return b?[b.lat,b.lng]:null;}).filter(Boolean);
-  if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.18));
+
+function updateTimeline(status) {
+
+    resetTimeline();
+
+
+    const steps = {
+
+        pending: [
+            "tlPending"
+        ],
+
+        assigned: [
+            "tlPending",
+            "tlAssigned"
+        ],
+
+        picked_up: [
+            "tlPending",
+            "tlAssigned",
+            "tlPicked"
+        ],
+
+        completed: [
+            "tlPending",
+            "tlAssigned",
+            "tlPicked",
+            "tlCompleted"
+        ]
+
+    };
+
+
+    (
+        steps[status] ||
+        ["tlPending"]
+    ).forEach(function (id) {
+
+        document
+            .getElementById(id)
+            .classList
+            .add("active");
+
+    });
+
 }
 
-function placeTruck(idx){
-  if(!activeRoute) return;
-  const b=getBin(activeRoute.bins[idx]); if(!b) return;
-  if(truckMarker) map.removeLayer(truckMarker);
-  truckMarker=L.marker([b.lat,b.lng],{
-    icon:L.divIcon({className:'',html:`<div class="truck-marker">🚛</div>`,iconSize:[28,28],iconAnchor:[14,14]}),
-    zIndexOffset:1000
-  }).addTo(map);
+
+/* ============================================================
+   FIREBASE NOTIFICATIONS
+============================================================ */
+
+async function pollNotifications() {
+
+    try {
+
+        const data =
+            await firebaseGet(
+                "notifications"
+            );
+
+
+        const notifications =
+            data || {};
+
+
+        const matching =
+            Object.entries(
+                notifications
+            )
+            .map(
+                ([id, n]) => ({
+                    id,
+                    ...n
+                })
+            )
+            .filter(function (n) {
+
+                return (
+                    n.target === "ALL" ||
+                    n.target === MY_TRUCK_ID
+                );
+
+            })
+            .sort(
+                (a, b) =>
+                    (b.ts || 0) -
+                    (a.ts || 0)
+            );
+
+
+        notificationCache =
+            notifications;
+
+
+        if (!matching.length) {
+
+            return;
+
+        }
+
+
+        const latest =
+            matching[0];
+
+
+        /*
+         * Don't repeatedly show same notification
+         */
+
+        const alreadyShown =
+            sessionStorage.getItem(
+                "eco_last_driver_notification"
+            );
+
+
+        if (
+            alreadyShown ===
+            latest.id
+        ) {
+
+            return;
+
+        }
+
+
+        sessionStorage.setItem(
+            "eco_last_driver_notification",
+            latest.id
+        );
+
+
+        showNotification(
+            latest
+        );
+
+
+    } catch (error) {
+
+        console.warn(
+            "Notification polling failed",
+            error
+        );
+
+    }
+
 }
 
-function refreshMarkers(){
-  if(!activeRoute) return;
-  activeRoute.bins.forEach((_,i)=>{
-    const b=getBin(activeRoute.bins[i]); if(!b||!binMarkers[i]) return;
-    const isDone=doneStops.has(i), isCur=i===currentStop&&!isDone;
-    const c=isDone?'#94a3b8':binColor(b.fill);
-    const sz=isCur?22:16;
-    const el=binMarkers[i].getElement()?.querySelector('div');
-    if(el){el.style.background=c;el.style.width=sz+'px';el.style.height=sz+'px';el.style.boxShadow=`0 2px ${isCur?16:8}px ${c}`;el.style.opacity=isDone?'.4':'1';}
-  });
+
+/* ============================================================
+   SHOW NOTIFICATION
+============================================================ */
+
+function showNotification(n) {
+
+    currentNotificationId =
+        n.id;
+
+
+    const box =
+        document.getElementById(
+            "notificationBox"
+        );
+
+
+    const icon =
+        document.getElementById(
+            "notificationIcon"
+        );
+
+
+    const title =
+        document.getElementById(
+            "notificationTitle"
+        );
+
+
+    const message =
+        document.getElementById(
+            "notificationMessage"
+        );
+
+
+    if (n.prio === "alert") {
+
+        icon.textContent =
+            "🚨";
+
+        box.style.borderLeftColor =
+            "#dc2626";
+
+    }
+
+    else if (n.prio === "warn") {
+
+        icon.textContent =
+            "⚠️";
+
+        box.style.borderLeftColor =
+            "#d97706";
+
+    }
+
+    else {
+
+        icon.textContent =
+            "ℹ️";
+
+        box.style.borderLeftColor =
+            "#0284c7";
+
+    }
+
+
+    title.textContent =
+        n.target === "ALL"
+            ? "Admin · All Drivers"
+            : "Admin · " + n.target;
+
+
+    message.textContent =
+        n.msg || "New notification";
+
+
+    box.classList.add(
+        "show"
+    );
+
 }
 
-/* ── NAV (unchanged) ── */
-function markDone(){
-  if(!activeRoute) return toast('Select a route first','warning');
-  const b=getBin(activeRoute.bins[currentStop]);
-  doneStops.add(currentStop);
-  toast('#'+(currentStop+1)+' '+b.name+' — serviced ✓','success');
-  let next=currentStop+1;
-  while(next<activeRoute.bins.length&&doneStops.has(next)) next++;
-  if(next<activeRoute.bins.length){currentStop=next;map.panTo([getBin(activeRoute.bins[currentStop]).lat,getBin(activeRoute.bins[currentStop]).lng],{animate:true});placeTruck(currentStop);}
-  buildStopList(); updatePanel(); refreshMarkers();
-  if(doneStops.size===activeRoute.bins.length) setTimeout(showComplete,600);
+
+/* ============================================================
+   CLOSE NOTIFICATION
+============================================================ */
+
+function closeNotification() {
+
+    document
+        .getElementById(
+            "notificationBox"
+        )
+        .classList
+        .remove("show");
+
 }
 
-function skipStop(){
-  if(!activeRoute) return toast('Select a route first','warning');
-  toast('Skipped: '+getBin(activeRoute.bins[currentStop]).name,'warning');
-  let next=currentStop+1;
-  while(next<activeRoute.bins.length&&doneStops.has(next)) next++;
-  if(next<activeRoute.bins.length){currentStop=next;placeTruck(currentStop);}
-  buildStopList(); updatePanel(); refreshMarkers();
+
+/* ============================================================
+   SEND DRIVER EVENT TO FIREBASE
+============================================================ */
+
+async function createDriverNotification(
+    target,
+    prio,
+    msg,
+    extra = {}
+) {
+
+    try {
+
+        const id =
+            "driver_" +
+            Date.now() +
+            "_" +
+            Math.random()
+                .toString(36)
+                .slice(2, 7);
+
+
+        const payload = {
+
+            ts:
+                Date.now(),
+
+            target:
+                target,
+
+            prio:
+                prio,
+
+            msg:
+                msg,
+
+            read:
+                [],
+
+            source:
+                "driver",
+
+            ...extra
+
+        };
+
+
+        await fetch(
+            FIREBASE_DB_URL +
+            "/driver_events/" +
+            id +
+            ".json",
+            {
+
+                method:
+                    "PUT",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body:
+                    JSON.stringify(
+                        payload
+                    )
+
+            }
+        );
+
+
+    } catch (error) {
+
+        console.warn(
+            "Driver event not recorded",
+            error
+        );
+
+    }
+
 }
 
-function prevStop(){
-  if(!activeRoute||!doneStops.size) return;
-  const last=Math.max(...doneStops);
-  doneStops.delete(last); currentStop=last;
-  placeTruck(currentStop);
-  buildStopList(); updatePanel(); refreshMarkers();
-  toast('Reverted to stop #'+(last+1),'info');
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+function showToast(
+    message,
+    type = "info"
+) {
+
+    const icons = {
+
+        success: "✅",
+
+        error: "❌",
+
+        warning: "⚠️",
+
+        info: "ℹ️"
+
+    };
+
+
+    const el =
+        document.createElement(
+            "div"
+        );
+
+
+    el.className =
+        "toast";
+
+
+    el.innerHTML = `
+
+        <span>
+            ${icons[type] || "ℹ️"}
+        </span>
+
+        <span>
+            ${escapeHTML(message)}
+        </span>
+
+    `;
+
+
+    document
+        .getElementById(
+            "toast-wrap"
+        )
+        .appendChild(el);
+
+
+    setTimeout(
+        function () {
+
+            el.style.opacity =
+                "0";
+
+            el.style.transition =
+                "opacity .3s";
+
+
+            setTimeout(
+                () =>
+                    el.remove(),
+                350
+            );
+
+        },
+        2800
+    );
+
 }
 
-function jumpToStop(idx){
-  if(!activeRoute) return;
-  const b=getBin(activeRoute.bins[idx]);
-  map.setView([b.lat,b.lng],16,{animate:true});
-  setTimeout(()=>binMarkers[idx]?.openPopup(),300);
+
+/* ============================================================
+   FORMAT DATE
+============================================================ */
+
+function formatDate(value) {
+
+    if (!value) {
+
+        return "—";
+
+    }
+
+
+    try {
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return "—";
+
+        }
+
+
+        return (
+            String(
+                date.getDate()
+            ).padStart(2, "0") +
+            "/" +
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0") +
+            "/" +
+            date.getFullYear() +
+            " " +
+            String(
+                date.getHours()
+            ).padStart(2, "0") +
+            ":" +
+            String(
+                date.getMinutes()
+            ).padStart(2, "0")
+        );
+
+    } catch (error) {
+
+        return "—";
+
+    }
+
 }
 
-function resetRoute(){
-  if(!activeRoute) return toast('No route active','info');
-  doneStops.clear(); currentStop=0;
-  selectRoute(ROUTES.indexOf(activeRoute));
-  toast('Route reset','info');
+
+/* ============================================================
+   HTML ESCAPE
+============================================================ */
+
+function escapeHTML(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
 }
 
-function emergencyStop(){toast('⚠ Emergency stop — dispatch notified','warning');}
 
-/* ── COMPLETE (unchanged) ── */
-function showComplete(){
-  const bins=activeRoute.bins.map(getBin);
-  const avg=Math.round(bins.reduce((s,b)=>s+(b?b.fill:0),0)/bins.length);
-  document.getElementById('co-sub').textContent=`All ${activeRoute.bins.length} stops on ${activeRoute.label} serviced.`;
-  document.getElementById('co-stats').innerHTML=`
-    <div class="cs-box"><div class="cs-val">${activeRoute.bins.length}</div><div class="cs-lbl">Bins Serviced</div></div>
-    <div class="cs-box"><div class="cs-val">${bins.filter(b=>b&&b.fill>=80).length}</div><div class="cs-lbl">Urgent Cleared</div></div>
-    <div class="cs-box"><div class="cs-val">${avg}%</div><div class="cs-lbl">Avg Fill</div></div>
-    <div class="cs-box"><div class="cs-val">${calcETA(bins[0],bins[bins.length-1])}</div><div class="cs-lbl">Time Est.</div></div>`;
-  document.getElementById('complete-overlay').style.display='flex';
-}
-function closeComplete(){document.getElementById('complete-overlay').style.display='none';resetRoute();}
+/* ============================================================
+   LOGOUT
+============================================================ */
 
-/* ── TOAST (unchanged) ── */
-function toast(msg,type='info'){
-  const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
-  const el=document.createElement('div');
-  el.className='toast';
-  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
-  document.getElementById('toast-wrap').appendChild(el);
-  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),350);},2800);
-}
+function logoutDriver() {
 
-/* ── CLOCK (unchanged) ── */
-const tick=()=>{const n=new Date();document.getElementById('clock').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');};
-setInterval(tick,1000);tick();
+    const confirmed =
+        confirm(
+            "Logout from Driver Panel?"
+        );
 
-/* ══════════════════════════════════════════
-   NOTIFICATION RECEIVER
-   - Reads same localStorage key as admin panel
-   - This truck identifies itself by its truck ID
-   - Polls every 5 seconds for new notifications
-   - Shows popup for unread messages addressed to this truck
-   ══════════════════════════════════════════ */
-const NOTIF_KEY='qc_driver_notifications';
 
-/* Set this to match the truck. You can change it to any TRK-00X */
-const MY_TRUCK_ID='TRK-001';
-document.getElementById('truck-id').textContent=MY_TRUCK_ID+' · LIVE';
+    if (!confirmed) {
 
-let currentNotifId=null;   /* id of notif currently shown in popup */
-let pendingNotifs=[];       /* queue of notifs to show */
+        return;
 
-const prioConfig={
-  info: {color:'#0284c7', icon:'ℹ️', label:'Admin · Info'},
-  warn: {color:'#d97706', icon:'⚠️', label:'Admin · Warning'},
-  alert:{color:'#dc2626', icon:'🚨', label:'Admin · ALERT'},
-};
+    }
 
-function getNotifs(){
-  try{return JSON.parse(localStorage.getItem(NOTIF_KEY)||'[]');}
-  catch(e){return[];}
-}
-function saveNotifs(arr){
-  localStorage.setItem(NOTIF_KEY,JSON.stringify(arr));
+
+    sessionStorage.removeItem(
+        "eco_role"
+    );
+
+    sessionStorage.removeItem(
+        "eco_user"
+    );
+
+    sessionStorage.removeItem(
+        "eco_last_driver_notification"
+    );
+
+
+    window.location.replace(
+        "signin.html"
+    );
+
 }
 
-function isForMe(n){
-  return n.target==='ALL' || n.target===MY_TRUCK_ID;
-}
 
-function hasRead(n){
-  return Array.isArray(n.read)&&n.read.includes(MY_TRUCK_ID);
-}
+/* ============================================================
+   GLOBAL ERROR HANDLING
+============================================================ */
 
-function markRead(id){
-  const notifs=getNotifs();
-  const n=notifs.find(x=>x.id===id);
-  if(n){
-    if(!Array.isArray(n.read)) n.read=[];
-    if(!n.read.includes(MY_TRUCK_ID)) n.read.push(MY_TRUCK_ID);
-    saveNotifs(notifs);
-  }
-}
+window.addEventListener(
+    "unhandledrejection",
+    function (event) {
 
-function pollNotifications(){
-  const notifs=getNotifs();
-  const unread=notifs.filter(n=>isForMe(n)&&!hasRead(n));
-  /* update bell badge */
-  const badge=document.getElementById('notif-badge');
-  const bell=document.getElementById('notif-bell');
-  if(unread.length>0){
-    badge.textContent=unread.length;
-    badge.style.display='flex';
-    bell.classList.add('has-new');
-  } else {
-    badge.style.display='none';
-    bell.classList.remove('has-new');
-  }
-  /* auto-show newest unread if no popup currently visible */
-  const overlay=document.getElementById('notif-overlay');
-  if(unread.length>0&&!overlay.classList.contains('show')){
-    pendingNotifs=unread;
-    showNotifPopup(unread[0]);
-  }
-}
+        console.error(
+            "Unhandled error:",
+            event.reason
+        );
 
-function showNotifPopup(n){
-  const cfg=prioConfig[n.prio]||prioConfig.info;
-  const popup=document.getElementById('notif-popup');
-  popup.style.setProperty('--notif-color',cfg.color);
-  document.getElementById('np-icon').textContent=cfg.icon;
-  document.getElementById('np-label').textContent=cfg.label+(n.target!=='ALL'?' · '+n.target:'');
-  const d=new Date(n.ts);
-  const diff=Math.round((Date.now()-d)/60000);
-  document.getElementById('np-time').textContent=
-    diff<1?'Just now':diff<60?diff+'m ago':Math.floor(diff/60)+'h ago';
-  document.getElementById('np-msg').textContent=n.msg;
-  currentNotifId=n.id;
-  document.getElementById('notif-overlay').classList.add('show');
-}
+    }
+);
 
-function dismissNotif(){
-  /* dismissed = just close, still counts as unread — will reappear on next poll
-     unless admin deletes it. This is intentional for alerts. */
-  document.getElementById('notif-overlay').classList.remove('show');
-  currentNotifId=null;
-}
-
-function acknowledgeNotif(){
-  if(currentNotifId!==null) markRead(currentNotifId);
-  document.getElementById('notif-overlay').classList.remove('show');
-  currentNotifId=null;
-  /* update badge immediately */
-  pollNotifications();
-  toast('Notification acknowledged','success');
-}
-
-function showPendingNotif(){
-  /* called when driver taps the bell */
-  const notifs=getNotifs();
-  const unread=notifs.filter(n=>isForMe(n)&&!hasRead(n));
-  if(!unread.length){toast('No new notifications','info');return;}
-  showNotifPopup(unread[0]);
-}
-
-/* ── INIT (unchanged + notification polling) ── */
-buildRouteGrid(); updatePanel();
-setTimeout(()=>document.getElementById('loading').style.display='none',1000);
-
-/* existing fill simulation */
-setInterval(()=>{BINS.forEach(b=>{if(Math.random()>.8)b.fill=Math.min(100,b.fill+1);});if(activeRoute)updatePanel();},8000);
-
-/* notification polling every 5 seconds */
-pollNotifications();
-setInterval(pollNotifications,5000);
 </script>
 </body>
+
 </html>

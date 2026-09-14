@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>EcoRoute — Notification</title>
+<title>EcoRoute — Reward</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -16,101 +16,250 @@
   --radius:18px;--shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
   --shadowMd:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.07);
 }
-html,body{height:100%;background:#e8ede8;overflow:hidden;font-family:'DM Sans',sans-serif;color:var(--text)}
-.shell{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+html,body{min-height:100%;background:#e8ede8;font-family:'DM Sans',sans-serif;color:var(--text)}
+.shell{width:100%;max-width:430px;min-height:100vh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;padding:20px 18px 40px;}
 @media(min-width:500px){
-  body{display:flex;align-items:center;justify-content:center;min-height:100vh}
-  .shell{border-radius:44px;box-shadow:0 32px 80px rgba(0,0,0,.18);border:8px solid #2d3e2d}
+  body{display:flex;justify-content:center}
+  .shell{border-radius:44px;box-shadow:0 32px 80px rgba(0,0,0,.18);border:8px solid #2d3e2d;margin:16px auto;}
 }
-/* OVERLAY BACKGROUND */
-.overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:0;transition:opacity 0.4s ease}
-.overlay.show{opacity:1}
-/* NOTIFICATION POPUP CARD */
-.popup-card{background:var(--surface);width:85%;max-width:340px;border-radius:24px;padding:28px 24px;box-shadow:var(--shadowMd);border:1px solid rgba(255,255,255,0.7);text-align:center;transform:scale(0.85);opacity:0;transition:transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;z-index:20}
-.overlay.show .popup-card{transform:scale(1);opacity:1}
-.popup-icon{font-size:48px;margin-bottom:16px;animation:float 3s ease-in-out infinite}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-.popup-title{font-size:22px;font-weight:700;color:var(--green);margin-bottom:24px;letter-spacing:-0.4px}
-/* BUTTON */
-.popup-btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,122,62,.3);transition:transform .15s, background-color 0.2s}
-.popup-btn:active{transform:scale(.98)}
-.popup-btn:hover{background:var(--green2)}
-@keyframes sprinkleFall {
-  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
-  100% { transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot)); opacity: 0; }
-}
-.sprinkle {
-  position: absolute;
-  pointer-events: none;
-  z-index: 200;
-  animation: sprinkleFall 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-}
+.header{text-align:center;margin-bottom:18px;}
+.header h1{font-size:20px;font-weight:700;color:var(--green);}
+.header p{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid rgba(0,0,0,.04);}
+
+.scan-banner{background:var(--greenLight);border:1px solid var(--greenMid);border-radius:14px;padding:14px 16px;margin-bottom:16px;text-align:center;}
+.scan-banner .bin-id{font-weight:700;color:var(--green);font-size:16px;}
+.scan-banner .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+.no-bin{background:#fff4e5;border:1px solid #ffd9a0;border-radius:14px;padding:14px 16px;margin-bottom:16px;text-align:center;font-size:13px;color:#8a5a00;}
+
+h2.section-title{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text);}
+
+.waste-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.waste-option{border:2px solid var(--surface2);background:var(--surface2);border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:.15s;}
+.waste-option:active{transform:scale(.97);}
+.waste-option.selected{border-color:var(--green);background:var(--greenLight);}
+.waste-option .icon{font-size:26px;margin-bottom:4px;}
+.waste-option .label{font-size:12px;font-weight:600;}
+.waste-option .pts{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,122,62,.3);transition:transform .15s, background-color .2s;margin-top:14px;}
+.btn:active{transform:scale(.98);}
+.btn:hover{background:var(--green2);}
+.btn:disabled{background:var(--muted2);box-shadow:none;cursor:not-allowed;}
+.btn-secondary{background:var(--surface2);color:var(--green);box-shadow:none;}
+.btn-secondary:hover{background:var(--greenMid);}
+
+.confirm-card{text-align:center;padding:24px 18px;}
+.confirm-icon{font-size:44px;margin-bottom:10px;}
+.confirm-title{font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px;}
+.confirm-sub{font-size:13px;color:var(--muted);margin-bottom:4px;}
+.confirm-pts{font-size:22px;font-weight:700;color:var(--green);margin:10px 0;}
+
+.history-entry{border:1px solid var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--surface2);}
+.history-entry .bin{font-weight:700;color:var(--green);font-size:13px;}
+.history-entry .type{font-size:12px;color:var(--text);}
+.history-entry .pts{font-size:12px;font-weight:600;color:var(--green);}
+.history-entry .date{font-size:11px;color:var(--muted);margin-top:2px;}
+.history-summary{font-size:14px;font-weight:700;margin-bottom:10px;text-align:center;color:var(--green);}
+.hidden{display:none;}
 </style>
 </head>
 <body>
-  
+
 <div class="shell">
-  <!-- BACKGROUND SIMULATED SCREEN -->
-  <div style="opacity:0.3; text-align:center; padding:20px;">
-    <div style="font-size:40px; margin-bottom:10px;">🌿</div>
-    <h2 style="font-size:18px; margin-bottom:6px;">EcoRoute Smart Waste</h2>
-    <p style="font-size:12px; color:var(--muted)">Background application view</p>
+  <div class="header">
+    <h1>🌿 EcoRoute</h1>
+    <p>Smart Waste Disposal</p>
   </div>
-  <!-- POPUP OVERLAY -->
-  <div class="overlay" id="popupOverlay">
-    <div class="popup-card">
-      <div class="popup-icon">🔔</div>
-      <h2 class="popup-title">HII USER</h2>
-      <button class="popup-btn" onclick="dismissNotification()">Continue</button>
+
+  <!-- SCAN BANNER (shows if ?bin= is present) -->
+  <div id="scanBanner" class="scan-banner hidden">
+    <div class="bin-id" id="scannedBinLabel"></div>
+    <div class="sub">Bin scanned — select what you disposed</div>
+  </div>
+  <div id="noBinBanner" class="no-bin hidden">
+    No bin scanned. Open this page via a bin's QR code to log a disposal.
+  </div>
+
+  <!-- DISPOSAL FORM -->
+  <div class="card" id="disposalCard">
+    <h2 class="section-title">What did you dispose?</h2>
+    <div class="waste-grid" id="wasteGrid">
+      <div class="waste-option" data-type="General" data-pts="5">
+        <div class="icon">🗑️</div>
+        <div class="label">General</div>
+        <div class="pts">+5 pts</div>
+      </div>
+      <div class="waste-option" data-type="Recyclable" data-pts="10">
+        <div class="icon">♻️</div>
+        <div class="label">Recyclable</div>
+        <div class="pts">+10 pts</div>
+      </div>
+      <div class="waste-option" data-type="Organic" data-pts="8">
+        <div class="icon">🍃</div>
+        <div class="label">Organic</div>
+        <div class="pts">+8 pts</div>
+      </div>
+      <div class="waste-option" data-type="Hazardous" data-pts="15">
+        <div class="icon">⚠️</div>
+        <div class="label">Hazardous</div>
+        <div class="pts">+15 pts</div>
+      </div>
+    </div>
+    <button class="btn" id="logBtn" disabled>Log Disposal</button>
+  </div>
+
+  <!-- CONFIRMATION (hidden until logged) -->
+  <div class="card confirm-card hidden" id="confirmCard">
+    <div class="confirm-icon">✅</div>
+    <div class="confirm-title">Disposal Logged!</div>
+    <div class="confirm-sub" id="confirmBinType"></div>
+    <div class="confirm-pts" id="confirmPts"></div>
+    <div class="confirm-sub" id="confirmTime"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card">
+    <button class="btn btn-secondary" id="viewHistoryBtn">📜 View My History</button>
+    <div id="historyList" class="hidden" style="margin-top:14px;">
+      <div class="history-summary" id="totalPointsSummary"></div>
+      <div id="historyEntries"></div>
     </div>
   </div>
 </div>
+
 <script>
-window.addEventListener('load', () => {
-  // Animate the popup entry on load
-  setTimeout(() => {
-    document.getElementById('popupOverlay').classList.add('show');
-    createSprinkles();
-  }, 300);
-});
-function dismissNotification() {
-  const overlay = document.getElementById('popupOverlay');
-  overlay.classList.remove('show');
-  
-  // After dismiss animation, redirect to index.html
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 400);
+// ===== Firebase =====
+const firebaseHost = "https://ecoroute-a871a-default-rtdb.firebaseio.com";
+
+// ===== Device ID (for cross-device history via Option B) =====
+function getDeviceId() {
+  let id = localStorage.getItem('ecoroute_device_id');
+  if (!id) {
+    id = 'DEV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+    localStorage.setItem('ecoroute_device_id', id);
+  }
+  return id;
 }
-function createSprinkles() {
-  const container = document.getElementById('popupOverlay');
-  if (!container) return;
-  const colors = ['#1a7a3e', '#22a355', '#e8f5ee', '#c2e0cd', '#d97706', '#dc2626', '#2563eb', '#ffeb3b', '#e91e63'];
-  const numSprinkles = 60;
-  for (let i = 0; i < numSprinkles; i++) {
-    const sprinkle = document.createElement('div');
-    sprinkle.className = 'sprinkle';
-    const size = Math.random() * 8 + 6;
-    sprinkle.style.width = `${size}px`;
-    sprinkle.style.height = `${Math.random() > 0.5 ? size : size / 2}px`;
-    sprinkle.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-    sprinkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    sprinkle.style.left = '50%';
-    sprinkle.style.top = '50%';
-    const angle = Math.random() * Math.PI * 2;
-    const distance = Math.random() * 200 + 80;
-    const tx = Math.cos(angle) * distance;
-    const ty = Math.sin(angle) * distance + 100;
-    const rot = (Math.random() - 0.5) * 720;
-    sprinkle.style.setProperty('--tx', `${tx}px`);
-    sprinkle.style.setProperty('--ty', `${ty}px`);
-    sprinkle.style.setProperty('--rot', `${rot}deg`);
-    sprinkle.style.animationDelay = `${Math.random() * 0.2}s`;
-    container.appendChild(sprinkle);
-    setTimeout(() => { sprinkle.remove(); }, 1500);
+const currentDeviceId = getDeviceId();
+
+// ===== Detect ?bin= from URL =====
+const params = new URLSearchParams(window.location.search);
+const scannedBinId = params.get('bin');
+
+if (scannedBinId) {
+  document.getElementById('scanBanner').classList.remove('hidden');
+  document.getElementById('scannedBinLabel').textContent = 'Scanned at ' + scannedBinId;
+} else {
+  document.getElementById('noBinBanner').classList.remove('hidden');
+}
+
+// ===== Waste type selection =====
+let selectedType = null;
+let selectedPts = 0;
+const wasteOptions = document.querySelectorAll('.waste-option');
+const logBtn = document.getElementById('logBtn');
+
+wasteOptions.forEach(opt => {
+  opt.addEventListener('click', () => {
+    wasteOptions.forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedType = opt.dataset.type;
+    selectedPts = parseInt(opt.dataset.pts, 10);
+    logBtn.disabled = !scannedBinId; // only enable if a bin was actually scanned
+  });
+});
+
+// ===== Log disposal to Firebase =====
+logBtn.addEventListener('click', async () => {
+  if (!scannedBinId || !selectedType) return;
+  logBtn.disabled = true;
+  logBtn.textContent = 'Logging...';
+
+  const disposalData = {
+    binId: scannedBinId,
+    type: selectedType,
+    pts: selectedPts,
+    ts: Date.now(),
+    deviceId: currentDeviceId
+  };
+
+  try {
+    await fetch(`${firebaseHost}/disposals.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(disposalData)
+    });
+
+    // Show confirmation
+    document.getElementById('disposalCard').classList.add('hidden');
+    const confirmCard = document.getElementById('confirmCard');
+    confirmCard.classList.remove('hidden');
+    document.getElementById('confirmBinType').textContent =
+      `You disposed: ${selectedType} at ${scannedBinId}`;
+    document.getElementById('confirmPts').textContent = `+${selectedPts} points earned`;
+    document.getElementById('confirmTime').textContent =
+      'Logged at ' + new Date(disposalData.ts).toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+  } catch (err) {
+    console.error(err);
+    logBtn.disabled = false;
+    logBtn.textContent = 'Log Disposal';
+    alert('Could not log disposal. Please check your connection and try again.');
+  }
+});
+
+// ===== History (Option B — Firebase, filtered by deviceId) =====
+document.getElementById('viewHistoryBtn').addEventListener('click', loadHistory);
+
+async function loadHistory() {
+  const historyList = document.getElementById('historyList');
+  const entriesDiv = document.getElementById('historyEntries');
+  const summaryEl = document.getElementById('totalPointsSummary');
+
+  historyList.classList.remove('hidden');
+  entriesDiv.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch(`${firebaseHost}/disposals.json`);
+    const data = await res.json();
+
+    if (!data) {
+      entriesDiv.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px;">No history yet — scan a bin to get started!</p>';
+      summaryEl.textContent = '';
+      return;
+    }
+
+    const myEntries = Object.values(data)
+      .filter(entry => entry.deviceId === currentDeviceId)
+      .sort((a, b) => b.ts - a.ts);
+
+    if (myEntries.length === 0) {
+      entriesDiv.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px;">No history yet — scan a bin to get started!</p>';
+      summaryEl.textContent = '';
+      return;
+    }
+
+    const totalPoints = myEntries.reduce((sum, e) => sum + (e.pts || 0), 0);
+    summaryEl.textContent = `Total points earned: ${totalPoints}`;
+
+    entriesDiv.innerHTML = myEntries.map(entry => {
+      const date = new Date(entry.ts).toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      return `
+        <div class="history-entry">
+          <span class="bin">${entry.binId}</span> — <span class="type">${entry.type}</span> <span class="pts">(+${entry.pts} pts)</span>
+          <div class="date">${date}</div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    entriesDiv.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px;">Could not load history.</p>';
+    console.error(err);
   }
 }
 </script>

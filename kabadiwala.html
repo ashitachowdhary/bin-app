@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="kabadi-guard.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>EcoRoute — Collector Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --green:#1a7a3e;
+  --green-2:#22c55e;
+  --green-light:#e6f7ec;
+  --amber:#d97706;
+  --amber-light:#fef3e2;
+  --blue:#2563eb;
+  --blue-light:#e9f0fe;
+  --red:#dc2626;
+  --red-light:#fdecec;
+  --gold:#a16207;
+  --gold-light:#fef7e0;
+  --bg:#f4f7f4;
+  --surface:#ffffff;
+  --border:#eef2ee;
+  --text:#182319;
+  --muted:#6b7c71;
+  --muted2:#a3b3a8;
+  --radius:20px;
+  --radius-sm:14px;
+  --shadow:0 1px 2px rgba(20,40,25,.04), 0 8px 24px rgba(20,40,25,.05);
+}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
+.tb-left{display:flex;align-items:center;gap:11px;}
+.tb-ico{width:38px;height:38px;border-radius:12px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.tb-name{font-size:17px;font-weight:800;color:var(--green);letter-spacing:-.2px;}
+.tb-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;}
+.logout-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-light);}
+
+.wrap{max-width:480px;margin:0 auto;padding:18px 16px 90px;}
+
+/* PENDING/REJECTED STATE */
+.status-card{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:36px 24px;text-align:center;margin-top:28px;}
+.status-ico{width:64px;height:64px;border-radius:50%;background:var(--amber-light);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;}
+.status-card.rejected .status-ico{background:var(--red-light);}
+.status-title{font-size:18px;font-weight:800;margin-bottom:8px;letter-spacing:-.2px;}
+.status-desc{font-size:13.5px;color:var(--muted);line-height:1.65;max-width:320px;margin:0 auto;}
+
+/* GREETING */
+.greet{padding:6px 2px 18px;}
+.greet-eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted2);text-transform:uppercase;margin-bottom:4px;}
+.greet-title{font-size:22px;font-weight:800;letter-spacing:-.3px;}
+.greet-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+
+/* PROFILE CARD */
+.profile-card{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:13px;}
+.profile-avatar{width:50px;height:50px;border-radius:16px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0;}
+.profile-name{font-size:16px;font-weight:800;letter-spacing:-.1px;}
+.profile-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.verified-badge{font-family:'DM Mono',monospace;font-size:9.5px;font-weight:700;color:var(--green);background:var(--green-light);border:1px solid rgba(26,122,62,.15);padding:5px 10px;border-radius:20px;margin-left:auto;flex-shrink:0;}
+
+/* WALLET CARD */
+.wallet-card{background:linear-gradient(135deg,#1a7a3e,#22c55e);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;color:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;}
+.wallet-label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;opacity:.85;}
+.wallet-amount{font-family:'DM Mono',monospace;font-size:26px;font-weight:700;margin-top:4px;}
+.wallet-ico{font-size:30px;opacity:.9;}
+
+/* STAT ROW */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-box{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-sm);padding:14px 8px 12px;text-align:center;}
+.stat-emoji{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;margin:0 auto 8px;}
+.stat-box.a .stat-emoji{background:var(--blue-light);}
+.stat-box.c .stat-emoji{background:var(--green-light);}
+.stat-box.t .stat-emoji{background:var(--amber-light);}
+.stat-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--text);}
+.stat-key{font-size:10px;color:var(--muted);margin-top:3px;}
+
+.section-title{font-size:15px;font-weight:800;margin:6px 2px 12px;letter-spacing:-.1px;}
+.conn-pill{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:5px 11px;border-radius:20px;margin-bottom:16px;}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:var(--green-2);animation:pulse 1.6s infinite;}
+.conn-pill.err .conn-dot{background:var(--red);animation:none;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* JOB CARD */
+.job-card{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.job-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.job-top-left{display:flex;align-items:center;gap:11px;}
+.job-ico{width:42px;height:42px;border-radius:13px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.job-type{font-size:15px;font-weight:700;letter-spacing:-.1px;}
+.job-id{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-top:2px;}
+.job-badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:5px 11px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.badge-assigned{background:var(--blue-light);color:var(--blue);}
+.badge-completed{background:var(--green-light);color:var(--green);}
+.job-details{background:var(--bg);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:12px;}
+.job-detail-row{display:flex;gap:8px;font-size:13px;color:var(--muted);line-height:1.6;}
+.job-detail-row b{color:var(--text);font-weight:600;}
+.job-paid-row{display:flex;gap:8px;font-size:12.5px;color:var(--gold);font-weight:700;margin-top:6px;}
+.job-actions{display:flex;gap:8px;}
+.btn-call{flex:1;padding:11px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-complete{flex:1;padding:11px;border-radius:20px;border:none;background:var(--green-2);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,197,94,.25);}
+.btn-complete:hover{background:var(--green);}
+.btn-complete:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+
+.empty-state{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);text-align:center;padding:44px 20px;color:var(--muted);}
+.empty-ico{width:56px;height:56px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;}
+.empty-state b{display:block;font-size:14px;color:var(--text);margin-bottom:4px;}
+.empty-state span{font-size:12.5px;color:var(--muted);}
+
+#toastWrap{position:fixed;bottom:20px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:9999;pointer-events:none;}
+.toast{background:var(--text);color:#fff;padding:11px 20px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);}
+
+/* SCANNER MODAL */
+.scan-overlay{position:fixed;inset:0;background:rgba(10,20,12,.55);display:none;align-items:flex-end;justify-content:center;z-index:9998;}
+.scan-overlay.open{display:flex;}
+.scan-sheet{background:var(--surface);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:20px 18px 26px;box-shadow:0 -8px 30px rgba(0,0,0,.2);}
+.scan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.scan-title{font-size:15px;font-weight:800;}
+.scan-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);color:var(--muted);font-size:14px;cursor:pointer;}
+#qr-reader{width:100%;border-radius:16px;overflow:hidden;background:#000;}
+.scan-hint{font-size:12.5px;color:var(--muted);text-align:center;margin-top:12px;}
+.scan-status{font-size:13px;text-align:center;margin-top:10px;font-weight:700;}
+.scan-status.ok{color:var(--green);}
+.scan-status.err{color:var(--red);}
+.scan-status.info{color:var(--blue);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-ico">🚛</div>
+    <div>
+      <div class="tb-name">EcoRoute</div>
+      <div class="tb-sub" id="tbSub">Collector Panel</div>
+    </div>
+  </div>
+  <button class="logout-btn" onclick="logout()" title="Logout">⎋</button>
+</div>
+
+<div class="wrap" id="wrap">
+  <!-- content injected by JS -->
+</div>
+
+<!-- QR Scanner Modal -->
+<div class="scan-overlay" id="scanOverlay">
+  <div class="scan-sheet">
+    <div class="scan-head">
+      <div class="scan-title">Scan Pickup QR</div>
+      <button class="scan-close" onclick="closeScanner()">✕</button>
+    </div>
+    <div id="qr-reader"></div>
+    <div class="scan-hint">Point the camera at the QR code stuck on the item/dustbin.</div>
+    <div class="scan-status" id="scanStatus"></div>
+  </div>
+</div>
+
+<div id="toastWrap"></div>
+
+<script>
+const FIREBASE_DB_URL = 'https://ecoroute-a871a-default-rtdb.firebaseio.com';
+const PAYMENT_PER_PICKUP = 50; // ₹ credited per verified pickup — adjust as needed
+
+function getKabadiwala(){
+  try{ return JSON.parse(sessionStorage.getItem('eco_kabadiwala') || '{}'); }
+  catch(e){ return {}; }
+}
+const me = getKabadiwala();
+
+function logout(){
+  sessionStorage.removeItem('eco_role');
+  sessionStorage.removeItem('eco_kabadiwala');
+  window.location.href = 'kabadiwala-login.html';
+}
+
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 2200);
+}
+
+let jobs = [];
+
+async function loadStatusAndJobs(){
+  document.getElementById('tbSub').textContent = me.name ? `Hi, ${me.name}` : 'Collector Panel';
+
+  // Re-check current status from Firebase (in case admin approved/rejected after login)
+  let liveRecord = null;
+  try{
+    const res = await fetch(`${FIREBASE_DB_URL}/kabadiwalas/${me.id}.json`);
+    liveRecord = await res.json();
+  }catch(e){}
+
+  const status = (liveRecord && liveRecord.status) || me.status || 'pending';
+
+  if(status !== 'verified'){
+    renderStatusScreen(status);
+    return;
+  }
+
+  renderVerifiedShell();
+  await fetchWallet();
+  await pollJobs();
+  setInterval(pollJobs, 5000);
+}
+
+function renderStatusScreen(status){
+  const wrap = document.getElementById('wrap');
+  if(status === 'rejected'){
+    wrap.innerHTML = `
+      <div class="status-card rejected">
+        <div class="status-ico">❌</div>
+        <div class="status-title" style="color:var(--red)">Registration Rejected</div>
+        <div class="status-desc">Your collector application wasn't approved. If you think this is a mistake, please contact the municipal office.</div>
+      </div>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="status-card">
+        <div class="status-ico">⏳</div>
+        <div class="status-title" style="color:var(--amber)">Pending Verification</div>
+        <div class="status-desc">Hi ${me.name || ''}, your account is waiting for admin approval. You'll be able to receive pickup requests once verified — check back soon.</div>
+      </div>`;
+  }
+}
+
+function renderVerifiedShell(){
+  const wrap = document.getElementById('wrap');
+  wrap.innerHTML = `
+    <div class="greet">
+      <div class="greet-eyebrow">Welcome back</div>
+      <div class="greet-title">Hello, ${me.name || 'Collector'}! 👋</div>
+      <div class="greet-sub">Here's what's on your plate today.</div>
+    </div>
+
+    <div class="profile-card">
+      <div class="profile-avatar">🧑🏽‍🔧</div>
+      <div>
+        <div class="profile-name">${me.name || 'Collector'}</div>
+        <div class="profile-meta">${me.area || ''} · ${me.phone || ''}</div>
+      </div>
+      <div class="verified-badge">✓ VERIFIED</div>
+    </div>
+
+    <div class="wallet-card">
+      <div>
+        <div class="wallet-label">Wallet Balance</div>
+        <div class="wallet-amount" id="walletAmount">₹0</div>
+      </div>
+      <div class="wallet-ico">💰</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box a"><div class="stat-emoji">📋</div><div class="stat-val" id="statAssigned">0</div><div class="stat-key">Assigned</div></div>
+      <div class="stat-box c"><div class="stat-emoji">✅</div><div class="stat-val" id="statCompleted">0</div><div class="stat-key">Completed</div></div>
+      <div class="stat-box t"><div class="stat-emoji">📦</div><div class="stat-val" id="statTotal">0</div><div class="stat-key">Total Jobs</div></div>
+    </div>
+
+    <div class="conn-pill" id="connPill"><span class="conn-dot"></span>Syncing…</div>
+
+    <div class="section-title">My Pickups</div>
+    <div id="jobList"></div>
+  `;
+}
+
+async function fetchWallet(){
+  try{
+    const res = await fetch(`${FIREBASE_DB_URL}/kabadiwalas/${me.id}/walletBalance.json`);
+    const bal = await res.json();
+    const el = document.getElementById('walletAmount');
+    if(el) el.textContent = `₹${bal || 0}`;
+  }catch(e){}
+}
+
+async function pollJobs(){
+  const pill = document.getElementById('connPill');
+  try{
+    const res = await fetch(`${FIREBASE_DB_URL}/ewaste_requests.json`);
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json() || {};
+
+    jobs = Object.entries(data)
+      .map(([id, r]) => ({ id, ...r }))
+      .filter(r => r.assignedKabadiwala === me.id)
+      .sort((a,b)=>{
+        const order = { assigned: 0, completed: 1 };
+        return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+      });
+
+    pill.className = 'conn-pill';
+    pill.innerHTML = '<span class="conn-dot"></span>Live · updates every 5s';
+    renderJobs();
+  }catch(e){
+    pill.className = 'conn-pill err';
+    pill.innerHTML = '<span class="conn-dot"></span>Connection error';
+  }
+}
+
+function renderJobs(){
+  document.getElementById('statAssigned').textContent = jobs.filter(j=>j.status==='assigned').length;
+  document.getElementById('statCompleted').textContent = jobs.filter(j=>j.status==='completed').length;
+  document.getElementById('statTotal').textContent = jobs.length;
+
+  const box = document.getElementById('jobList');
+  if(!jobs.length){
+    box.innerHTML = `<div class="empty-state"><div class="empty-ico">📭</div><b>No pickups yet</b><span>Check back once admin assigns one to you.</span></div>`;
+    return;
+  }
+
+  box.innerHTML = jobs.map(j=>{
+    const isDone = j.status === 'completed';
+    const badge = isDone
+      ? `<span class="job-badge badge-completed">✓ Completed</span>`
+      : `<span class="job-badge badge-assigned">🚚 Assigned</span>`;
+    const callHref = j.phone ? `tel:${j.phone}` : '#';
+    return `<div class="job-card">
+      <div class="job-top">
+        <div class="job-top-left">
+          <div class="job-ico">♻️</div>
+          <div>
+            <div class="job-type">${j.itemType || 'Item'}</div>
+            <div class="job-id">${j.id}</div>
+          </div>
+        </div>
+        ${badge}
+      </div>
+      <div class="job-details">
+        <div class="job-detail-row"><b>Area:</b>&nbsp;${j.area || '—'}</div>
+        <div class="job-detail-row"><b>Phone:</b>&nbsp;${j.phone || '—'}</div>
+        ${j.description ? `<div class="job-detail-row"><b>Notes:</b>&nbsp;${j.description}</div>` : ''}
+        ${isDone && j.paymentAmount ? `<div class="job-paid-row">💰 ₹${j.paymentAmount} credited · verified at ${j.completedGeo ? j.completedGeo.lat.toFixed(4)+', '+j.completedGeo.lng.toFixed(4) : '—'}</div>` : ''}
+      </div>
+      ${!isDone ? `
+        <div class="job-actions">
+          <a class="btn-call" href="${callHref}">📞 Call Citizen</a>
+          <button class="btn-complete" onclick="openScanner('${j.id}')">📷 Scan QR</button>
+        </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/* ---------- QR SCANNER ---------- */
+let html5QrCode = null;
+let scanningJobId = null;
+
+function openScanner(jobId){
+  scanningJobId = jobId;
+  document.getElementById('scanStatus').textContent = '';
+  document.getElementById('scanStatus').className = 'scan-status';
+  document.getElementById('scanOverlay').classList.add('open');
+
+  html5QrCode = new Html5Qrcode('qr-reader');
+  html5QrCode.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: 230 },
+    onScanSuccess,
+    () => {} // ignore per-frame scan errors
+  ).catch(() => {
+    document.getElementById('scanStatus').textContent = 'Camera access failed. Check permissions.';
+    document.getElementById('scanStatus').className = 'scan-status err';
+  });
+}
+
+function closeScanner(){
+  if(html5QrCode){
+    html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+    html5QrCode = null;
+  }
+  document.getElementById('scanOverlay').classList.remove('open');
+  scanningJobId = null;
+}
+
+function getGeoLocation(){
+  return new Promise((resolve) => {
+    if(!navigator.geolocation){ resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  });
+}
+
+async function onScanSuccess(decodedText){
+  const statusEl = document.getElementById('scanStatus');
+
+  if(!decodedText.trim().startsWith('ECOROUTE-EWASTE')){
+    statusEl.textContent = "✕ This isn't a valid EcoRoute pickup QR.";
+    statusEl.className = 'scan-status err';
+    return; // keep camera running so they can retry
+  }
+
+  // Stop the camera immediately once matched
+  const jobId = scanningJobId;
+  if(html5QrCode){
+    html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+    html5QrCode = null;
+  }
+
+  statusEl.textContent = '📍 Verifying your location…';
+  statusEl.className = 'scan-status info';
+
+  const geo = await getGeoLocation();
+  if(!geo){
+    statusEl.textContent = '✕ Location access is required to verify this pickup.';
+    statusEl.className = 'scan-status err';
+    return;
+  }
+
+  statusEl.textContent = `✓ Verified as ${me.name || 'Collector'}. Crediting payment…`;
+  statusEl.className = 'scan-status ok';
+
+  setTimeout(async () => {
+    document.getElementById('scanOverlay').classList.remove('open');
+    scanningJobId = null;
+    await completeVerifiedPickup(jobId, geo);
+  }, 700);
+}
+
+async function completeVerifiedPickup(jobId, geo){
+  try{
+    // 1. Mark the pickup completed with collector identity + geotag
+    await fetch(`${FIREBASE_DB_URL}/ewaste_requests/${jobId}.json`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        status: 'completed',
+        completedBy: me.id,
+        completedByName: me.name || '',
+        completedGeo: geo,
+        completedAt: Date.now(),
+        paymentAmount: PAYMENT_PER_PICKUP
+      })
+    });
+
+    // 2. Credit the kabadiwala's wallet
+    const balRes = await fetch(`${FIREBASE_DB_URL}/kabadiwalas/${me.id}/walletBalance.json`);
+    const currentBalance = (await balRes.json()) || 0;
+    const newBalance = currentBalance + PAYMENT_PER_PICKUP;
+    await fetch(`${FIREBASE_DB_URL}/kabadiwalas/${me.id}/walletBalance.json`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(newBalance)
+    });
+
+    // 3. Log a payment transaction (for the government monitoring dashboard)
+    const txnId = `txn_${Date.now()}`;
+    await fetch(`${FIREBASE_DB_URL}/payments/${txnId}.json`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        kabadiwalaId: me.id,
+        kabadiwalaName: me.name || '',
+        requestId: jobId,
+        amount: PAYMENT_PER_PICKUP,
+        geo: geo,
+        timestamp: Date.now()
+      })
+    });
+
+    toast(`Verified ✅ ₹${PAYMENT_PER_PICKUP} credited to your wallet`);
+    await fetchWallet();
+    await pollJobs();
+  }catch(e){
+    toast('Verified, but payment update failed — check connection');
+  }
+}
+
+loadStatusAndJobs();
+</script>
+</body>
+</html>
