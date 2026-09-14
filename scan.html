@@ -14,6 +14,7 @@
     --green: #1a7a3e;
     --green-light: #e8f5ee;
     --green-mid: #2d9e55;
+    --green-accent: #4ab575;
     --amber: #d97706;
     --red: #dc2626;
     --blue: #2563eb;
@@ -57,8 +58,14 @@
     padding: 6px 0;
   }
   .topbar-back .back-ico { font-size: 20px; }
-  .topbar-title { font-size: 16px; font-weight: 700; color: var(--text); }
-  .topbar-right-space { width: 60px; }
+  .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); position: absolute; left: 50%; transform: translateX(-50%); }
+  .topbar-info {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #f0f0f0; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 18px; transition: all .2s;
+  }
+  .topbar-info:hover { background: #e0e0e0; }
 
   /* MAIN CONTENT */
   .scan-content {
@@ -71,19 +78,20 @@
     display: flex; background: var(--border); border-radius: 12px; padding: 4px; gap: 4px;
   }
   .mode-btn {
-    flex: 1; padding: 10px 8px; border-radius: 8px; border: none;
+    flex: 1; padding: 12px 16px; border-radius: 10px; border: none;
     font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: all .2s; color: var(--muted); background: transparent;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .2s; color: var(--muted2); background: transparent;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .mode-btn.active {
     background: #fff; color: var(--green);
     box-shadow: 0 1px 6px rgba(0,0,0,.1);
   }
+  .mode-ico { font-size: 16px; }
 
   /* CAMERA VIEW */
   .camera-container {
-    background: #000; border-radius: var(--radius); overflow: hidden;
+    background: #1a1a2e; border-radius: var(--radius); overflow: hidden;
     aspect-ratio: 4/3; position: relative;
     box-shadow: var(--shadow);
   }
@@ -97,19 +105,19 @@
   }
   .scan-frame {
     width: 200px; height: 200px; border-radius: 20px;
-    border: 3px solid rgba(255,255,255,.7);
+    border: 3px solid rgba(74, 181, 117, 0.6);
     box-shadow: 0 0 0 4000px rgba(0,0,0,.25);
     position: relative;
   }
   .scan-frame::before, .scan-frame::after {
     content: ''; position: absolute;
-    width: 30px; height: 30px; border-color: var(--green-mid); border-style: solid;
+    width: 30px; height: 30px; border-color: var(--green-accent); border-style: solid;
   }
   .scan-frame::before { top: -3px; left: -3px; border-width: 4px 0 0 4px; border-radius: 10px 0 0 0; }
   .scan-frame::after { bottom: -3px; right: -3px; border-width: 0 4px 4px 0; border-radius: 0 0 10px 0; }
   .scan-line {
     position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent, var(--green-mid), transparent);
+    background: linear-gradient(90deg, transparent, var(--green-accent), transparent);
     border-radius: 2px;
     animation: scanLine 2s ease-in-out infinite;
   }
@@ -124,31 +132,42 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
     color: #fff;
   }
-  .camera-placeholder .ph-ico { font-size: 48px; opacity: .6; }
-  .camera-placeholder .ph-text { font-size: 14px; color: rgba(255,255,255,.6); text-align: center; max-width: 180px; line-height: 1.5; }
+  .camera-placeholder .ph-ico { 
+    width: 64px; height: 64px;
+    border: 2.5px solid rgba(255,255,255,.4);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .camera-placeholder .ph-text { font-size: 15px; color: rgba(255,255,255,.8); text-align: center; max-width: 200px; line-height: 1.5; font-weight: 500; }
 
   /* Camera Controls */
   .camera-controls {
-    display: flex; align-items: center; justify-content: center; gap: 20px;
+    display: flex; align-items: flex-end; justify-content: center; gap: 40px;
+    margin-top: 20px;
+  }
+  .cam-btn-group {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
   }
   .cam-btn {
     border: none; cursor: pointer; font-family: inherit; transition: all .15s;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    display: flex; align-items: center; justify-content: center;
   }
   .cam-btn:active { transform: scale(.95); }
   .cam-btn-primary {
     background: var(--green); color: #fff;
-    width: 68px; height: 68px; border-radius: 50%;
-    font-size: 26px;
+    width: 70px; height: 70px; border-radius: 50%;
+    font-size: 28px;
     box-shadow: 0 4px 20px rgba(26,122,62,.4);
   }
   .cam-btn-secondary {
     background: #fff; color: var(--text);
-    width: 48px; height: 48px; border-radius: 50%;
-    font-size: 18px; border: 1px solid var(--border);
+    width: 50px; height: 50px; border-radius: 50%;
+    font-size: 20px; border: 1px solid var(--border);
     box-shadow: 0 2px 8px rgba(0,0,0,.08);
   }
   .cam-btn-secondary.active-torch { background: #fef3c7; border-color: #d97706; }
+  .cam-label { font-size: 13px; font-weight: 500; color: var(--muted); text-align: center; min-width: 60px; }
 
   /* UPLOAD VIEW */
   .upload-zone {
@@ -161,7 +180,13 @@
   .upload-zone:hover, .upload-zone.drag-over {
     border-color: var(--green); background: var(--green-light);
   }
-  .upload-zone .uz-ico { font-size: 44px; }
+  .upload-zone .uz-ico { 
+    width: 56px; height: 56px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
   .upload-zone .uz-title { font-size: 16px; font-weight: 700; color: var(--text); }
   .upload-zone .uz-sub { font-size: 13px; color: var(--muted2); }
   .upload-zone .uz-btn {
@@ -204,6 +229,54 @@
     animation: spin .6s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* STATUS BAR */
+  .status-bar {
+    background: var(--card); border-radius: 12px; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow); font-size: 14px; font-weight: 500;
+  }
+  .status-left {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.green { background: var(--green); animation: pulse 2s infinite; }
+  .status-dot.amber { background: var(--amber); }
+  .status-dot.grey { background: #ccc; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .status-text { color: var(--text); font-weight: 500; }
+  .status-badge {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--green-light); color: var(--green);
+    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .status-badge-dot { width: 4px; height: 4px; background: var(--green); border-radius: 50%; }
+
+  /* INFO CARDS */
+  .info-card {
+    background: var(--card); border-radius: 16px; padding: 16px;
+    display: flex; align-items: flex-start; gap: 14px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    cursor: pointer; transition: all .2s;
+  }
+  .info-card:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(26,122,62,.15); }
+  .info-ico {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--green-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .info-card.tips .info-ico {
+    background: #dbeafe;
+  }
+  .info-content { flex: 1; }
+  .info-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .info-sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .info-arrow {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted2); font-size: 16px;
+  }
 
   /* RESULT CARD */
   .result-card {
@@ -271,18 +344,6 @@
   .scan-again-btn:hover { background: var(--green-light); }
   .scan-again-btn:active { transform: scale(.98); }
 
-  /* STATUS BAR */
-  .status-bar {
-    background: var(--card); border-radius: 12px; padding: 12px 16px;
-    display: flex; align-items: center; gap: 10px;
-    box-shadow: var(--shadow); font-size: 14px; font-weight: 500;
-  }
-  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .status-dot.green { background: var(--green); animation: pulse 2s infinite; }
-  .status-dot.amber { background: var(--amber); }
-  .status-dot.grey { background: #ccc; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-
   /* LOADING STATE */
   .loading-overlay {
     position: absolute; inset: 0; background: rgba(0,0,0,.6);
@@ -305,6 +366,7 @@
   /* RESPONSIVE */
   @media (max-width: 380px) {
     .scan-content { padding: 12px 12px calc(var(--navH) + 16px); }
+    .topbar-title { font-size: 16px; }
   }
 
   /* Hidden canvas for capturing */
@@ -320,7 +382,7 @@
       <span class="back-ico">←</span> Back
     </button>
     <div class="topbar-title">Scan Waste</div>
-    <div class="topbar-right-space"></div>
+    <button class="topbar-info" title="Info">ⓘ</button>
   </div>
 
   <!-- CONTENT -->
@@ -328,14 +390,20 @@
 
     <!-- MODE TOGGLE -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="modeCamera" onclick="setMode('camera')">📷 Camera</button>
-      <button class="mode-btn" id="modeUpload" onclick="setMode('upload')">🖼️ Upload</button>
+      <button class="mode-btn active" id="modeCamera" onclick="setMode('camera')"><span class="mode-ico">📷</span> Camera</button>
+      <button class="mode-btn" id="modeUpload" onclick="setMode('upload')"><span class="mode-ico">🖼️</span> Upload</button>
     </div>
 
     <!-- STATUS BAR -->
     <div class="status-bar" id="statusBar">
-      <div class="status-dot grey" id="statusDot"></div>
-      <span id="statusText">Loading AI model...</span>
+      <div class="status-left">
+        <div class="status-dot grey" id="statusDot"></div>
+        <span class="status-text" id="statusText">Loading AI model...</span>
+      </div>
+      <div class="status-badge">
+        <div class="status-badge-dot"></div>
+        <span>Powered by AI</span>
+      </div>
     </div>
 
     <!-- CAMERA VIEW -->
@@ -354,10 +422,18 @@
           <div class="loading-text">Analysing...</div>
         </div>
       </div>
-      <div class="camera-controls" style="margin-top:16px">
-        <button class="cam-btn cam-btn-secondary" id="torchBtn" onclick="toggleTorch()" title="Torch">🔦</button>
-        <button class="cam-btn cam-btn-primary" id="captureBtn" onclick="startOrCapture()">📷</button>
-        <button class="cam-btn cam-btn-secondary" onclick="flipCamera()" title="Flip camera">🔄</button>
+      <div class="camera-controls">
+        <div class="cam-btn-group">
+          <button class="cam-btn cam-btn-secondary" id="torchBtn" onclick="toggleTorch()" title="Torch">🔦</button>
+          <div class="cam-label">Flash</div>
+        </div>
+        <div class="cam-btn-group">
+          <button class="cam-btn cam-btn-primary" id="captureBtn" onclick="startOrCapture()">📷</button>
+        </div>
+        <div class="cam-btn-group">
+          <button class="cam-btn cam-btn-secondary" onclick="flipCamera()" title="Flip camera">🔄</button>
+          <div class="cam-label">Flip</div>
+        </div>
       </div>
     </div>
 
@@ -382,14 +458,33 @@
 
     <!-- ANALYSE BUTTON (shown for upload mode or when camera is capturing) -->
     <button class="analyse-btn" id="analyseBtn" onclick="analyseImage()" style="display:none" disabled>
-      <span>🔍 Analyse Waste</span>
+      <span>Analyse Waste</span>
     </button>
 
     <!-- RESULT CARD -->
     <div id="resultCard" style="display:none"></div>
 
     <!-- SCAN AGAIN (shown after result) -->
-    <button class="scan-again-btn" id="scanAgainBtn" onclick="resetScan()" style="display:none">↩ Scan Another Item</button>
+    <button class="scan-again-btn" id="scanAgainBtn" onclick="resetScan()" style="display:none">Scan Another Item</button>
+
+    <!-- INFO CARDS -->
+    <div id="infoCamView">
+      <div class="info-card">
+        <div class="info-ico">🍃</div>
+        <div class="info-content">
+          <div class="info-title">Scan different waste</div>
+          <div class="info-sub">Get instant results and earn rewards</div>
+        </div>
+        <div class="info-arrow">›</div>
+      </div>
+      <div class="info-card tips">
+        <div class="info-ico">💡</div>
+        <div class="info-content">
+          <div class="info-title">Tips for best scan</div>
+          <div class="info-sub">1. Keep the waste well in frame<br/>2. Ensure good lighting<br/>3. Avoid blurry images</div>
+        </div>
+      </div>
+    </div>
 
   </div>
 
@@ -434,7 +529,6 @@ loadModel();
 
 /* ===================== WASTE METADATA ===================== */
 const WASTE_META = {
-  // Map class names to icons, tips, colors — add/edit to match your model's classes
   'plastic':     { ico: '🧴', cat: 'recyclable', tip: 'Rinse and place in the blue recyclable bin. Remove caps if possible.' },
   'glass':       { ico: '🫙', cat: 'recyclable', tip: 'Glass is fully recyclable. Place in recyclable bin. Avoid broken glass in bins.' },
   'paper':       { ico: '📄', cat: 'dry',        tip: 'Dry paper goes in the dry waste bin. Wet or soiled paper goes to organic.' },
@@ -477,6 +571,7 @@ function setMode(mode) {
   document.getElementById('resultCard').style.display = 'none';
   document.getElementById('scanAgainBtn').style.display = 'none';
   document.getElementById('analyseBtn').style.display = mode === 'upload' ? 'flex' : 'none';
+  document.getElementById('infoCamView').style.display = mode === 'camera' ? 'block' : 'none';
 
   if (mode === 'camera' && cameraActive) {
     // keep camera running
@@ -487,7 +582,7 @@ function setMode(mode) {
 
 /* ===================== CAMERA ===================== */
 let cameraStream = null, cameraActive = false;
-let facingMode = 'environment'; // back camera default
+let facingMode = 'environment';
 let torchOn = false;
 let capturedImageData = null;
 
@@ -517,8 +612,8 @@ async function startCamera() {
     document.getElementById('cameraPlaceholder').style.display = 'none';
     document.getElementById('cameraOverlay').style.display = 'flex';
     cameraActive = true;
-    btn.textContent = '📸';
-    setStatus('green', 'Camera live — point at waste and tap capture');
+    btn.textContent = '📷';
+    setStatus('green', 'AI ready — point at waste to scan');
   } catch(err) {
     btn.textContent = '📷';
     setStatus('amber', 'Camera access denied. Use Upload instead.');
@@ -594,6 +689,7 @@ function loadImageFile(file) {
       btn.disabled = !modelLoaded;
       document.getElementById('resultCard').style.display = 'none';
       document.getElementById('scanAgainBtn').style.display = 'none';
+      document.getElementById('infoCamView').style.display = 'none';
     };
   };
   reader.readAsDataURL(file);
@@ -618,7 +714,6 @@ async function analyseImage() {
   btn.disabled = true;
   btn.innerHTML = '<div class="btn-spinner"></div><span>Analysing...</span>';
 
-  // Slight delay so loader shows
   await new Promise(r => setTimeout(r, 100));
 
   try {
@@ -628,7 +723,7 @@ async function analyseImage() {
   } catch(e) {
     loader.style.display = 'none';
     btn.disabled = false;
-    btn.innerHTML = '<span>🔍 Analyse Waste</span>';
+    btn.innerHTML = '<span>Analyse Waste</span>';
     showToast('Analysis failed. Try again.', 'err');
     console.error(e);
   }
@@ -656,14 +751,12 @@ async function runModelOnCanvas(canvas) {
 
 /* ===================== SHOW RESULT ===================== */
 function showResult(predictions) {
-  // Sort by probability
   const sorted = [...predictions].sort((a, b) => b.probability - a.probability);
   const top = sorted[0];
   const meta = getMeta(top.className);
   const conf = Math.round(top.probability * 100);
   const catColor = CAT_COLORS[meta.cat] || '#64748b';
 
-  // Award points
   const earned = conf >= 80 ? 10 : conf >= 50 ? 5 : 2;
   points += earned;
   scans += 1;
@@ -672,7 +765,6 @@ function showResult(predictions) {
   if (scanLog.length > 20) scanLog = scanLog.slice(0, 20);
   savePoints(points, scans, scanLog);
 
-  // Build confidence bars HTML (top 3)
   const barsHTML = sorted.slice(0, 4).map(p => {
     const pct = Math.round(p.probability * 100);
     const m = getMeta(p.className);
@@ -701,8 +793,8 @@ function showResult(predictions) {
       <div class="tip-ico">💡</div>
       <div class="tip-text">${meta.tip}</div>
     </div>
-    <div class="pts-earned" style="margin-top:12px">
-      <div class="pts-earned-left">🎉 Points Earned</div>
+    <div class="pts-earned">
+      <div class="pts-earned-left">Points Earned</div>
       <div class="pts-earned-val">+${earned} pts</div>
     </div>
   `;
@@ -712,10 +804,10 @@ function showResult(predictions) {
   card.style.display = 'block';
   document.getElementById('scanAgainBtn').style.display = 'block';
   document.getElementById('analyseBtn').style.display = 'none';
+  document.getElementById('infoCamView').style.display = 'none';
 
-  // Scroll to result
   setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-  setStatus('green', `Scan complete — ${scans} total scans · ${points.toLocaleString()} pts`);
+  setStatus('green', `Scan complete — ${scans} total scans`);
   showToast(`+${earned} pts earned! Detected: ${top.className}`, 'ok');
 }
 
@@ -728,9 +820,9 @@ function resetScan() {
   if (currentMode === 'upload') {
     clearPreview();
   } else {
-    // Allow capturing again
     document.getElementById('captureBtn').disabled = false;
-    setStatus('green', 'Camera live — point at waste and tap capture');
+    document.getElementById('infoCamView').style.display = 'block';
+    setStatus('green', 'AI ready — point at waste to scan');
   }
 }
 
@@ -742,10 +834,10 @@ function setStatus(color, text) {
 }
 
 function showToast(msg, type = 'ok') {
-  const icons = { ok: '✅', warn: '⚠️', err: '❌', info: 'ℹ️' };
+  const icons = { ok: '✓', warn: '⚠', err: '✕', info: 'ℹ' };
   const el = document.createElement('div');
   el.className = 'toast-item';
-  el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+  el.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${msg}</span>`;
   document.getElementById('toastWrap').appendChild(el);
   setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 350); }, 3000);
 }
@@ -753,12 +845,10 @@ function showToast(msg, type = 'ok') {
 /* ===================== INIT ===================== */
 window.addEventListener('load', () => {
   setStatus('amber', 'Loading AI model...');
-  // Mode buttons check
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('mode') === 'upload') setMode('upload');
 });
 
-// Cleanup on leave
 window.addEventListener('beforeunload', stopCamera);
 window.addEventListener('pagehide', stopCamera);
 </script>
