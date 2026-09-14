@@ -142,7 +142,7 @@
 
         .app-header {
 
-            height: 64px;
+            height: 72px;
 
             flex-shrink: 0;
 
@@ -170,41 +170,37 @@
 
             display: flex;
 
-            align-items: center;
+            flex-direction: column;
 
-            gap: 8px;
-
-        }
-
-        .app-logo-mark {
-
-            width: 30px;
-
-            height: 30px;
-
-            border-radius: 9px;
-
-            background: var(--green-light);
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            font-size: 15px;
+            gap: 1px;
 
         }
 
         .app-logo-text {
 
-            font-size: 18px;
+            font-size: 20px;
 
-            font-weight: 700;
+            font-weight: 800;
+
+            color: var(--text);
+
+            letter-spacing: -.3px;
+
+        }
+
+        .app-logo-text .accent {
 
             color: var(--green);
 
-            letter-spacing: -.3px;
+        }
+
+        .app-logo-sub {
+
+            font-size: 11px;
+
+            color: var(--muted);
+
+            font-weight: 500;
 
         }
 
@@ -214,7 +210,7 @@
 
             align-items: center;
 
-            gap: 8px;
+            gap: 10px;
 
         }
 
@@ -226,7 +222,7 @@
 
             gap: 6px;
 
-            padding: 6px 10px;
+            padding: 7px 12px;
 
             background: var(--green-light);
 
@@ -276,17 +272,67 @@
 
             justify-content: center;
 
-            font-size: 14px;
+            font-size: 15px;
 
             cursor: pointer;
+
+            position: relative;
 
         }
 
         .icon-btn:hover {
 
-            border-color: var(--red);
+            border-color: var(--green-mid);
 
-            color: var(--red);
+            color: var(--green);
+
+        }
+
+        .icon-btn .ping {
+
+            position: absolute;
+
+            top: 6px;
+
+            right: 6px;
+
+            width: 7px;
+
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--red);
+
+            border: 1.5px solid white;
+
+        }
+
+        .avatar-btn {
+
+            width: 34px;
+
+            height: 34px;
+
+            border-radius: 50%;
+
+            background: var(--green-deep);
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            border: none;
 
         }
 
@@ -298,7 +344,7 @@
 
             flex: 1;
 
-            padding: 20px 18px 100px;
+            padding: 18px 18px 100px;
 
         }
 
@@ -308,7 +354,29 @@
 
         .greeting-block {
 
-            margin-bottom: 20px;
+            background: var(--green-light);
+
+            border-radius: var(--radius);
+
+            padding: 18px;
+
+            margin-bottom: 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            overflow: hidden;
+
+        }
+
+        .greeting-left {
+
+            min-width: 0;
 
         }
 
@@ -330,11 +398,11 @@
 
         .greeting-title {
 
-            font-size: 25px;
+            font-size: 24px;
 
-            line-height: 1.25;
+            line-height: 1.2;
 
-            font-weight: 700;
+            font-weight: 800;
 
         }
 
@@ -344,21 +412,9 @@
 
         }
 
-        .greeting-row {
-
-            margin-top: 8px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 10px;
-
-        }
-
         .greeting-email {
+
+            margin-top: 4px;
 
             font-size: 12px;
 
@@ -372,21 +428,83 @@
 
         }
 
-        .clock-chip {
+        .greeting-meta {
+
+            margin-top: 10px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
 
             font-family: "DM Mono", monospace;
 
-            font-size: 12px;
+            font-size: 11px;
 
-            color: var(--muted);
+            color: var(--green-deep);
 
-            background: var(--bg);
+        }
 
-            border-radius: 9px;
+        .greeting-meta .sep {
 
-            padding: 6px 10px;
+            width: 1px;
+
+            height: 12px;
+
+            background: #bfe0cc;
+
+        }
+
+        .greeting-right {
 
             flex-shrink: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 4px;
+
+            text-align: center;
+
+            width: 92px;
+
+        }
+
+        .greeting-right .truck-emoji {
+
+            font-size: 34px;
+
+            line-height: 1;
+
+        }
+
+        .greeting-right .tagline {
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            color: var(--green-deep);
+
+            line-height: 1.3;
+
+        }
+
+        .greeting-right .underline {
+
+            width: 26px;
+
+            height: 2px;
+
+            background: var(--green);
+
+            border-radius: 2px;
+
+            margin-top: 2px;
 
         }
 
@@ -422,9 +540,9 @@
 
         .stat-icon {
 
-            width: 32px;
+            width: 40px;
 
-            height: 32px;
+            height: 40px;
 
             display: flex;
 
@@ -432,19 +550,19 @@
 
             justify-content: center;
 
-            border-radius: 9px;
+            border-radius: 50%;
 
-            font-size: 15px;
+            font-size: 17px;
 
-            margin-bottom: 10px;
+            margin-bottom: 12px;
 
         }
 
         .stat-value {
 
-            font-size: 24px;
+            font-size: 26px;
 
-            font-weight: 700;
+            font-weight: 800;
 
             line-height: 1;
 
@@ -462,13 +580,25 @@
 
         .stat-hint {
 
-            margin-top: 3px;
+            margin-top: 9px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 3px;
 
             font-size: 10px;
 
             color: var(--green);
 
-            font-weight: 600;
+            font-weight: 700;
+
+            background: var(--green-light);
+
+            padding: 4px 8px;
+
+            border-radius: 20px;
 
         }
 
@@ -528,7 +658,7 @@
 
         .feature-title {
 
-            font-size: 13px;
+            font-size: 14px;
 
             font-weight: 700;
 
@@ -552,15 +682,15 @@
 
             background: white;
 
-            border-radius: 9px;
+            border-radius: 12px;
 
-            padding: 8px 10px;
+            padding: 10px 14px;
 
             font-family: inherit;
 
-            font-size: 12px;
+            font-size: 14px;
 
-            font-weight: 600;
+            font-weight: 700;
 
             color: var(--text);
 
@@ -590,13 +720,15 @@
 
             border-radius: var(--radius);
 
-            padding: 13px 14px;
+            padding: 14px;
 
             display: none;
 
-            align-items: center;
+            align-items: flex-start;
 
-            gap: 11px;
+            gap: 12px;
+
+            cursor: pointer;
 
         }
 
@@ -608,7 +740,23 @@
 
         .notification-icon {
 
-            font-size: 18px;
+            width: 38px;
+
+            height: 38px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 17px;
+
+            flex-shrink: 0;
+
+            background: var(--blue-light);
 
         }
 
@@ -620,39 +768,59 @@
 
         }
 
+        .notification-top-row {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 8px;
+
+        }
+
         .notification-title {
 
-            font-size: 11px;
+            font-size: 12px;
 
             font-weight: 700;
 
         }
 
-        .notification-message {
+        .notification-time {
 
-            font-size: 11px;
+            font-size: 10px;
 
-            color: var(--muted);
+            color: var(--muted2);
 
-            margin-top: 3px;
+            flex-shrink: 0;
 
-            line-height: 1.4;
+            white-space: nowrap;
 
         }
 
-        .notification-close {
+        .notification-message {
 
-            border: none;
-
-            background: transparent;
-
-            cursor: pointer;
-
-            font-size: 16px;
+            font-size: 12px;
 
             color: var(--muted);
 
+            margin-top: 4px;
+
+            line-height: 1.45;
+
+        }
+
+        .notification-chevron {
+
+            font-size: 16px;
+
+            color: var(--muted2);
+
             flex-shrink: 0;
+
+            align-self: center;
 
         }
 
@@ -769,6 +937,42 @@
             color: var(--green);
 
             border-color: var(--green-mid);
+
+        }
+
+        .view-route-btn {
+
+            border: none;
+
+            background: var(--green-light);
+
+            color: var(--green);
+
+            border-radius: 20px;
+
+            padding: 7px 12px;
+
+            font-family: inherit;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            flex-shrink: 0;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+        }
+
+        .view-route-btn:hover {
+
+            background: #d5ecdf;
 
         }
 
@@ -1236,6 +1440,20 @@
 
         }
 
+        .progress-block-head {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 8px;
+
+            margin-bottom: 12px;
+
+        }
+
         .progress-block-title {
 
             font-size: 11px;
@@ -1244,7 +1462,13 @@
 
             color: var(--muted);
 
-            margin-bottom: 4px;
+        }
+
+        .progress-block-count {
+
+            font-size: 11px;
+
+            color: var(--muted);
 
         }
 
@@ -1255,6 +1479,18 @@
             color: var(--muted);
 
             line-height: 1.6;
+
+            background: var(--bg);
+
+            border-radius: 10px;
+
+            padding: 10px 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
 
         }
 
@@ -1298,7 +1534,7 @@
 
             align-items: center;
 
-            gap: 3px;
+            gap: 4px;
 
             padding: 7px 4px;
 
@@ -1316,9 +1552,17 @@
 
         }
 
-        .nav-item span.nav-icon {
+        .nav-item svg {
 
-            font-size: 17px;
+            width: 20px;
+
+            height: 20px;
+
+            stroke: currentColor;
+
+            fill: none;
+
+            stroke-width: 1.8;
 
         }
 
@@ -1467,9 +1711,9 @@
 
         <div class="app-header-left">
 
-            <span class="app-logo-mark">🌿</span>
+            <span class="app-logo-text">Eco<span class="accent">Route</span></span>
 
-            <span class="app-logo-text">EcoRoute</span>
+            <span class="app-logo-sub">Cleaner Today, Better Tomorrow</span>
 
         </div>
 
@@ -1484,11 +1728,23 @@
             </div>
 
             <button class="icon-btn"
+                    id="bellBtn"
+                    onclick="document.getElementById('notificationBox').scrollIntoView({behavior:'smooth'})"
+                    title="Notifications"
+                    aria-label="Notifications">
+
+                🔔
+                <span class="ping" id="bellPing" style="display:none;"></span>
+
+            </button>
+
+            <button class="avatar-btn"
                     onclick="logoutDriver()"
                     title="Logout"
-                    aria-label="Logout">
+                    aria-label="Logout"
+                    id="avatarBtn">
 
-                ⎋
+                A
 
             </button>
 
@@ -1506,25 +1762,40 @@
 
         <section class="greeting-block">
 
-            <div class="eyebrow">
-                DRIVER CONSOLE
+            <div class="greeting-left">
+
+                <div class="eyebrow">
+                    DRIVER CONSOLE
+                </div>
+
+                <h1 class="greeting-title">
+                    Hey, <span id="driverName">Driver</span> <span class="wave">👋</span>
+                </h1>
+
+                <div class="greeting-email"
+                     id="driverEmail">
+                    Loading...
+                </div>
+
+                <div class="greeting-meta">
+
+                    <span id="clock">--:--:--</span>
+
+                    <span class="sep"></span>
+
+                    <span id="dateChip">--</span>
+
+                </div>
+
             </div>
 
-            <h1 class="greeting-title">
-                Hey, <span id="driverName">Driver</span> <span class="wave">👋</span>
-            </h1>
+            <div class="greeting-right">
 
-            <div class="greeting-row">
+                <span class="truck-emoji">🚛</span>
 
-                <span class="greeting-email"
-                      id="driverEmail">
-                    Loading...
-                </span>
+                <span class="tagline">Keep the<br>City Clean</span>
 
-                <span class="clock-chip"
-                      id="clock">
-                    --:--:--
-                </span>
+                <span class="underline"></span>
 
             </div>
 
@@ -1553,6 +1824,10 @@
                     Pending
                 </div>
 
+                <div class="stat-hint">
+                    ↗ New requests
+                </div>
+
             </div>
 
 
@@ -1570,6 +1845,10 @@
 
                 <div class="stat-label">
                     Active
+                </div>
+
+                <div class="stat-hint">
+                    ↗ On route
                 </div>
 
             </div>
@@ -1591,6 +1870,10 @@
                     Completed
                 </div>
 
+                <div class="stat-hint">
+                    ↗ Good job!
+                </div>
+
             </div>
 
 
@@ -1603,12 +1886,16 @@
 
                 <div class="stat-value"
                      id="truckStat"
-                     style="font-size:18px;">
+                     style="font-size:19px;">
                     TRK-001
                 </div>
 
                 <div class="stat-label">
-                    Your truck
+                    Your Truck
+                </div>
+
+                <div class="stat-hint">
+                    ↗ Active vehicle
                 </div>
 
             </div>
@@ -1630,11 +1917,11 @@
             <div class="feature-body">
 
                 <div class="feature-title">
-                    Active truck
+                    Active Truck
                 </div>
 
                 <div class="feature-sub">
-                    Switch if you're driving a different vehicle today
+                    Switch if you're driving a different vehicle today.
                 </div>
 
             </div>
@@ -1680,9 +1967,18 @@
 
                 <div class="notification-content">
 
-                    <div class="notification-title"
-                         id="notificationTitle">
-                        Admin Notification
+                    <div class="notification-top-row">
+
+                        <div class="notification-title"
+                             id="notificationTitle">
+                            Admin Notification
+                        </div>
+
+                        <div class="notification-time"
+                             id="notificationTime">
+                            just now
+                        </div>
+
                     </div>
 
                     <div class="notification-message"
@@ -1692,10 +1988,7 @@
 
                 </div>
 
-                <button class="notification-close"
-                        onclick="closeNotification()">
-                    ×
-                </button>
+                <span class="notification-chevron">›</span>
 
             </div>
 
@@ -1791,6 +2084,13 @@
 
                 </div>
 
+                <button class="view-route-btn"
+                        onclick="document.getElementById('activeRouteStops').scrollIntoView({behavior:'smooth'})">
+
+                    View Route ›
+
+                </button>
+
             </div>
 
 
@@ -1819,8 +2119,17 @@
 
                 <div class="progress-block">
 
-                    <div class="progress-block-title">
-                        Collection progress
+                    <div class="progress-block-head">
+
+                        <div class="progress-block-title">
+                            Collection Progress
+                        </div>
+
+                        <div class="progress-block-count"
+                             id="progressCount">
+                            0 of 0 completed
+                        </div>
+
                     </div>
 
                     <div class="timeline">
@@ -1877,7 +2186,7 @@
                     <div id="routeMessage"
                          class="route-message">
 
-                        No active pickup.
+                        <span>ℹ️</span> No active pickup.
 
                     </div>
 
@@ -1900,7 +2209,7 @@
         <button class="nav-item active"
                 onclick="document.getElementById('requestsSection').scrollIntoView({behavior:'smooth'})">
 
-            <span class="nav-icon">📦</span>
+            <svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
 
             Requests
 
@@ -1909,7 +2218,7 @@
         <button class="nav-item"
                 onclick="document.getElementById('routeSection').scrollIntoView({behavior:'smooth'})">
 
-            <span class="nav-icon">🗺️</span>
+            <svg viewBox="0 0 24 24"><path d="M9 20l-6-2V4l6 2 6-2 6 2v14l-6-2-6 2z"/><path d="M9 6v14"/><path d="M15 4v14"/></svg>
 
             Route
 
@@ -1918,7 +2227,7 @@
         <button class="nav-item"
                 onclick="document.getElementById('truckCard').scrollIntoView({behavior:'smooth'})">
 
-            <span class="nav-icon">🚛</span>
+            <svg viewBox="0 0 24 24"><rect x="1" y="7" width="13" height="10" rx="1"/><path d="M14 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="1.8"/><circle cx="17.5" cy="19" r="1.8"/></svg>
 
             Truck
 
@@ -1927,7 +2236,7 @@
         <button class="nav-item"
                 onclick="logoutDriver()">
 
-            <span class="nav-icon">⎋</span>
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
 
             Logout
 
@@ -1981,6 +2290,7 @@ let currentActiveRequest = null;
 let notificationCache = {};
 
 let currentNotificationId = null;
+let currentNotificationTs = null;
 
 
 /* ============================================================
@@ -2004,6 +2314,8 @@ document.addEventListener("DOMContentLoaded", function () {
     pollNotifications();
 
     setInterval(pollNotifications, 5000);
+
+    setInterval(refreshNotificationTime, 30000);
 
 });
 
@@ -2055,6 +2367,22 @@ function loadDriverSession() {
     document.getElementById("driverEmail").textContent =
         driverUser.email ||
         "Driver account";
+
+
+    const initial =
+        (driverUser.displayName || driverUser.email || "A")
+            .trim()
+            .charAt(0)
+            .toUpperCase() || "A";
+
+    const avatarBtn =
+        document.getElementById("avatarBtn");
+
+    if (avatarBtn) {
+
+        avatarBtn.textContent = initial;
+
+    }
 
 
 }
@@ -2119,6 +2447,30 @@ function updateClock() {
 
     document.getElementById("clock").textContent =
         time;
+
+
+    const days =
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const months =
+        ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const dateStr =
+        days[now.getDay()] + ", " +
+        now.getDate() + " " +
+        months[now.getMonth()] + " " +
+        now.getFullYear();
+
+    const dateChip =
+        document.getElementById("dateChip");
+
+    if (dateChip) {
+
+        dateChip.textContent = dateStr;
+
+    }
+
 
 }
 
@@ -3173,6 +3525,17 @@ function updateStats() {
     ).textContent =
         MY_TRUCK_ID;
 
+
+    const bellPing =
+        document.getElementById("bellPing");
+
+    if (bellPing) {
+
+        bellPing.style.display =
+            pending > 0 ? "block" : "none";
+
+    }
+
 }
 
 
@@ -3215,6 +3578,33 @@ function updateActiveRoute() {
         });
 
 
+    const completedByMe =
+        Object.entries(
+            allPickupRequests || {}
+        )
+        .filter(
+            ([id, r]) =>
+                r.status === "completed" &&
+                r.assignedDriver === MY_TRUCK_ID
+        ).length;
+
+
+    const totalForMe =
+        completedByMe +
+        activeRequests.length;
+
+
+    const progressCount =
+        document.getElementById("progressCount");
+
+    if (progressCount) {
+
+        progressCount.textContent =
+            `${completedByMe} of ${totalForMe} completed`;
+
+    }
+
+
     if (!activeRequests.length) {
 
         container.innerHTML = `
@@ -3242,8 +3632,8 @@ function updateActiveRoute() {
 
         document.getElementById(
             "routeMessage"
-        ).textContent =
-            "No active pickup.";
+        ).innerHTML =
+            "<span>ℹ️</span> No active pickup.";
 
         return;
 
@@ -3304,8 +3694,8 @@ function updateActiveRoute() {
 
     document.getElementById(
         "routeMessage"
-    ).textContent =
-        `Truck ${MY_TRUCK_ID} currently has ${activeRequests.length} active pickup${activeRequests.length > 1 ? "s" : ""}.`;
+    ).innerHTML =
+        `<span>ℹ️</span> Truck ${MY_TRUCK_ID} currently has ${activeRequests.length} active pickup${activeRequests.length > 1 ? "s" : ""}.`;
 
 }
 
@@ -3439,32 +3829,6 @@ async function pollNotifications() {
             matching[0];
 
 
-        /*
-         * Don't repeatedly show same notification
-         */
-
-        const alreadyShown =
-            sessionStorage.getItem(
-                "eco_last_driver_notification"
-            );
-
-
-        if (
-            alreadyShown ===
-            latest.id
-        ) {
-
-            return;
-
-        }
-
-
-        sessionStorage.setItem(
-            "eco_last_driver_notification",
-            latest.id
-        );
-
-
         showNotification(
             latest
         );
@@ -3490,6 +3854,9 @@ function showNotification(n) {
 
     currentNotificationId =
         n.id;
+
+    currentNotificationTs =
+        n.ts || Date.now();
 
 
     const box =
@@ -3521,6 +3888,9 @@ function showNotification(n) {
         icon.textContent =
             "🚨";
 
+        icon.style.background =
+            "var(--red-light)";
+
         box.style.borderLeftColor =
             "#dc2626";
 
@@ -3531,6 +3901,9 @@ function showNotification(n) {
         icon.textContent =
             "⚠️";
 
+        icon.style.background =
+            "var(--amber-light)";
+
         box.style.borderLeftColor =
             "#d97706";
 
@@ -3540,6 +3913,9 @@ function showNotification(n) {
 
         icon.textContent =
             "ℹ️";
+
+        icon.style.background =
+            "var(--blue-light)";
 
         box.style.borderLeftColor =
             "#0284c7";
@@ -3557,9 +3933,56 @@ function showNotification(n) {
         n.msg || "New notification";
 
 
+    refreshNotificationTime();
+
+
     box.classList.add(
         "show"
     );
+
+}
+
+
+/* ============================================================
+   REFRESH NOTIFICATION TIMESTAMP LABEL
+============================================================ */
+
+function refreshNotificationTime() {
+
+    if (!currentNotificationTs) {
+
+        return;
+
+    }
+
+    const el =
+        document.getElementById("notificationTime");
+
+    if (!el) {
+
+        return;
+
+    }
+
+    const diffMs =
+        Date.now() - currentNotificationTs;
+
+    const diffMin =
+        Math.floor(diffMs / 60000);
+
+    let label = "just now";
+
+    if (diffMin >= 60) {
+
+        label = Math.floor(diffMin / 60) + " hr ago";
+
+    } else if (diffMin >= 1) {
+
+        label = diffMin + " min ago";
+
+    }
+
+    el.textContent = label;
 
 }
 
